@@ -1,0 +1,14 @@
+**/.dart_tool
+.idea
+*.iml
+pubspec_overrides.yaml
+.flutter-plugins
+.flutter-plugins-dependencies
+/.cursorrules
+pubspec.lock
+
+# FVM Version Cache
+.fvm/
+
+# Build artifacts
+build/
