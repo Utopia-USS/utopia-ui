@@ -14,8 +14,8 @@ import 'overlay.dart';
 import 'source_model.dart';
 
 /// The protocol/schema version this generator targets (protocol
-/// SPEC.md / VERSIONING.md 0.1.0).
-const String manifestSchemaVersion = '0.1.0';
+/// SPEC.md / VERSIONING.md).
+const String manifestSchemaVersion = '0.2.0';
 
 /// Reads the `version:` field from a `pubspec.yaml` file. Returns `null` if
 /// the file does not exist or has no top-level `version:` line.

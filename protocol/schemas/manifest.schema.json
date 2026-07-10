@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://raw.githubusercontent.com/Utopia-USS/utopia-ui/main/protocol/schemas/manifest.schema.json",
   "title": "Utopia Design Protocol - component manifest",
-  "description": "Machine-readable API registry of a utopia_ui release: components (concrete widgets exported from the barrel), models (data classes used in props) and helpers (functions, hooks, typedefs). Modeled on custom-elements-manifest, adapted to Flutter. Protocol version 0.1.0; see protocol/VERSIONING.md.",
+  "description": "Machine-readable API registry of a utopia_ui release, a consumer project's custom components (project manifest), or the merged view of both. Components are concrete widgets (library: exported from the barrel; project: opt-in via overlay), plus models (data classes used in props) and helpers (functions, hooks, typedefs). Modeled on custom-elements-manifest, adapted to Flutter. Protocol version 0.2.0; see protocol/VERSIONING.md and SPEC.md 3.8.",
   "type": "object",
   "properties": {
     "$schema": { "type": "string" },
@@ -12,12 +12,21 @@
       "description": "Version of the manifest schema (the protocol version) this document conforms to."
     },
     "package": {
-      "const": "utopia_ui",
-      "description": "The Dart package this manifest describes."
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9_]*$",
+      "description": "The Dart package this manifest describes: \"utopia_ui\" for the shipped library manifest, the project's package name for project and merged manifests (SPEC 3.8)."
     },
     "packageVersion": {
       "type": "string",
-      "description": "Version of the described package, stamped from pubspec.yaml at generation time. MUST match the consumer's resolved package version (drift gate)."
+      "description": "Version of the described package, stamped from pubspec.yaml at generation time. For the library manifest it MUST match the consumer's resolved utopia_ui version (drift gate)."
+    },
+    "utopiaUiVersion": {
+      "type": "string",
+      "description": "The resolved utopia_ui version this document was generated against. REQUIRED on project and merged manifests (SPEC 3.8 freshness gate); absent on the library manifest itself."
+    },
+    "merged": {
+      "type": "boolean",
+      "description": "True on the derived merged view (library + project components in one file). Merged manifests are regenerated, never edited, never a source of truth (SPEC 3.8)."
     },
     "generatedAt": {
       "type": "string",
@@ -41,7 +50,8 @@
   "definitions": {
     "kebabId": {
       "type": "string",
-      "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$"
+      "pattern": "^([a-z][a-z0-9_]*:)?[a-z][a-z0-9]*(-[a-z0-9]+)*$",
+      "description": "Component id: bare kebab-case for utopia_ui library components; '<packageName>:<kebab-name>' for project components (SPEC 3.3)."
     },
     "dartName": {
       "type": "string",

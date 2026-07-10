@@ -1,6 +1,6 @@
 # Utopia Design Protocol - Specification
 
-Version: 0.1.0 (see [VERSIONING.md](VERSIONING.md))
+Version: 0.2.0 (see [VERSIONING.md](VERSIONING.md))
 Status: v0 draft, implemented by `tool/utopia_design_tools`
 
 The Utopia Design Protocol is an open, bidirectional design-system contract for Flutter apps
@@ -304,13 +304,24 @@ Two auxiliary sections keep the excluded-but-needed API queryable:
 - `helpers` - exported free functions, hooks and typedefs (e.g. `utopiaCardSliver`,
   `useUtopiaTableState`, `utopiaDatePickerMaterialTheme`), with signatures and descriptions.
 
-### 3.3 Component id derivation
+### 3.3 Component id derivation and namespaces
 
 `id` = the class name minus the `Utopia` prefix, converted to kebab-case:
 `UtopiaButton` -> `button`, `UtopiaRemoveIconButton` -> `remove-icon-button`,
 `UtopiaChipList` -> `chip-list`, `UtopiaThreeBounce` -> `three-bounce`.
 Ids MUST be unique and are the stable cross-surface key: the twin marks component roots with
 `data-utopia-id="<id>"`, skills reference components by id.
+
+Namespace rule (since 0.2.0):
+
+- **Bare ids** (`button`) are reserved for `utopia_ui` library components, forever.
+- **Project component ids** (3.8) MUST be namespaced as
+  `<projectPackageName>:<kebab-name>` (e.g. `stock_app:market-tile`). The local part is
+  derived from the class name by the same kebab-case rule (no prefix stripping unless the
+  class carries the project's own prefix - the overlay MAY override the local part).
+- Multi-layer namespaces (an intermediate company library such as `acme_ui:kpi-card`) are a
+  forward-compatibility rule only: valid per the id grammar, but MVP tooling implements a
+  single project layer.
 
 ### 3.4 Component entry shape (summary; the schema is normative)
 
@@ -402,6 +413,49 @@ Drift is an assumed condition, and generation is where it gets caught:
   `packageVersion` differs from the resolved `utopia_ui` version it is validated against.
 - `validate_manifest` re-checks schema validity, id uniqueness/derivation, `tokenBindings`
   against source, and twin binding targets (when a twin is present).
+
+### 3.8 The project manifest (custom components)
+
+Every real project has custom components that compose library primitives and read the theme
+while also taking project-specific values. The protocol's production value in agentic
+development is the **stable id mapping** between design artifacts and code across
+iterations - so project components carry manifest ids too, under the namespace rule of 3.3.
+
+Two sources of truth, one derived view:
+
+| Artifact | Location (consumer project) | Truth status |
+|---|---|---|
+| Library manifest | pub cache (`manifest/utopia.manifest.json`) | source of truth (shipped, 3.7) |
+| Project manifest | `design/project.manifest.json` | source of truth (generated from project source + overlays) |
+| Merged manifest | `design/merged.manifest.json` | DERIVED - regenerate, never edit, never treat as source |
+
+- The project manifest contains ONLY custom components, curated **opt-in**: a component
+  exists in it exactly when the project has an overlay YAML for it
+  (`design/overlay/<local-part>.yaml`, same schema and drift gates as 3.7). A project never
+  auto-exports every private widget.
+- `generate_manifest --project` (see section 5) runs the same analyzer + overlay extraction
+  over the consumer project and emits BOTH files. Generated artifacts are never hand-edited.
+- Manifest documents carry flavor markers (schema 0.2.0): `package` is the described Dart
+  package (the project's name in project/merged manifests, `utopia_ui` in the library one);
+  `utopiaUiVersion` records the resolved `utopia_ui` version the document was generated
+  against (REQUIRED on project and merged manifests); `merged: true` marks the merged view.
+- Freshness gates on the merged view (`validate_manifest`): recorded `utopiaUiVersion` MUST
+  equal the resolved pubspec version; the embedded library entries MUST equal the shipped
+  library manifest; regeneration MUST be byte-identical (same determinism principle as the
+  twin's tokens.css freshness gate). A stale merged view is an error, not a warning -
+  embedding a copy of the library manifest is exactly the silent upgrade drift the
+  `packageVersion` gate exists to prevent.
+- Referential integrity across the merge: custom components' `composes` and prop `modelName`
+  references MAY point at library ids/models; `validate_manifest` enforces resolution on the
+  merged view.
+- The theme stays CLOSED (2.2): theming customizes what `utopia_ui` offers. Project-specific
+  visual values (e.g. gain/loss colors on a stock tile) live in project code as constants -
+  a legal, documented pattern, not a smell. The reserved `custom` token group stays reserved
+  and UNUSED; there is no custom-token codegen in MVP.
+- The production loop this enables: a screen-building gap report names a missing component
+  -> the component is scaffolded in the project (theme via context) -> an overlay YAML
+  registers it -> project + merged manifests regenerate -> the design tool re-imports the
+  merged manifest -> the id is live in every later development cycle.
 
 ---
 
@@ -517,7 +571,7 @@ here:
 |---|---|
 | `export_tokens` | export a `UtopiaThemeData` (default: `defaultTheme`) to a token document |
 | `validate_tokens` | validation gates 2.7 |
-| `generate_manifest` | analyzer + overlay -> manifest (3.7) |
+| `generate_manifest` | analyzer + overlay -> manifest (3.7); `--project` mode emits the project + merged manifests (3.8) |
 | `validate_manifest` | manifest gates (3.7) |
 | `generate_theme` | token document -> Dart theme code (a `UtopiaThemeData` factory) |
 | `generate_twin` | token document -> `twin/tokens.css`, `twin/tokens.tailwind.css`, DESIGN.md front matter |
@@ -586,8 +640,9 @@ pub cache (`.dart_tool/package_config.json` resolves the path). The intended con
    by `validate_tokens`.
 3. `generate_theme` regenerates the app's theme; `generate_twin` regenerates the design
    surface used by design tools and agents.
-4. Screens are built against manifest components only; anything a design needs that the
-   manifest lacks is reported as a gap, never hand-rolled as a lookalike.
+4. Screens are built against manifest components only (the merged manifest once the project
+   registers custom components per 3.8); anything a design needs that no manifest id covers
+   is reported as a gap, never hand-rolled as a lookalike.
 
 Every consumer-facing tool and skill MUST verify the project actually resolves `utopia_ui`
 (pubspec + lockfile) before acting, and stop with installation guidance otherwise.

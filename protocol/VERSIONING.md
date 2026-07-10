@@ -7,7 +7,15 @@ specification ([SPEC.md](SPEC.md)) and both JSON Schemas
 (`schemas/tokens.schema.json`, `schemas/manifest.schema.json`) always change together under
 one version number.
 
-Current version: **0.1.0**.
+Current version: **0.2.0**.
+
+History:
+
+- **0.2.0** (2026-07-10) - additive: project manifests and the merged view (SPEC 3.8), the
+  id namespace rule (SPEC 3.3), manifest schema fields `utopiaUiVersion` + `merged`,
+  `package` widened from the `utopia_ui` constant to any Dart package name, component id
+  grammar widened to allow a `<package>:` namespace prefix. Token profile unchanged.
+- **0.1.0** (2026-07-10) - initial: token profile, component manifest, twin contract.
 
 Semantics:
 

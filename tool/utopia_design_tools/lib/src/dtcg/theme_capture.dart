@@ -29,7 +29,7 @@ class ThemeCapture {
   const ThemeCapture._();
 
   /// The protocol version stamped at the document root.
-  static const String profileVersion = '0.1.0';
+  static const String profileVersion = '0.2.0';
 
   /// Captures [theme] into an ordered token-document map. Throws
   /// [UnsupportedThemeFeature] when the theme uses a shape the protocol does

@@ -52,7 +52,7 @@ String emitDart(ThemeSpec spec, {required String inputPath}) {
   buffer.writeln("import 'package:flutter/widgets.dart';");
   buffer.writeln("import 'package:utopia_ui/utopia_ui.dart';");
   buffer.writeln();
-  buffer.writeln('/// App theme built from the token document (protocol 0.1.0).');
+  buffer.writeln('/// App theme built from the token document (protocol 0.2.0).');
   buffer.writeln('UtopiaThemeData buildUtopiaTheme() {');
   buffer.writeln(_emitTokens(spec));
   buffer.writeln();

@@ -45,7 +45,7 @@ void main() {
     const invalidFixtures = <String, String>{
       'invalid/missing-color-primary.tokens.json': "missing required token 'color.primary'",
       'invalid/rem-unit.tokens.json': 'dimension unit must be "px"',
-      'invalid/unknown-top-group.tokens.json': 'the utopia token tree is closed in protocol 0.1',
+      'invalid/unknown-top-group.tokens.json': 'the utopia token tree is closed',
       'invalid/derivation-mismatch.tokens.json': 'derivation x*3 expects 12',
       'invalid/derivation-on-radius-full.tokens.json': 'must not carry a derivation extension',
       'invalid/circular-alias.tokens.json': 'circular alias',

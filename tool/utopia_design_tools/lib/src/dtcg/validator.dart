@@ -6,7 +6,7 @@ export 'package:json_schema/json_schema.dart' show JsonSchema;
 
 /// The protocol version this validator implements (protocol/VERSIONING.md).
 /// Used for the profileVersion compatibility check (gate 6).
-const String protocolVersion = '0.1.0';
+const String protocolVersion = '0.2.0';
 
 /// Runs every validation gate from protocol SPEC section 2.7 against a
 /// parsed token document, in order, reporting every finding (no fail-fast).
@@ -114,7 +114,7 @@ class TokenValidator {
     final rawMessage = error.message;
 
     // additionalProperties: "unknown token 'X': the utopia token tree is
-    // closed in protocol 0.1; custom tokens are not supported yet."
+    // closed; custom tokens are not supported yet."
     final additionalPropMatch = RegExp(r'unallowed additional property (\S+)').firstMatch(rawMessage);
     if (additionalPropMatch != null) {
       final propName = additionalPropMatch.group(1)!;
@@ -122,7 +122,7 @@ class TokenValidator {
       return (
         path: fullPath,
         message:
-            "unknown token '$fullPath': the utopia token tree is closed in protocol 0.1; custom tokens are not supported yet",
+            "unknown token '$fullPath': the utopia token tree is closed; custom tokens are not supported yet (the reserved custom group is not implemented)",
       );
     }
 

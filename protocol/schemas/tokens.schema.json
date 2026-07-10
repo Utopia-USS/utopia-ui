@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://raw.githubusercontent.com/Utopia-USS/utopia-ui/main/protocol/schemas/tokens.schema.json",
   "title": "Utopia Design Protocol - token document (DTCG 2025.10 profile)",
-  "description": "Strict schema for the utopia token tree: a single-context DTCG 2025.10 (Format + Color modules) document carrying the full UtopiaThemeData surface. Protocol version 0.1.0; see protocol/VERSIONING.md.",
+  "description": "Strict schema for the utopia token tree: a single-context DTCG 2025.10 (Format + Color modules) document carrying the full UtopiaThemeData surface. Protocol version 0.2.0 (no structural change since 0.1.0); see protocol/VERSIONING.md.",
   "type": "object",
   "properties": {
     "$schema": { "type": "string" },
