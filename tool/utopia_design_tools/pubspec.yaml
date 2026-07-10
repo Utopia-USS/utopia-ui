@@ -1,0 +1,33 @@
+name: utopia_design_tools
+version: 0.1.0
+description: >-
+  Design-protocol tooling for utopia_ui: token export/validation, manifest
+  generation, theme and twin codegen.
+repository: https://github.com/Utopia-USS/utopia-ui/tree/main/tool/utopia_design_tools
+
+environment:
+  sdk: ^3.11.0
+
+executables:
+  export_tokens: export_tokens
+  validate_tokens: validate_tokens
+
+dependencies:
+  flutter:
+    sdk: flutter
+  utopia_ui: ^0.1.0
+  args: ^2.7.0
+  path: ^1.9.1
+  json_schema: ^5.2.2
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter
+  utopia_lints: ^0.0.3+1
+
+# Dev-time override so this nested package builds against the working
+# checkout while the pubspec stays publishable with a normal hosted
+# constraint on utopia_ui.
+dependency_overrides:
+  utopia_ui:
+    path: ../..
