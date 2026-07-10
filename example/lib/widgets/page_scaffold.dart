@@ -28,30 +28,38 @@ class PageScaffold extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final hasRail = MediaQuery.sizeOf(context).width >= context.tokens.breakpoints.sidebarMin;
+    if (!hasRail) {
+      return NestedScrollView(
+        headerSliverBuilder: (context, _) => [SliverToBoxAdapter(child: _buildBand(context))],
+        body: child,
+      );
+    }
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
-        LayoutBuilder(
-          builder: (context, constraints) {
-            final gutter = PageBody.gutterFor(constraints.maxWidth, maxWidth);
-            // The divider sits inside the same gutters as the header and the
-            // content below, so its edges line up with theirs instead of
-            // running full-bleed across the window.
-            return Padding(
-              padding: EdgeInsets.fromLTRB(gutter, 28, gutter, 0),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.stretch,
-                children: [
-                  _buildHeader(context),
-                  const SizedBox(height: 20),
-                  const UtopiaDivider(),
-                ],
-              ),
-            );
-          },
-        ),
+        _buildBand(context),
         Expanded(child: child),
       ],
+    );
+  }
+
+  Widget _buildBand(BuildContext context) {
+    return LayoutBuilder(
+      builder: (context, constraints) {
+        final gutter = PageBody.gutterFor(constraints.maxWidth, maxWidth);
+        return Padding(
+          padding: EdgeInsets.fromLTRB(gutter, 28, gutter, 0),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.stretch,
+            children: [
+              _buildHeader(context),
+              const SizedBox(height: 20),
+              const UtopiaDivider(),
+            ],
+          ),
+        );
+      },
     );
   }
 
@@ -98,20 +106,12 @@ class PageBody extends StatelessWidget {
       builder: (context, constraints) {
         final gutter = gutterFor(constraints.maxWidth, maxWidth);
         final padding = EdgeInsets.symmetric(horizontal: gutter);
-        // The top gap sits OUTSIDE the scroll viewport: pinned slivers (the
-        // table's sticky header) pin to the viewport's top edge, so this is
-        // the only way they keep breathing room from the page header while
-        // scrolled. The leading in-viewport spacer makes up the difference so
-        // the resting layout starts at the same 24px as before.
-        return Padding(
-          padding: EdgeInsets.only(top: context.spacing.lg),
-          child: CustomScrollView(
-            slivers: [
-              SliverToBoxAdapter(child: SizedBox(height: context.spacing.sm)),
-              for (final sliver in slivers) SliverPadding(padding: padding, sliver: sliver),
-              const SliverToBoxAdapter(child: SizedBox(height: 64)),
-            ],
-          ),
+        return CustomScrollView(
+          slivers: [
+            SliverToBoxAdapter(child: SizedBox(height: context.spacing.lg)),
+            for (final sliver in slivers) SliverPadding(padding: padding, sliver: sliver),
+            const SliverToBoxAdapter(child: SizedBox(height: 64)),
+          ],
         );
       },
     );

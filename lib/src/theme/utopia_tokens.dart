@@ -63,7 +63,7 @@ const double _x = 4;
 /// | `duration.xl`       | -        | 400ms          |
 /// | `breakpoint.tablet` | -        | 600            |
 /// | `breakpoint.web`    | -        | 900            |
-/// | `breakpoint.sidebar`| -        | 900            |
+/// | `breakpoint.sidebar`| -        | 1000           |
 @freezed
 abstract class UtopiaTokens with _$UtopiaTokens {
   const UtopiaTokens._();
@@ -284,6 +284,6 @@ abstract class UtopiaBreakpointTokens with _$UtopiaBreakpointTokens {
 
     /// At or above this *window* width the shell shows the sidebar as a rail;
     /// below it the sidebar hides behind a drawer.
-    @Default(900.0) double sidebarMin,
+    @Default(1000.0) double sidebarMin,
   }) = _UtopiaBreakpointTokens;
 }

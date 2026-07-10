@@ -29,5 +29,5 @@ abstract final class UtopiaBreakpoints {
 
   /// At or above this window width the shell shows the sidebar as a rail;
   /// below it (tablet and phone), the sidebar is hidden behind a drawer.
-  static const double sidebarMin = 900;
+  static const double sidebarMin = 1000;
 }

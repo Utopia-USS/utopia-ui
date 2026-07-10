@@ -2328,7 +2328,7 @@ return $default(_that.tabletMin,_that.webMin,_that.sidebarMin);case _:
 
 
 class _UtopiaBreakpointTokens implements UtopiaBreakpointTokens {
-  const _UtopiaBreakpointTokens({this.tabletMin = 600.0, this.webMin = 900.0, this.sidebarMin = 900.0});
+  const _UtopiaBreakpointTokens({this.tabletMin = 600.0, this.webMin = 900.0, this.sidebarMin = 1000.0});
   
 
 /// At or above this *content* width the layout is at least tablet-class.

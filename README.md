@@ -73,7 +73,7 @@ by default). `UtopiaTokens` groups the foundational families:
 | `shadows` | `UtopiaShadowTokens` | `sm · md · lg` elevation presets |
 | `fontWeights` | `UtopiaFontWeightTokens` | `regular · medium · semiBold · bold` |
 | `durations` | `UtopiaDurationTokens` | `xs 100ms · sm 150 · md 200 · lg 300 · xl 400` |
-| `breakpoints` | `UtopiaBreakpointTokens` | `tabletMin 600 · webMin 900 · sidebarMin 900` |
+| `breakpoints` | `UtopiaBreakpointTokens` | `tabletMin 600 · webMin 900 · sidebarMin 1000` |
 
 `UtopiaTokens.fromBase(5)` re-derives the spatial families from a new base - the whole system rescales from one
 number. The token identifiers double as the canonical names for mirroring the scale into external tools (Figma
@@ -283,8 +283,10 @@ UtopiaSidebar(
 
 `presentation` chooses `rail` (default: collapsed by default, peeks open on hover, pins open via the top toggle
 icon) or `drawer` (always full and flush - host it in your own `Scaffold.drawer` and close it yourself after a
-tap). `style` (`UtopiaSidebarStyle`) is opt-in branding: a `backgroundColors` gradient and a `headerBuilder` for a
-logo pinned above the items; leaving both unset renders a plain surface card matching the content card.
+tap). Resolve `isWide` from the *window* width against `tokens.breakpoints.sidebarMin` (1000 by default) - the
+shell breakpoint is measured before the sidebar takes its share, unlike the content size classes. `style`
+(`UtopiaSidebarStyle`) is opt-in branding: a `backgroundColors` gradient and a `headerBuilder` for a logo pinned
+above the items; leaving both unset renders a plain surface card matching the content card.
 
 **Pinning items to the bottom.** The sidebar's body sizes itself to the larger of the viewport and its content,
 which means `Expanded` / `Spacer` items are supported as direct entries and will consume the free space left

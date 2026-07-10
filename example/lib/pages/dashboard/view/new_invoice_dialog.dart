@@ -42,7 +42,7 @@ class NewInvoiceDialog extends HookWidget {
             value: amountState.value,
             label: const Text('Amount'),
             hint: const Text('0.00'),
-            prefix: const Padding(padding: EdgeInsets.only(right: 8), child: Icon(Icons.attach_money, size: 18)),
+            suffix: const Padding(padding: EdgeInsets.only(left: 8), child: Icon(Icons.attach_money, size: 18)),
             error: amountState.value.isNotEmpty && amount == null ? const Text('Enter a number') : null,
             onChanged: (value) => amountState.value = value ?? '',
           ),

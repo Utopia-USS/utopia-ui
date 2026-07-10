@@ -33,6 +33,10 @@ class UtopiaConfirmDialog extends StatelessWidget {
   /// Whether the cancelling action button is shown.
   final bool hasCancel;
 
+  /// Renders the confirming action in the theme's error colour, for
+  /// destructive confirmations (delete, sign out, ...).
+  final bool danger;
+
   /// Creates a confirm dialog. Use [show] to present it as a route.
   const UtopiaConfirmDialog({
     super.key,
@@ -42,6 +46,7 @@ class UtopiaConfirmDialog extends StatelessWidget {
     this.cancelLabel = 'Cancel',
     this.hasConfirm = true,
     this.hasCancel = true,
+    this.danger = false,
   });
 
   @override
@@ -83,6 +88,7 @@ class UtopiaConfirmDialog extends StatelessWidget {
                         IntrinsicWidth(
                           child: UtopiaButton(
                             dense: true,
+                            colors: danger ? [context.colors.error, context.colors.error] : null,
                             onTap: () => Navigator.of(context).pop(true),
                             child: Padding(
                               padding: EdgeInsets.symmetric(horizontal: spacing.xl),
@@ -114,6 +120,7 @@ class UtopiaConfirmDialog extends StatelessWidget {
     String cancelLabel = 'Cancel',
     bool hasConfirm = true,
     bool hasCancel = true,
+    bool danger = false,
   }) {
     return showDialog<bool>(
       context: context,
@@ -126,6 +133,7 @@ class UtopiaConfirmDialog extends StatelessWidget {
           cancelLabel: cancelLabel,
           hasConfirm: hasConfirm,
           hasCancel: hasCancel,
+          danger: danger,
         ),
       ),
     );

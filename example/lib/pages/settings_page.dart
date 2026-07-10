@@ -85,6 +85,7 @@ class SettingsPage extends HookWidget {
             title: 'Delete workspace?',
             subtitle: 'This is a showcase - nothing is deleted.',
             confirmLabel: 'Delete',
+            danger: true,
           ),
           child: const Text('Delete workspace'),
         ),
@@ -99,14 +100,8 @@ class SettingsPage extends HookWidget {
           SliverToBoxAdapter(
             child: LayoutBuilder(
               builder: (context, constraints) {
-                // Desktop pairs the workspace card with a notifications +
-                // danger column so no card stretches across the whole reading
-                // width; narrow layouts stack all three.
                 final inline = constraints.maxWidth >= context.tokens.breakpoints.webMin;
                 if (inline) {
-                  // IntrinsicHeight + stretch: the workspace card expands to
-                  // the right column's full height, so both columns' bottom
-                  // edges line up.
                   return IntrinsicHeight(
                     child: Row(
                       crossAxisAlignment: CrossAxisAlignment.stretch,

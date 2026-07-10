@@ -51,7 +51,7 @@ enum ShowcasePage {
   };
 }
 
-/// Resolves the active theme and picks the rail or drawer shell by size class.
+/// Resolves the active theme and picks the rail or drawer shell by window width.
 class ShowcaseShell extends HookWidget {
   const ShowcaseShell({super.key});
 
@@ -61,13 +61,10 @@ class ShowcaseShell extends HookWidget {
     final theme = themeFor(themeMode.mode.value);
     final selected = useState(ShowcasePage.dashboard);
 
+    final isRail = MediaQuery.sizeOf(context).width >= theme.tokens.breakpoints.sidebarMin;
     return UtopiaTheme(
       data: theme,
-      child: UtopiaPageWrapper(
-        builder: (context, pageType) => pageType.isMobile
-            ? _MobileShell(selected: selected)
-            : _RailShell(selected: selected),
-      ),
+      child: isRail ? _RailShell(selected: selected) : _MobileShell(selected: selected),
     );
   }
 }
