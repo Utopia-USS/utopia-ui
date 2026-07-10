@@ -1,20 +1,22 @@
 import 'package:flutter/material.dart';
-import 'package:utopia_ui/src/theme/utopia_theme.dart';
 import 'package:utopia_ui/src/theme/utopia_theme_data.dart';
 import 'package:utopia_ui/src/util/date_time_extension.dart';
-import 'package:utopia_ui/src/util/foundation.dart';
+import 'package:utopia_ui/src/util/utopia_context_extensions.dart';
 import 'package:utopia_ui/src/widget/button/utopia_remove_icon_button.dart';
+import 'package:utopia_ui/src/widget/overlay/utopia_overlay_anchor.dart';
 import 'package:utopia_ui/src/widget/text_field/utopia_text_field.dart';
 
 /// A tap-to-open date field: displays the picked [date] through a
-/// [UtopiaTextField], opens a calendar dialog and offers a clear affordance via
-/// [UtopiaRemoveIconButton].
+/// [UtopiaTextField], opens an anchored calendar popover and offers a clear
+/// affordance via [UtopiaRemoveIconButton].
 ///
-/// The calendar is Flutter's [showDatePicker] restyled from the ambient
-/// `UtopiaThemeData` tokens (colors, text styles, card radius), so it follows
-/// the design system - including branded/dark themes - instead of the stock
-/// Material look. See [utopiaDatePickerMaterialTheme] for the mapping.
-class UtopiaDatePicker extends HookWidget {
+/// The calendar is a bare [CalendarDatePicker] - just the month header and
+/// day grid, pick-on-tap - inside the same [UtopiaOverlayAnchor] popover
+/// chrome the dropdowns use. No Material dialog: no colored header, no
+/// help text, no confirm/cancel row. The grid itself is Material-owned, so
+/// it is restyled from the ambient `UtopiaThemeData` via
+/// [utopiaDatePickerMaterialTheme].
+class UtopiaDatePicker extends StatelessWidget {
   /// The currently picked date; `null` shows the field empty.
   final DateTime? date;
 
@@ -40,48 +42,65 @@ class UtopiaDatePicker extends HookWidget {
     this.lastDate,
   });
 
+  /// The calendar grid's design width (Material's own calendar metric) plus
+  /// its height cap inside the popover.
+  static const double _calendarWidth = 328;
+  static const double _popoverMaxHeight = 420;
+
   @override
   Widget build(BuildContext context) {
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      child: GestureDetector(
-        onTap: () => _pick(context),
-        child: UtopiaTextField(
-          // UtopiaTextField seeds its text once and never resyncs (documented
-          // uncontrolled contract); keying by the picked date remounts it so
-          // the display follows external changes. Safe here: the field is
-          // readOnly, so a remount can never discard user input.
-          key: ValueKey(date),
-          value: date?.toDisplayStringWithoutHours() ?? '',
-          readOnly: true,
-          suffix: UtopiaRemoveIconButton(onPressed: () => onDateChanged?.call(null)),
-          label: Text(label),
-          onChanged: (_) {},
+    return UtopiaOverlayAnchor(
+      // The calendar has a fixed design width; sizing it to a narrow trigger
+      // would crush the grid.
+      matchTriggerWidth: false,
+      maxHeight: _popoverMaxHeight,
+      triggerBuilder: (context, open) => MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: GestureDetector(
+          onTap: open,
+          child: UtopiaTextField(
+            // UtopiaTextField seeds its text once and never resyncs (documented
+            // uncontrolled contract); keying by the picked date remounts it so
+            // the display follows external changes. Safe here: the field is
+            // readOnly, so a remount can never discard user input.
+            key: ValueKey(date),
+            value: date?.toDisplayStringWithoutHours() ?? '',
+            readOnly: true,
+            suffix: UtopiaRemoveIconButton(onPressed: () => onDateChanged?.call(null)),
+            label: Text(label),
+            onChanged: (_) {},
+          ),
+        ),
+      ),
+      overlayBuilder: _buildCalendar,
+    );
+  }
+
+  Widget _buildCalendar(BuildContext context, VoidCallback close) {
+    final now = DateTime.now();
+    return Theme(
+      data: utopiaDatePickerMaterialTheme(context.theme),
+      child: SizedBox(
+        width: _calendarWidth,
+        child: CalendarDatePicker(
+          initialDate: date ?? now,
+          firstDate: firstDate ?? now.copyWith(year: now.year - 50),
+          lastDate: lastDate ?? now.copyWith(year: now.year + 50),
+          // Fires on a day tap (year taps only flip the displayed month), so
+          // picking a day commits and dismisses in one gesture - no confirm row.
+          onDateChanged: (picked) {
+            onDateChanged?.call(picked);
+            close();
+          },
         ),
       ),
     );
   }
-
-  Future<void> _pick(BuildContext context) async {
-    final now = DateTime.now();
-    // Tokens are resolved from the OPENING context: the dialog route roots at
-    // the app navigator, outside any subtree-scoped UtopiaTheme, so the derived
-    // Material theme is our capture-and-reattach for this Material-owned route.
-    final pickerTheme = utopiaDatePickerMaterialTheme(UtopiaTheme.of(context));
-    final result = await showDatePicker(
-      context: context,
-      initialDate: date ?? now,
-      firstDate: firstDate ?? now.copyWith(year: now.year - 50),
-      lastDate: lastDate ?? now.copyWith(year: now.year + 50),
-      builder: (context, child) => Theme(data: pickerTheme, child: child!),
-    );
-    if (result != null) onDateChanged?.call(result);
-  }
 }
 
-/// Maps `UtopiaThemeData` tokens onto a Material [ThemeData] scoped to the date
-/// picker dialog, so the (Material-owned) calendar renders in the design
-/// system's colors, typography and corner radius.
+/// Maps `UtopiaThemeData` tokens onto a Material [ThemeData] scoped to the
+/// calendar grid, so the (Material-owned) [CalendarDatePicker] renders in the
+/// design system's colors and typography.
 ///
 /// Exposed for reuse by other Material-owned pickers (e.g. a future time
 /// picker); regular components must keep reading tokens directly and never
@@ -94,14 +113,12 @@ ThemeData utopiaDatePickerMaterialTheme(UtopiaThemeData theme) {
   // sidebar uses for content on colored backgrounds.
   final onPrimary = textStyles.button.color ?? Colors.white;
   final brightness = ThemeData.estimateBrightnessForColor(colors.surface);
-  final buttonStyle = TextButton.styleFrom(
-    foregroundColor: colors.primary,
-    textStyle: textStyles.label,
-    shape: RoundedRectangleBorder(borderRadius: theme.borderRadius),
-  );
 
   return ThemeData(
     useMaterial3: true,
+    // Carries the design-system family into the calendar's own text defaults
+    // (month header, year list) that don't route through datePickerTheme.
+    fontFamily: textStyles.text.fontFamily,
     colorScheme: ColorScheme(
       brightness: brightness,
       primary: colors.primary,
@@ -116,11 +133,6 @@ ThemeData utopiaDatePickerMaterialTheme(UtopiaThemeData theme) {
     datePickerTheme: DatePickerThemeData(
       backgroundColor: colors.surface,
       surfaceTintColor: Colors.transparent,
-      shape: RoundedRectangleBorder(borderRadius: theme.cardRadius),
-      headerBackgroundColor: colors.primary,
-      headerForegroundColor: onPrimary,
-      headerHeadlineStyle: textStyles.header.copyWith(color: onPrimary),
-      headerHelpStyle: textStyles.caption.copyWith(color: onPrimary),
       weekdayStyle: textStyles.caption.copyWith(color: colors.hint),
       dayStyle: textStyles.text,
       dayForegroundColor: WidgetStateProperty.resolveWith(
@@ -145,10 +157,6 @@ ThemeData utopiaDatePickerMaterialTheme(UtopiaThemeData theme) {
         (states) => states.contains(WidgetState.selected) ? colors.primary : null,
       ),
       yearOverlayColor: WidgetStatePropertyAll(colors.hover),
-      dividerColor: colors.border,
-      cancelButtonStyle: buttonStyle,
-      confirmButtonStyle: buttonStyle,
     ),
-    textButtonTheme: TextButtonThemeData(style: buttonStyle),
   );
 }

@@ -7,14 +7,17 @@ import '../theme.dart';
 
 /// A row of theme-mode pills, one per [ExampleThemeMode], reading and writing
 /// the app-wide [ThemeModeState]. Tapping a pill re-themes the whole sheet.
+///
+/// Widget-level hook pattern: the widget calls exactly one state hook
+/// ([_useThemeModePickerState], which owns the `useProvided` lookup) and
+/// renders from the returned state.
 class ThemeModePicker extends HookWidget {
   /// Creates the theme-mode picker.
   const ThemeModePicker({super.key});
 
   @override
   Widget build(BuildContext context) {
-    final state = useProvided<ThemeModeState>();
-    final selectedMode = state.mode.value;
+    final state = _useThemeModePickerState();
     return Wrap(
       spacing: 8,
       runSpacing: 8,
@@ -23,12 +26,27 @@ class ThemeModePicker extends HookWidget {
           _ThemePill(
             key: ValueKey('themePill_${mode.name}'),
             mode: mode,
-            isSelected: mode == selectedMode,
-            onTap: () => state.mode.value = mode,
+            isSelected: mode == state.selected,
+            onTap: () => state.select(mode),
           ),
       ],
     );
   }
+}
+
+/// The picker's widget-level state: the active mode and the select action.
+class _ThemeModePickerState {
+  final ExampleThemeMode selected;
+  final void Function(ExampleThemeMode mode) select;
+
+  const _ThemeModePickerState({required this.selected, required this.select});
+}
+
+/// Widget-level state hook - the only place the picker touches the global
+/// [ThemeModeState].
+_ThemeModePickerState _useThemeModePickerState() {
+  final global = useProvided<ThemeModeState>();
+  return _ThemeModePickerState(selected: global.mode.value, select: (mode) => global.mode.value = mode);
 }
 
 /// A single pill in the [ThemeModePicker]: three swatch dots plus the mode's

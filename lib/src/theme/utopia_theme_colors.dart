@@ -22,6 +22,11 @@ abstract class UtopiaThemeColors with _$UtopiaThemeColors {
     /// Hairline colour for the card border and row / header dividers.
     @Default(Color(0xFFE8EAF0)) Color border,
 
+    /// Colour of `UtopiaDivider` hairlines. `null` (the default) derives a
+    /// contrast-safe colour from [text] over [surface] at paint time, so
+    /// dividers stay visible in any theme without being set explicitly.
+    Color? divider,
+
     /// Tint of alternating (odd) table rows.
     @Default(Color(0xFFF7F8FB)) Color rowAlt,
 

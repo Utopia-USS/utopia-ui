@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
-import 'package:utopia_ui/src/widget/layout/utopia_breakpoints.dart';
+import 'package:utopia_ui/src/theme/utopia_tokens.dart';
+import 'package:utopia_ui/src/util/utopia_context_extensions.dart';
 
 /// The panel pinned above a `UtopiaTable`'s column headers: a search field slot,
 /// a row of filter widgets, and trailing actions (refresh, create, ...).
@@ -24,41 +25,45 @@ class UtopiaTableSearchPanel extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final spacing = context.spacing;
     return LayoutBuilder(
       builder: (context, constraints) {
         // Web (wide content) lays search, filters and actions out in a
         // single row; tablet / mobile stacks the filters under the
         // search + actions row.
-        final inline = constraints.maxWidth >= UtopiaBreakpoints.webMin;
+        final inline = constraints.maxWidth >= context.tokens.breakpoints.webMin;
         return Padding(
-          padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
-          child: inline ? _buildInlineRow() : _buildStacked(),
+          padding: EdgeInsets.fromLTRB(spacing.lg, spacing.lg, spacing.lg, spacing.md),
+          child: inline ? _buildInlineRow(spacing) : _buildStacked(spacing),
         );
       },
     );
   }
 
-  Widget _buildInlineRow() {
+  Widget _buildInlineRow(UtopiaSpacingTokens spacing) {
     return Row(
       children: [
         Expanded(child: searchField ?? const SizedBox.shrink()),
-        for (final filter in filters) ...[const SizedBox(width: 12), filter],
-        for (final action in actions) ...[const SizedBox(width: 12), action],
+        for (final filter in filters) ...[SizedBox(width: spacing.md), filter],
+        for (final action in actions) ...[SizedBox(width: spacing.md), action],
       ],
     );
   }
 
-  Widget _buildStacked() {
+  Widget _buildStacked(UtopiaSpacingTokens spacing) {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.stretch,
       children: [
         Row(
           children: [
             Expanded(child: searchField ?? const SizedBox.shrink()),
-            for (final action in actions) ...[const SizedBox(width: 12), action],
+            for (final action in actions) ...[SizedBox(width: spacing.md), action],
           ],
         ),
-        if (filters.isNotEmpty) ...[const SizedBox(height: 12), Wrap(spacing: 12, runSpacing: 12, children: filters)],
+        if (filters.isNotEmpty) ...[
+          SizedBox(height: spacing.md),
+          Wrap(spacing: spacing.md, runSpacing: spacing.md, children: filters),
+        ],
       ],
     );
   }

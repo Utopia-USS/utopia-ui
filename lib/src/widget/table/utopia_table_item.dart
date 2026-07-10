@@ -67,7 +67,12 @@ class UtopiaTableItem<T> extends HookWidget {
                 entry.wrapTableCell(
                   Padding(
                     padding: UtopiaTable.itemPadding,
-                    child: Align(alignment: Alignment.centerLeft, child: entry.cellBuilder(context, row)),
+                    // Cell text that doesn't set its own overflow ellipsizes instead of wrapping.
+                    child: DefaultTextStyle.merge(
+                      softWrap: false,
+                      overflow: TextOverflow.ellipsis,
+                      child: Align(alignment: Alignment.centerLeft, child: entry.cellBuilder(context, row)),
+                    ),
                   ),
                 ),
               if (actionsBuilder != null)

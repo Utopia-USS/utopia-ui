@@ -18,7 +18,8 @@ class UtopiaButton extends StatelessWidget {
   /// Replaces [child] with a [UtopiaThreeBounce] indicator while `true`.
   final bool loading;
 
-  /// Uses a shorter fixed extent (44 instead of 60) when [height] is not set.
+  /// Uses a shorter fixed extent (10x instead of 15x the token base - 40
+  /// instead of 60 by default) when [height] is not set.
   final bool dense;
 
   /// Upper bound on the button's width.
@@ -28,7 +29,8 @@ class UtopiaButton extends StatelessWidget {
   final List<Color>? colors;
 
   /// Overrides the fixed square extent (min/max height and min width). Defaults
-  /// to 44 when [dense], 60 otherwise. Pair with [maxWidth] == [height] for a
+  /// to 10x the token base when [dense] (40), 15x otherwise (60, matching a
+  /// resting field's total height). Pair with [maxWidth] == [height] for a
   /// square icon button.
   final double? height;
 
@@ -47,17 +49,30 @@ class UtopiaButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final extent = height ?? (dense ? 44 : 60);
-    return InkWell(
-      onTap: isEnabled ? onTap : null,
-      child: ConstrainedBox(
-        constraints: BoxConstraints(minHeight: extent, maxHeight: extent, minWidth: extent, maxWidth: maxWidth),
-        child: UtopiaGradientBackground(
-          colors: colors,
-          clipBehavior: Clip.antiAlias,
-          borderRadius: context.theme.borderRadius,
-          isEnabled: isEnabled,
-          child: Center(heightFactor: 1, child: _buildTitle(context)),
+    final x = context.tokens.x;
+    final extent = height ?? (dense ? x * 10 : x * 15);
+    // Default sweep stops halfway from primary to accent - a full
+    // primary -> accent run reads too loud for a flat button surface.
+    final themeColors = context.colors;
+    final gradient =
+        colors ?? [themeColors.primary, Color.lerp(themeColors.primary, themeColors.accent, 0.5)!];
+    return ConstrainedBox(
+      constraints: BoxConstraints(minHeight: extent, maxHeight: extent, minWidth: extent, maxWidth: maxWidth),
+      child: UtopiaGradientBackground(
+        colors: gradient,
+        clipBehavior: Clip.antiAlias,
+        borderRadius: context.theme.borderRadius,
+        isEnabled: isEnabled,
+        // The Material sits INSIDE the gradient (not around it) so the
+        // hover/press overlay paints on top of the gradient fill - an InkWell
+        // around the gradient draws its ink underneath and stays invisible.
+        child: Material(
+          color: Colors.transparent,
+          child: InkWell(
+            onTap: isEnabled ? onTap : null,
+            hoverColor: context.colors.onColoredHover,
+            child: Center(heightFactor: 1, child: _buildTitle(context)),
+          ),
         ),
       ),
     );
@@ -65,13 +80,20 @@ class UtopiaButton extends StatelessWidget {
 
   Widget _buildTitle(BuildContext context) {
     final style = context.textStyles.button;
-    if (loading) {
-      return UtopiaThreeBounce(color: style.color);
-    } else {
-      return IconTheme.merge(
-        data: IconThemeData(color: style.color),
-        child: DefaultTextStyle(style: style, child: child),
-      );
-    }
+    final content = IconTheme.merge(
+      data: IconThemeData(color: style.color),
+      child: DefaultTextStyle(style: style, child: child),
+    );
+    if (!loading) return content;
+    // The label stays in the tree (invisible) so the button keeps its exact
+    // label-driven size - swapping it out for the loader would let
+    // intrinsic-width buttons (e.g. IntrinsicWidth-wrapped CTAs) jump.
+    return Stack(
+      alignment: Alignment.center,
+      children: [
+        Opacity(opacity: 0, child: content),
+        UtopiaThreeBounce(color: style.color),
+      ],
+    );
   }
 }

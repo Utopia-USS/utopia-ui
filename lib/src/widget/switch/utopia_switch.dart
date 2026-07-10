@@ -21,6 +21,11 @@ class UtopiaSwitch extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    // The thumb sits on a primary (active) or disabled (inactive) fill - the
+    // same grounds a UtopiaButton's content sits on - so it follows the
+    // button text colour instead of hard-coding white, and adapts to themes
+    // whose on-primary content is dark.
+    final thumbColor = context.textStyles.button.color ?? Colors.white;
     return IgnorePointer(
       ignoring: readOnly,
       child: MouseRegion(
@@ -28,10 +33,14 @@ class UtopiaSwitch extends StatelessWidget {
         child: Switch(
           activeTrackColor: colors.primary,
           inactiveTrackColor: colors.disabled,
-          inactiveThumbColor: Colors.white,
-          activeThumbColor: Colors.white,
+          inactiveThumbColor: thumbColor,
+          activeThumbColor: thumbColor,
           trackOutlineColor: const WidgetStatePropertyAll(Colors.transparent),
           trackOutlineWidth: const WidgetStatePropertyAll(0),
+          // No hover/press halo: the Material circle overlay clashes with the
+          // flat utopia look - the click cursor and thumb animation carry the
+          // affordance.
+          overlayColor: const WidgetStatePropertyAll(Colors.transparent),
           value: value,
           // When read-only we still want the full-colour look (not Flutter's
           // faded disabled styling), so pass a no-op handler and let the

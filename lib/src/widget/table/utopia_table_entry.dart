@@ -44,6 +44,14 @@ class UtopiaTableEntry<T> {
   /// Width of a fixed (non-flexing) column; ignored while [flex] is non-null.
   final double? width;
 
+  /// The width a flexing column needs to stay legible - its footprint in the
+  /// [hidePriority] fit check. `null` falls back to `UtopiaTable.flexColumnMinWidth`.
+  final double? minWidth;
+
+  /// Give-way order when the table is too narrow: the highest value hides
+  /// first, until the remaining columns fit. `0` (default) never hides.
+  final int hidePriority;
+
   /// Builds the cell content for a row. Keep it cheap - it runs per visible row.
   final Widget Function(BuildContext context, T row) cellBuilder;
 
@@ -67,6 +75,8 @@ class UtopiaTableEntry<T> {
     this.title,
     this.tooltip,
     this.flex = 2,
+    this.minWidth,
+    this.hidePriority = 0,
     this.sortBy,
     this.searchBy,
     this.sortOptions,
@@ -81,11 +91,13 @@ class UtopiaTableEntry<T> {
     this.id,
     this.title,
     this.tooltip,
+    this.hidePriority = 0,
     this.sortBy,
     this.searchBy,
     this.sortOptions,
     this.sortable,
-  }) : flex = null;
+  }) : flex = null,
+       minWidth = null;
 
   /// The identifier used in [UtopiaTableSort]: [id], falling back to [title].
   String? get effectiveId => id ?? title;

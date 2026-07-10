@@ -34,56 +34,60 @@ class UtopiaOverlayAnchor extends HookWidget {
   Widget build(BuildContext context) {
     final link = useMemoized(LayerLink.new);
     final controller = useMemoized(OverlayPortalController.new);
+    final triggerKey = useMemoized(GlobalKey.new);
     final theme = context.theme;
 
     void close() => controller.hide();
 
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        final width = matchTriggerWidth && constraints.hasBoundedWidth ? constraints.maxWidth : null;
-        return CompositedTransformTarget(
-          link: link,
-          child: OverlayPortal(
-            controller: controller,
-            overlayChildBuilder: (context) => Stack(
-              children: [
-                // Layer 1: tap-outside-to-dismiss barrier (opaque: swallow the tap
-                // instead of leaking it to whatever sits behind the popup).
-                Positioned.fill(
-                  child: GestureDetector(behavior: HitTestBehavior.opaque, onTap: close),
-                ),
-                // Layer 2: the popup, anchored to the trigger's bottom-left.
-                CompositedTransformFollower(
-                  link: link,
-                  showWhenUnlinked: false,
-                  targetAnchor: Alignment.bottomLeft,
-                  offset: const Offset(0, 6),
-                  child: Align(
-                    alignment: Alignment.topLeft,
-                    child: SizedBox(
-                      width: width,
-                      // Absorb taps that land on the popup chrome so they don't
-                      // fall through to the dismiss barrier and close it.
-                      child: GestureDetector(
-                        behavior: HitTestBehavior.opaque,
-                        onTap: () {},
-                        child: Container(
-                          constraints: BoxConstraints(maxHeight: maxHeight),
-                          decoration: theme.cardDecoration,
-                          foregroundDecoration: theme.cardBorderDecoration,
-                          clipBehavior: Clip.antiAlias,
-                          child: overlayBuilder(context, close),
-                        ),
+    return CompositedTransformTarget(
+      key: triggerKey,
+      link: link,
+      child: OverlayPortal(
+        controller: controller,
+        overlayChildBuilder: (context) {
+          // The trigger's laid-out width, read when the popup opens. Not a
+          // LayoutBuilder around the trigger: that would bar every ancestor
+          // from intrinsic sizing (e.g. IntrinsicHeight card rows).
+          final triggerBox = triggerKey.currentContext?.findRenderObject() as RenderBox?;
+          final width = matchTriggerWidth && (triggerBox?.hasSize ?? false) ? triggerBox!.size.width : null;
+          return Stack(
+            children: [
+              // Layer 1: tap-outside-to-dismiss barrier (opaque: swallow the tap
+              // instead of leaking it to whatever sits behind the popup).
+              Positioned.fill(
+                child: GestureDetector(behavior: HitTestBehavior.opaque, onTap: close),
+              ),
+              // Layer 2: the popup, anchored to the trigger's bottom-left.
+              CompositedTransformFollower(
+                link: link,
+                showWhenUnlinked: false,
+                targetAnchor: Alignment.bottomLeft,
+                offset: Offset(0, context.spacing.sm),
+                child: Align(
+                  alignment: Alignment.topLeft,
+                  child: SizedBox(
+                    width: width,
+                    // Absorb taps that land on the popup chrome so they don't
+                    // fall through to the dismiss barrier and close it.
+                    child: GestureDetector(
+                      behavior: HitTestBehavior.opaque,
+                      onTap: () {},
+                      child: Container(
+                        constraints: BoxConstraints(maxHeight: maxHeight),
+                        decoration: theme.cardDecoration,
+                        foregroundDecoration: theme.cardBorderDecoration,
+                        clipBehavior: Clip.antiAlias,
+                        child: overlayBuilder(context, close),
                       ),
                     ),
                   ),
                 ),
-              ],
-            ),
-            child: triggerBuilder(context, controller.show),
-          ),
-        );
-      },
+              ),
+            ],
+          );
+        },
+        child: triggerBuilder(context, controller.show),
+      ),
     );
   }
 }

@@ -27,7 +27,8 @@ class UtopiaTextField extends HookWidget {
   /// The floating label shown above the field.
   final Widget? label;
 
-  /// Error content shown above the field when non-null.
+  /// Error content shown below the field when non-null; the field chrome
+  /// simultaneously outlines itself in the error colour.
   final Widget? error;
 
   /// Placeholder shown while the field is empty.
@@ -51,6 +52,10 @@ class UtopiaTextField extends HookWidget {
   /// When `true`, blocks editing while keeping the field's normal styling.
   final bool readOnly;
 
+  /// Compact chrome matching a dense `UtopiaButton`'s height. No room for a
+  /// floating label, so [label] is ignored - use [hint].
+  final bool dense;
+
   /// Called with the current text, or `null` when it is empty.
   final void Function(String?) onChanged;
 
@@ -65,6 +70,7 @@ class UtopiaTextField extends HookWidget {
     this.keyboardType,
     this.obscureText = false,
     this.readOnly = false,
+    this.dense = false,
     this.focusNode,
     this.label,
     this.error,
@@ -82,7 +88,18 @@ class UtopiaTextField extends HookWidget {
     final textStyles = context.textStyles;
     final colors = context.colors;
     final state = useFieldState(initialValue: value);
-    useEffect(() => onChanged(state.value.isEmpty ? null : state.value), [state.value]);
+    // Notify only on actual edits: a plain useEffect keyed on the value would
+    // also fire on first build, echoing the seed value back into `onChanged`
+    // before the user touched the field.
+    final isFirstNotify = useMemoized(() => [true]);
+    useEffect(() {
+      if (isFirstNotify[0]) {
+        isFirstNotify[0] = false;
+        return null;
+      }
+      onChanged(state.value.isEmpty ? null : state.value);
+      return null;
+    }, [state.value]);
 
     return TextEditingControllerWrapper(
       text: state,
@@ -90,19 +107,22 @@ class UtopiaTextField extends HookWidget {
         mainAxisSize: MainAxisSize.min,
         crossAxisAlignment: CrossAxisAlignment.stretch,
         children: <Widget>[
+          _buildField(context, controller),
+          // Message below the chrome, flush with the field's left edge.
           if (error != null)
             DefaultTextStyle(
               style: textStyles.caption.copyWith(color: colors.error),
               child: error!,
             ),
-          _buildField(context, controller),
-        ].separatedWith(const SizedBox(height: 6)),
+        ].separatedWith(SizedBox(height: context.spacing.xs)),
       ),
     );
   }
 
   Widget _buildField(BuildContext context, TextEditingController controller) {
     return UtopiaFieldWrapper(
+      hasError: error != null,
+      dense: dense,
       child: Row(
         children: [
           ?prefix,
@@ -115,6 +135,9 @@ class UtopiaTextField extends HookWidget {
 
   Widget _buildTextField(BuildContext context, TextEditingController controller) {
     final textStyles = context.textStyles;
+    final multiline = lines > 1;
+    // The dense chrome has no room for a floating label - hints only.
+    final label = dense ? null : this.label;
     return IgnorePointer(
       ignoring: readOnly,
       child: TextField(
@@ -123,11 +146,27 @@ class UtopiaTextField extends HookWidget {
         controller: controller,
         focusNode: focusNode,
         onTap: onTap,
-        keyboardType: keyboardType,
+        keyboardType: keyboardType ?? (multiline ? TextInputType.multiline : null),
         obscureText: obscureText,
-        textInputAction: TextInputAction.next,
+        // `next` on a multiline field would swallow the Enter key instead of
+        // inserting a newline.
+        textInputAction: multiline ? TextInputAction.newline : TextInputAction.next,
+        minLines: lines,
+        maxLines: lines,
         inputFormatters: formatters,
-        decoration: utopiaFieldDecoration(context, label: label, hint: hint),
+        decoration: utopiaFieldDecoration(
+          context,
+          label: label,
+          hint: hint,
+          // Anchor the resting label/hint to the top of the input instead of
+          // the decorator's vertical centre.
+          alignLabelWithHint: multiline,
+          // Reserve headroom for the floated label: multiline content fills
+          // the decorator, so without it the floated label sits flush with
+          // the chrome. 1.5x matches the single-line fields' centring slack,
+          // so the floated label lands at the same top offset in both.
+          contentPadding: multiline && label != null ? EdgeInsets.only(top: context.tokens.x * 1.5) : null,
+        ),
         style: textStyles.text,
       ),
     );

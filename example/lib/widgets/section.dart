@@ -24,7 +24,6 @@ class SheetSection extends StatelessWidget {
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
-        const UtopiaDivider(),
         const SizedBox(height: 28),
         UtopiaTitle(title: title),
         const SizedBox(height: 6),

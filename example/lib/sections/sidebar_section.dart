@@ -91,16 +91,19 @@ class SidebarSection extends HookWidget {
 /// `onColoredContent` so it reads on the gradient background.
 Widget _buildStudioHeader(BuildContext context, bool isCollapsed) {
   final onColoredContent = context.colors.onColoredContent;
+  final spacing = context.spacing;
   return SizedBox(
     height: 56,
     child: Padding(
-      padding: EdgeInsets.symmetric(horizontal: isCollapsed ? 0 : 14),
+      // md + lg mirrors a tile's outer + inner padding, so the header icon
+      // lines up with the tile icons below it.
+      padding: EdgeInsets.symmetric(horizontal: isCollapsed ? 0 : spacing.md + spacing.lg),
       child: Row(
         mainAxisAlignment: isCollapsed ? MainAxisAlignment.center : MainAxisAlignment.start,
         children: [
           Icon(Icons.auto_awesome, color: onColoredContent),
           if (!isCollapsed) ...[
-            const SizedBox(width: 10),
+            SizedBox(width: spacing.md),
             Text('Studio', style: context.textStyles.label.copyWith(color: onColoredContent)),
           ],
         ],

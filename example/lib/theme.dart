@@ -203,27 +203,32 @@ UtopiaThemeData buildForestTheme() => _buildShowcaseTheme(
 
 /// Shared chrome for the showcase themes: every mode uses the same base
 /// structure (radii, tile height, dividers, chip radius, top padding) and the
-/// same Roboto weight hierarchy - bold headers/titles/buttons, semibold body,
+/// same Sora weight hierarchy - bold headers/titles/buttons, semibold body,
 /// bold chips. Only [colors] and the on-gradient [buttonLabel] vary; all other
 /// foreground type follows `colors.text`.
 UtopiaThemeData _buildShowcaseTheme({required UtopiaThemeColors colors, required Color buttonLabel}) {
   final foreground = colors.text;
+  // Sora ships inside the utopia_ui package, so styles built by the host
+  // reference it through the package-prefixed family.
+  const family = 'Sora';
+  const fontPackage = 'utopia_ui';
   return UtopiaThemeData.defaultTheme.copyWith(
     colors: colors,
+    // Card border width, shadows, chip radius and divider thickness derive
+    // from the token families now - the beefier 1.5 divider is a border-token
+    // deviation, not a per-slot one.
+    tokens: const UtopiaTokens(borders: UtopiaBorderTokens(hairline: 1.5)),
     borderRadius: BorderRadius.circular(12),
     cardRadius: BorderRadius.circular(16),
-    cardBorderWidth: 1.5,
     tileHeight: 58,
-    dividerThickness: 1.5,
-    chipRadius: 8,
     pageTopPadding: 16,
     textStyles: UtopiaThemeTextStyles(
-      header: TextStyle(fontWeight: FontWeight.w700, fontSize: 24, letterSpacing: -0.5, color: foreground),
-      title: TextStyle(fontWeight: FontWeight.w600, fontSize: 18, letterSpacing: -0.3, color: foreground),
-      label: TextStyle(fontWeight: FontWeight.w600, fontSize: 14, letterSpacing: -0.2, color: foreground),
-      text: TextStyle(fontWeight: FontWeight.w500, fontSize: 15, letterSpacing: 0, color: foreground),
-      caption: TextStyle(fontWeight: FontWeight.w700, fontSize: 13, letterSpacing: 0, color: foreground),
-      button: TextStyle(fontWeight: FontWeight.w600, fontSize: 15, letterSpacing: 0, color: buttonLabel),
+      header: TextStyle(fontFamily: family, package: fontPackage, fontWeight: FontWeight.w700, fontSize: 24, letterSpacing: -0.5, color: foreground),
+      title: TextStyle(fontFamily: family, package: fontPackage, fontWeight: FontWeight.w600, fontSize: 18, letterSpacing: -0.3, color: foreground),
+      label: TextStyle(fontFamily: family, package: fontPackage, fontWeight: FontWeight.w600, fontSize: 14, letterSpacing: -0.2, color: foreground),
+      text: TextStyle(fontFamily: family, package: fontPackage, fontWeight: FontWeight.w500, fontSize: 15, letterSpacing: 0, color: foreground),
+      caption: TextStyle(fontFamily: family, package: fontPackage, fontWeight: FontWeight.w700, fontSize: 13, letterSpacing: 0, color: foreground),
+      button: TextStyle(fontFamily: family, package: fontPackage, fontWeight: FontWeight.w600, fontSize: 15, letterSpacing: 0, color: buttonLabel),
     ),
   );
 }

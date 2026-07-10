@@ -36,8 +36,10 @@ class UtopiaDropdownField<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return UtopiaOverlayAnchor(
-      triggerBuilder: (context, open) =>
-          GestureDetector(behavior: HitTestBehavior.opaque, onTap: open, child: _buildTrigger(context)),
+      triggerBuilder: (context, open) => MouseRegion(
+        cursor: SystemMouseCursors.click,
+        child: GestureDetector(behavior: HitTestBehavior.opaque, onTap: open, child: _buildTrigger(context)),
+      ),
       overlayBuilder: (context, close) => ListView(
         padding: EdgeInsets.zero,
         shrinkWrap: true,
@@ -78,7 +80,7 @@ class UtopiaDropdownField<T> extends StatelessWidget {
       highlightColor: Colors.transparent,
       hoverColor: context.colors.hover,
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+        padding: EdgeInsets.symmetric(horizontal: context.spacing.lg, vertical: context.spacing.md),
         child: Row(
           children: [
             Expanded(

@@ -45,7 +45,7 @@ class UtopiaGradientBackground extends StatelessWidget {
           colors: isEnabled ? gradient : [context.colors.disabled, context.colors.disabled.withValues(alpha: 0.95)],
         ),
       ),
-      duration: const Duration(milliseconds: 400),
+      duration: context.tokens.durations.xl,
       child: child,
     );
   }

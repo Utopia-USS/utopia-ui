@@ -24,6 +24,9 @@ import 'package:utopia_ui/src/widget/table/utopia_table_item.dart';
 /// Rows are matched across rebuilds by [rowKey] (keyed diffing), so reordering
 /// or inserting rows does not tear down and rebuild unrelated row state (e.g.
 /// hover) - see [_buildList].
+///
+/// Responsive: columns give way by [UtopiaTableEntry.hidePriority] when their
+/// declared footprints no longer fit the table's width - see [_fitEntries].
 class UtopiaTable<T> extends HookWidget {
   /// The rows to render. `null` renders the loading skeleton instead;
   /// an empty list renders [emptyWidget].
@@ -90,6 +93,10 @@ class UtopiaTable<T> extends HookWidget {
   /// inside it, once per cell).
   static const EdgeInsets contentPadding = EdgeInsets.symmetric(horizontal: 16);
 
+  /// Width a flexing column is assumed to need when deciding which columns
+  /// fit, unless the entry overrides it via [UtopiaTableEntry.minWidth].
+  static const double flexColumnMinWidth = 120;
+
   @override
   Widget build(BuildContext context) {
     final visibleRows = rows;
@@ -102,23 +109,58 @@ class UtopiaTable<T> extends HookWidget {
           : <Object, int>{for (var i = 0; i < visibleRows.length; i++) rowKey(visibleRows[i]): i},
       [visibleRows],
     );
-    return utopiaCardSliver(
-      context,
-      sliver: SliverMainAxisGroup(
-        slivers: [
-          _buildHeader(context),
-          if (visibleRows == null)
-            _buildLoader(context)
-          else if (visibleRows.isEmpty)
-            _buildEmpty(context)
-          else
-            _buildList(context, visibleRows, indexByKey),
-        ],
-      ),
+    // The fitted column subset needs the real width, so the card builds inside
+    // a SliverLayoutBuilder. No hooks below: the builder runs in its own scope.
+    return SliverLayoutBuilder(
+      builder: (context, constraints) {
+        final visibleEntries = _fitEntries(constraints.crossAxisExtent);
+        return utopiaCardSliver(
+          context,
+          sliver: SliverMainAxisGroup(
+            slivers: [
+              _buildHeader(context, visibleEntries),
+              if (visibleRows == null)
+                _buildLoader(context, visibleEntries)
+              else if (visibleRows.isEmpty)
+                _buildEmpty(context)
+              else
+                _buildList(context, visibleEntries, visibleRows, indexByKey),
+            ],
+          ),
+        );
+      },
     );
   }
 
-  Widget _buildHeader(BuildContext context) {
+  /// Hides the highest-[UtopiaTableEntry.hidePriority] column (rightmost first
+  /// among equals) until the rest fit [width]; priority-0 columns never hide.
+  IList<UtopiaTableEntry<T>> _fitEntries(double width) {
+    final available =
+        width - contentPadding.horizontal - (actionsBuilder == null ? 0 : actionsWidth + itemPadding.horizontal);
+    double footprint(UtopiaTableEntry<T> entry) => entry.flex == null
+        ? (entry.width ?? UtopiaTableEntryCellExtension.defaultFixedColumnWidth)
+        : (entry.minWidth ?? flexColumnMinWidth);
+
+    var visible = entries;
+    var total = visible.fold(0.0, (sum, entry) => sum + footprint(entry));
+    while (total > available) {
+      UtopiaTableEntry<T>? giveWay;
+      var giveWayIndex = -1;
+      for (var i = 0; i < visible.length; i++) {
+        final entry = visible[i];
+        if (entry.hidePriority > 0 && (giveWay == null || entry.hidePriority >= giveWay.hidePriority)) {
+          giveWay = entry;
+          giveWayIndex = i;
+        }
+      }
+      if (giveWay == null) break;
+      total -= footprint(giveWay);
+      visible = visible.removeAt(giveWayIndex);
+    }
+    return visible;
+  }
+
+  Widget _buildHeader(BuildContext context, IList<UtopiaTableEntry<T>> visibleEntries) {
     final cardRadius = context.theme.cardRadius;
     // Rounded opaque fill (no ClipRRect layer): the panel content is inset, so
     // rounding the background is enough to keep the card's top corners, and the
@@ -134,7 +176,7 @@ class UtopiaTable<T> extends HookWidget {
           children: [
             ?searchPanel,
             UtopiaTableHeader<T>(
-              entries: entries,
+              entries: visibleEntries,
               currentSort: currentSort,
               onSortPressed: onSortPressed,
               onSortSelected: onSortSelected,
@@ -155,7 +197,12 @@ class UtopiaTable<T> extends HookWidget {
   /// [indexByKey] is a precomputed `rowKey(row) -> index` lookup (built once
   /// per [rows] identity in [build]), so resolving a key is O(1) instead of
   /// scanning [visibleRows] with `indexWhere` on every lookup.
-  Widget _buildList(BuildContext context, IList<T> visibleRows, Map<Object, int> indexByKey) {
+  Widget _buildList(
+    BuildContext context,
+    IList<UtopiaTableEntry<T>> visibleEntries,
+    IList<T> visibleRows,
+    Map<Object, int> indexByKey,
+  ) {
     return SliverList.separated(
       itemCount: visibleRows.length,
       separatorBuilder: (_, _) => const UtopiaDivider(),
@@ -167,7 +214,7 @@ class UtopiaTable<T> extends HookWidget {
           child: UtopiaTableItem<T>(
             row: row,
             index: index,
-            entries: entries,
+            entries: visibleEntries,
             isOdd: index.isOdd,
             isLast: index == visibleRows.length - 1,
             onRowPressed: onRowPressed,
@@ -184,22 +231,28 @@ class UtopiaTable<T> extends HookWidget {
   /// instead of floating boxes. Skeleton rows sit at the shell's *minimum*
   /// height; real rows may grow taller with wrapping cell content. Each cell
   /// holds a thin, left-aligned bar where the cell's preview content would sit.
-  Widget _buildLoader(BuildContext context) {
+  Widget _buildLoader(BuildContext context, IList<UtopiaTableEntry<T>> visibleEntries) {
     return SliverList.separated(
       itemCount: loaderRowCount,
       separatorBuilder: (_, _) => const UtopiaDivider(),
-      itemBuilder: (context, index) => _buildLoaderRow(context, index, isLast: index == loaderRowCount - 1),
+      itemBuilder: (context, index) =>
+          _buildLoaderRow(context, visibleEntries, index, isLast: index == loaderRowCount - 1),
     );
   }
 
-  Widget _buildLoaderRow(BuildContext context, int index, {required bool isLast}) {
+  Widget _buildLoaderRow(
+    BuildContext context,
+    IList<UtopiaTableEntry<T>> visibleEntries,
+    int index, {
+    required bool isLast,
+  }) {
     return utopiaTableRowShell(
       context,
       isOdd: index.isOdd,
       isLast: isLast,
       child: Row(
         children: [
-          for (final entry in entries)
+          for (final entry in visibleEntries)
             entry.wrapTableCell(
               const Padding(
                 padding: UtopiaTable.itemPadding,

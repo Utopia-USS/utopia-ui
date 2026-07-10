@@ -24,6 +24,9 @@ class UtopiaSearchField extends HookWidget {
   /// Optional input formatters applied to keystrokes.
   final List<TextInputFormatter>? formatters;
 
+  /// Compact chrome matching a dense `UtopiaButton`'s height.
+  final bool dense;
+
   /// Creates a full-width search field.
   const UtopiaSearchField({
     super.key,
@@ -31,21 +34,34 @@ class UtopiaSearchField extends HookWidget {
     required this.hint,
     required this.onChanged,
     this.formatters,
+    this.dense = false,
   });
 
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
     final state = useFieldState(initialValue: value);
-    useEffect(() => onChanged(state.value.isEmpty ? null : state.value), [state.value]);
+    // Notify only on actual edits: a plain useEffect keyed on the value would
+    // also fire on first build, echoing the seed value back into `onChanged`
+    // before the user touched the field.
+    final isFirstNotify = useMemoized(() => [true]);
+    useEffect(() {
+      if (isFirstNotify[0]) {
+        isFirstNotify[0] = false;
+        return null;
+      }
+      onChanged(state.value.isEmpty ? null : state.value);
+      return null;
+    }, [state.value]);
 
     return TextEditingControllerWrapper(
       text: state,
       builder: (controller) => UtopiaFieldWrapper(
+        dense: dense,
         child: Row(
           children: [
             Icon(Icons.search, size: 18, color: colors.hint),
-            const SizedBox(width: 10),
+            SizedBox(width: context.spacing.sm),
             Expanded(
               child: TextField(
                 controller: controller,
@@ -58,7 +74,7 @@ class UtopiaSearchField extends HookWidget {
                   isCollapsed: true,
                   border: InputBorder.none,
                   hintText: hint,
-                  hintStyle: context.textStyles.text.copyWith(color: colors.hint),
+                  hintStyle: utopiaPlaceholderStyle(context),
                 ),
               ),
             ),
@@ -83,7 +99,7 @@ class _ClearButton extends StatelessWidget {
         onTap: onTap,
         behavior: HitTestBehavior.opaque,
         child: Padding(
-          padding: const EdgeInsets.only(left: 8),
+          padding: EdgeInsets.only(left: context.spacing.sm),
           child: Icon(Icons.close, size: 16, color: context.colors.hint),
         ),
       ),

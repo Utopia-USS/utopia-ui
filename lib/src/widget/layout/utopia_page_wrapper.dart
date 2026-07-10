@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:utopia_ui/src/theme/utopia_tokens.dart';
+import 'package:utopia_ui/src/util/utopia_context_extensions.dart';
 import 'package:utopia_ui/src/widget/layout/utopia_breakpoints.dart';
 
 /// Responsive size class derived from the available width, not the screen size.
@@ -62,7 +64,7 @@ class UtopiaPageWrapper extends StatelessWidget {
   Widget build(BuildContext context) {
     return LayoutBuilder(
       builder: (context, constraints) {
-        final pageType = resolveType(constraints.maxWidth);
+        final pageType = resolveType(constraints.maxWidth, context.tokens.breakpoints);
         final child = _UtopiaPageScope(
           pageType: pageType,
           child: Builder(builder: (context) => builder(context, pageType)),
@@ -77,11 +79,12 @@ class UtopiaPageWrapper extends StatelessWidget {
     );
   }
 
-  /// Maps a raw width to a [UtopiaPageType] using [UtopiaBreakpoints.tabletMin] and
-  /// [UtopiaBreakpoints.webMin].
-  static UtopiaPageType resolveType(double width) {
-    if (width < UtopiaBreakpoints.tabletMin) return UtopiaPageType.mobile;
-    if (width < UtopiaBreakpoints.webMin) return UtopiaPageType.tablet;
+  /// Maps a raw width to a [UtopiaPageType] using [breakpoints] - the ambient
+  /// theme's `context.tokens.breakpoints` inside the wrapper, or the
+  /// [UtopiaBreakpoints]-matching defaults when called without one.
+  static UtopiaPageType resolveType(double width, [UtopiaBreakpointTokens breakpoints = const UtopiaBreakpointTokens()]) {
+    if (width < breakpoints.tabletMin) return UtopiaPageType.mobile;
+    if (width < breakpoints.webMin) return UtopiaPageType.tablet;
     return UtopiaPageType.web;
   }
 }

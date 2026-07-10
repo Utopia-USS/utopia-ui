@@ -28,8 +28,8 @@ class UtopiaChipList extends StatelessWidget {
     final shown = (limit != null && labels.length > limit) ? labels.sublist(0, limit) : labels;
     final overflow = labels.length - shown.length;
     return Wrap(
-      spacing: 8,
-      runSpacing: 4,
+      spacing: context.spacing.sm,
+      runSpacing: context.spacing.xs,
       children: [
         for (final label in shown) UtopiaChip(child: Text(label, overflow: TextOverflow.ellipsis)),
         if (overflow > 0) UtopiaChip(child: Text('+$overflow more')),

@@ -16,7 +16,10 @@ mixin _$UtopiaThemeColors {
 
  Color get primary; Color get accent; Color get field; Color get canvas; Color get error; Color get disabled; Color get text;/// Background of the table card and other raised surfaces.
  Color get surface;/// Hairline colour for the card border and row / header dividers.
- Color get border;/// Tint of alternating (odd) table rows.
+ Color get border;/// Colour of `UtopiaDivider` hairlines. `null` (the default) derives a
+/// contrast-safe colour from [text] over [surface] at paint time, so
+/// dividers stay visible in any theme without being set explicitly.
+ Color? get divider;/// Tint of alternating (odd) table rows.
  Color get rowAlt;/// Row background while hovered.
  Color get hover;/// Fill of a `UtopiaChip`.
  Color get chipBackground;/// Content (text / icon) colour of a `UtopiaChip`.
@@ -41,16 +44,16 @@ $UtopiaThemeColorsCopyWith<UtopiaThemeColors> get copyWith => _$UtopiaThemeColor
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UtopiaThemeColors&&(identical(other.primary, primary) || other.primary == primary)&&(identical(other.accent, accent) || other.accent == accent)&&(identical(other.field, field) || other.field == field)&&(identical(other.canvas, canvas) || other.canvas == canvas)&&(identical(other.error, error) || other.error == error)&&(identical(other.disabled, disabled) || other.disabled == disabled)&&(identical(other.text, text) || other.text == text)&&(identical(other.surface, surface) || other.surface == surface)&&(identical(other.border, border) || other.border == border)&&(identical(other.rowAlt, rowAlt) || other.rowAlt == rowAlt)&&(identical(other.hover, hover) || other.hover == hover)&&(identical(other.chipBackground, chipBackground) || other.chipBackground == chipBackground)&&(identical(other.chipForeground, chipForeground) || other.chipForeground == chipForeground)&&(identical(other.hint, hint) || other.hint == hint)&&(identical(other.onColoredContent, onColoredContent) || other.onColoredContent == onColoredContent)&&(identical(other.onColoredSelected, onColoredSelected) || other.onColoredSelected == onColoredSelected)&&(identical(other.onColoredHover, onColoredHover) || other.onColoredHover == onColoredHover));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is UtopiaThemeColors&&(identical(other.primary, primary) || other.primary == primary)&&(identical(other.accent, accent) || other.accent == accent)&&(identical(other.field, field) || other.field == field)&&(identical(other.canvas, canvas) || other.canvas == canvas)&&(identical(other.error, error) || other.error == error)&&(identical(other.disabled, disabled) || other.disabled == disabled)&&(identical(other.text, text) || other.text == text)&&(identical(other.surface, surface) || other.surface == surface)&&(identical(other.border, border) || other.border == border)&&(identical(other.divider, divider) || other.divider == divider)&&(identical(other.rowAlt, rowAlt) || other.rowAlt == rowAlt)&&(identical(other.hover, hover) || other.hover == hover)&&(identical(other.chipBackground, chipBackground) || other.chipBackground == chipBackground)&&(identical(other.chipForeground, chipForeground) || other.chipForeground == chipForeground)&&(identical(other.hint, hint) || other.hint == hint)&&(identical(other.onColoredContent, onColoredContent) || other.onColoredContent == onColoredContent)&&(identical(other.onColoredSelected, onColoredSelected) || other.onColoredSelected == onColoredSelected)&&(identical(other.onColoredHover, onColoredHover) || other.onColoredHover == onColoredHover));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,primary,accent,field,canvas,error,disabled,text,surface,border,rowAlt,hover,chipBackground,chipForeground,hint,onColoredContent,onColoredSelected,onColoredHover);
+int get hashCode => Object.hash(runtimeType,primary,accent,field,canvas,error,disabled,text,surface,border,divider,rowAlt,hover,chipBackground,chipForeground,hint,onColoredContent,onColoredSelected,onColoredHover);
 
 @override
 String toString() {
-  return 'UtopiaThemeColors(primary: $primary, accent: $accent, field: $field, canvas: $canvas, error: $error, disabled: $disabled, text: $text, surface: $surface, border: $border, rowAlt: $rowAlt, hover: $hover, chipBackground: $chipBackground, chipForeground: $chipForeground, hint: $hint, onColoredContent: $onColoredContent, onColoredSelected: $onColoredSelected, onColoredHover: $onColoredHover)';
+  return 'UtopiaThemeColors(primary: $primary, accent: $accent, field: $field, canvas: $canvas, error: $error, disabled: $disabled, text: $text, surface: $surface, border: $border, divider: $divider, rowAlt: $rowAlt, hover: $hover, chipBackground: $chipBackground, chipForeground: $chipForeground, hint: $hint, onColoredContent: $onColoredContent, onColoredSelected: $onColoredSelected, onColoredHover: $onColoredHover)';
 }
 
 
@@ -61,7 +64,7 @@ abstract mixin class $UtopiaThemeColorsCopyWith<$Res>  {
   factory $UtopiaThemeColorsCopyWith(UtopiaThemeColors value, $Res Function(UtopiaThemeColors) _then) = _$UtopiaThemeColorsCopyWithImpl;
 @useResult
 $Res call({
- Color primary, Color accent, Color field, Color canvas, Color error, Color disabled, Color text, Color surface, Color border, Color rowAlt, Color hover, Color chipBackground, Color chipForeground, Color hint, Color onColoredContent, Color onColoredSelected, Color onColoredHover
+ Color primary, Color accent, Color field, Color canvas, Color error, Color disabled, Color text, Color surface, Color border, Color? divider, Color rowAlt, Color hover, Color chipBackground, Color chipForeground, Color hint, Color onColoredContent, Color onColoredSelected, Color onColoredHover
 });
 
 
@@ -78,7 +81,7 @@ class _$UtopiaThemeColorsCopyWithImpl<$Res>
 
 /// Create a copy of UtopiaThemeColors
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? primary = null,Object? accent = null,Object? field = null,Object? canvas = null,Object? error = null,Object? disabled = null,Object? text = null,Object? surface = null,Object? border = null,Object? rowAlt = null,Object? hover = null,Object? chipBackground = null,Object? chipForeground = null,Object? hint = null,Object? onColoredContent = null,Object? onColoredSelected = null,Object? onColoredHover = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? primary = null,Object? accent = null,Object? field = null,Object? canvas = null,Object? error = null,Object? disabled = null,Object? text = null,Object? surface = null,Object? border = null,Object? divider = freezed,Object? rowAlt = null,Object? hover = null,Object? chipBackground = null,Object? chipForeground = null,Object? hint = null,Object? onColoredContent = null,Object? onColoredSelected = null,Object? onColoredHover = null,}) {
   return _then(_self.copyWith(
 primary: null == primary ? _self.primary : primary // ignore: cast_nullable_to_non_nullable
 as Color,accent: null == accent ? _self.accent : accent // ignore: cast_nullable_to_non_nullable
@@ -89,7 +92,8 @@ as Color,disabled: null == disabled ? _self.disabled : disabled // ignore: cast_
 as Color,text: null == text ? _self.text : text // ignore: cast_nullable_to_non_nullable
 as Color,surface: null == surface ? _self.surface : surface // ignore: cast_nullable_to_non_nullable
 as Color,border: null == border ? _self.border : border // ignore: cast_nullable_to_non_nullable
-as Color,rowAlt: null == rowAlt ? _self.rowAlt : rowAlt // ignore: cast_nullable_to_non_nullable
+as Color,divider: freezed == divider ? _self.divider : divider // ignore: cast_nullable_to_non_nullable
+as Color?,rowAlt: null == rowAlt ? _self.rowAlt : rowAlt // ignore: cast_nullable_to_non_nullable
 as Color,hover: null == hover ? _self.hover : hover // ignore: cast_nullable_to_non_nullable
 as Color,chipBackground: null == chipBackground ? _self.chipBackground : chipBackground // ignore: cast_nullable_to_non_nullable
 as Color,chipForeground: null == chipForeground ? _self.chipForeground : chipForeground // ignore: cast_nullable_to_non_nullable
@@ -182,10 +186,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( Color primary,  Color accent,  Color field,  Color canvas,  Color error,  Color disabled,  Color text,  Color surface,  Color border,  Color rowAlt,  Color hover,  Color chipBackground,  Color chipForeground,  Color hint,  Color onColoredContent,  Color onColoredSelected,  Color onColoredHover)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( Color primary,  Color accent,  Color field,  Color canvas,  Color error,  Color disabled,  Color text,  Color surface,  Color border,  Color? divider,  Color rowAlt,  Color hover,  Color chipBackground,  Color chipForeground,  Color hint,  Color onColoredContent,  Color onColoredSelected,  Color onColoredHover)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _UtopiaThemeColors() when $default != null:
-return $default(_that.primary,_that.accent,_that.field,_that.canvas,_that.error,_that.disabled,_that.text,_that.surface,_that.border,_that.rowAlt,_that.hover,_that.chipBackground,_that.chipForeground,_that.hint,_that.onColoredContent,_that.onColoredSelected,_that.onColoredHover);case _:
+return $default(_that.primary,_that.accent,_that.field,_that.canvas,_that.error,_that.disabled,_that.text,_that.surface,_that.border,_that.divider,_that.rowAlt,_that.hover,_that.chipBackground,_that.chipForeground,_that.hint,_that.onColoredContent,_that.onColoredSelected,_that.onColoredHover);case _:
   return orElse();
 
 }
@@ -203,10 +207,10 @@ return $default(_that.primary,_that.accent,_that.field,_that.canvas,_that.error,
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( Color primary,  Color accent,  Color field,  Color canvas,  Color error,  Color disabled,  Color text,  Color surface,  Color border,  Color rowAlt,  Color hover,  Color chipBackground,  Color chipForeground,  Color hint,  Color onColoredContent,  Color onColoredSelected,  Color onColoredHover)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( Color primary,  Color accent,  Color field,  Color canvas,  Color error,  Color disabled,  Color text,  Color surface,  Color border,  Color? divider,  Color rowAlt,  Color hover,  Color chipBackground,  Color chipForeground,  Color hint,  Color onColoredContent,  Color onColoredSelected,  Color onColoredHover)  $default,) {final _that = this;
 switch (_that) {
 case _UtopiaThemeColors():
-return $default(_that.primary,_that.accent,_that.field,_that.canvas,_that.error,_that.disabled,_that.text,_that.surface,_that.border,_that.rowAlt,_that.hover,_that.chipBackground,_that.chipForeground,_that.hint,_that.onColoredContent,_that.onColoredSelected,_that.onColoredHover);case _:
+return $default(_that.primary,_that.accent,_that.field,_that.canvas,_that.error,_that.disabled,_that.text,_that.surface,_that.border,_that.divider,_that.rowAlt,_that.hover,_that.chipBackground,_that.chipForeground,_that.hint,_that.onColoredContent,_that.onColoredSelected,_that.onColoredHover);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -223,10 +227,10 @@ return $default(_that.primary,_that.accent,_that.field,_that.canvas,_that.error,
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( Color primary,  Color accent,  Color field,  Color canvas,  Color error,  Color disabled,  Color text,  Color surface,  Color border,  Color rowAlt,  Color hover,  Color chipBackground,  Color chipForeground,  Color hint,  Color onColoredContent,  Color onColoredSelected,  Color onColoredHover)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( Color primary,  Color accent,  Color field,  Color canvas,  Color error,  Color disabled,  Color text,  Color surface,  Color border,  Color? divider,  Color rowAlt,  Color hover,  Color chipBackground,  Color chipForeground,  Color hint,  Color onColoredContent,  Color onColoredSelected,  Color onColoredHover)?  $default,) {final _that = this;
 switch (_that) {
 case _UtopiaThemeColors() when $default != null:
-return $default(_that.primary,_that.accent,_that.field,_that.canvas,_that.error,_that.disabled,_that.text,_that.surface,_that.border,_that.rowAlt,_that.hover,_that.chipBackground,_that.chipForeground,_that.hint,_that.onColoredContent,_that.onColoredSelected,_that.onColoredHover);case _:
+return $default(_that.primary,_that.accent,_that.field,_that.canvas,_that.error,_that.disabled,_that.text,_that.surface,_that.border,_that.divider,_that.rowAlt,_that.hover,_that.chipBackground,_that.chipForeground,_that.hint,_that.onColoredContent,_that.onColoredSelected,_that.onColoredHover);case _:
   return null;
 
 }
@@ -238,7 +242,7 @@ return $default(_that.primary,_that.accent,_that.field,_that.canvas,_that.error,
 
 
 class _UtopiaThemeColors extends UtopiaThemeColors {
-   _UtopiaThemeColors({required this.primary, required this.accent, required this.field, required this.canvas, required this.error, required this.disabled, required this.text, this.surface = const Color(0xFFFFFFFF), this.border = const Color(0xFFE8EAF0), this.rowAlt = const Color(0xFFF7F8FB), this.hover = const Color(0xFFEFF1F8), this.chipBackground = const Color(0xFFE7EAFD), this.chipForeground = const Color(0xFF536DFE), this.hint = const Color(0xFF9AA0B5), required this.onColoredContent, required this.onColoredSelected, required this.onColoredHover}): super._();
+   _UtopiaThemeColors({required this.primary, required this.accent, required this.field, required this.canvas, required this.error, required this.disabled, required this.text, this.surface = const Color(0xFFFFFFFF), this.border = const Color(0xFFE8EAF0), this.divider, this.rowAlt = const Color(0xFFF7F8FB), this.hover = const Color(0xFFEFF1F8), this.chipBackground = const Color(0xFFE7EAFD), this.chipForeground = const Color(0xFF536DFE), this.hint = const Color(0xFF9AA0B5), required this.onColoredContent, required this.onColoredSelected, required this.onColoredHover}): super._();
   
 
 @override final  Color primary;
@@ -252,6 +256,10 @@ class _UtopiaThemeColors extends UtopiaThemeColors {
 @override@JsonKey() final  Color surface;
 /// Hairline colour for the card border and row / header dividers.
 @override@JsonKey() final  Color border;
+/// Colour of `UtopiaDivider` hairlines. `null` (the default) derives a
+/// contrast-safe colour from [text] over [surface] at paint time, so
+/// dividers stay visible in any theme without being set explicitly.
+@override final  Color? divider;
 /// Tint of alternating (odd) table rows.
 @override@JsonKey() final  Color rowAlt;
 /// Row background while hovered.
@@ -285,16 +293,16 @@ _$UtopiaThemeColorsCopyWith<_UtopiaThemeColors> get copyWith => __$UtopiaThemeCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UtopiaThemeColors&&(identical(other.primary, primary) || other.primary == primary)&&(identical(other.accent, accent) || other.accent == accent)&&(identical(other.field, field) || other.field == field)&&(identical(other.canvas, canvas) || other.canvas == canvas)&&(identical(other.error, error) || other.error == error)&&(identical(other.disabled, disabled) || other.disabled == disabled)&&(identical(other.text, text) || other.text == text)&&(identical(other.surface, surface) || other.surface == surface)&&(identical(other.border, border) || other.border == border)&&(identical(other.rowAlt, rowAlt) || other.rowAlt == rowAlt)&&(identical(other.hover, hover) || other.hover == hover)&&(identical(other.chipBackground, chipBackground) || other.chipBackground == chipBackground)&&(identical(other.chipForeground, chipForeground) || other.chipForeground == chipForeground)&&(identical(other.hint, hint) || other.hint == hint)&&(identical(other.onColoredContent, onColoredContent) || other.onColoredContent == onColoredContent)&&(identical(other.onColoredSelected, onColoredSelected) || other.onColoredSelected == onColoredSelected)&&(identical(other.onColoredHover, onColoredHover) || other.onColoredHover == onColoredHover));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UtopiaThemeColors&&(identical(other.primary, primary) || other.primary == primary)&&(identical(other.accent, accent) || other.accent == accent)&&(identical(other.field, field) || other.field == field)&&(identical(other.canvas, canvas) || other.canvas == canvas)&&(identical(other.error, error) || other.error == error)&&(identical(other.disabled, disabled) || other.disabled == disabled)&&(identical(other.text, text) || other.text == text)&&(identical(other.surface, surface) || other.surface == surface)&&(identical(other.border, border) || other.border == border)&&(identical(other.divider, divider) || other.divider == divider)&&(identical(other.rowAlt, rowAlt) || other.rowAlt == rowAlt)&&(identical(other.hover, hover) || other.hover == hover)&&(identical(other.chipBackground, chipBackground) || other.chipBackground == chipBackground)&&(identical(other.chipForeground, chipForeground) || other.chipForeground == chipForeground)&&(identical(other.hint, hint) || other.hint == hint)&&(identical(other.onColoredContent, onColoredContent) || other.onColoredContent == onColoredContent)&&(identical(other.onColoredSelected, onColoredSelected) || other.onColoredSelected == onColoredSelected)&&(identical(other.onColoredHover, onColoredHover) || other.onColoredHover == onColoredHover));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,primary,accent,field,canvas,error,disabled,text,surface,border,rowAlt,hover,chipBackground,chipForeground,hint,onColoredContent,onColoredSelected,onColoredHover);
+int get hashCode => Object.hash(runtimeType,primary,accent,field,canvas,error,disabled,text,surface,border,divider,rowAlt,hover,chipBackground,chipForeground,hint,onColoredContent,onColoredSelected,onColoredHover);
 
 @override
 String toString() {
-  return 'UtopiaThemeColors(primary: $primary, accent: $accent, field: $field, canvas: $canvas, error: $error, disabled: $disabled, text: $text, surface: $surface, border: $border, rowAlt: $rowAlt, hover: $hover, chipBackground: $chipBackground, chipForeground: $chipForeground, hint: $hint, onColoredContent: $onColoredContent, onColoredSelected: $onColoredSelected, onColoredHover: $onColoredHover)';
+  return 'UtopiaThemeColors(primary: $primary, accent: $accent, field: $field, canvas: $canvas, error: $error, disabled: $disabled, text: $text, surface: $surface, border: $border, divider: $divider, rowAlt: $rowAlt, hover: $hover, chipBackground: $chipBackground, chipForeground: $chipForeground, hint: $hint, onColoredContent: $onColoredContent, onColoredSelected: $onColoredSelected, onColoredHover: $onColoredHover)';
 }
 
 
@@ -305,7 +313,7 @@ abstract mixin class _$UtopiaThemeColorsCopyWith<$Res> implements $UtopiaThemeCo
   factory _$UtopiaThemeColorsCopyWith(_UtopiaThemeColors value, $Res Function(_UtopiaThemeColors) _then) = __$UtopiaThemeColorsCopyWithImpl;
 @override @useResult
 $Res call({
- Color primary, Color accent, Color field, Color canvas, Color error, Color disabled, Color text, Color surface, Color border, Color rowAlt, Color hover, Color chipBackground, Color chipForeground, Color hint, Color onColoredContent, Color onColoredSelected, Color onColoredHover
+ Color primary, Color accent, Color field, Color canvas, Color error, Color disabled, Color text, Color surface, Color border, Color? divider, Color rowAlt, Color hover, Color chipBackground, Color chipForeground, Color hint, Color onColoredContent, Color onColoredSelected, Color onColoredHover
 });
 
 
@@ -322,7 +330,7 @@ class __$UtopiaThemeColorsCopyWithImpl<$Res>
 
 /// Create a copy of UtopiaThemeColors
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? primary = null,Object? accent = null,Object? field = null,Object? canvas = null,Object? error = null,Object? disabled = null,Object? text = null,Object? surface = null,Object? border = null,Object? rowAlt = null,Object? hover = null,Object? chipBackground = null,Object? chipForeground = null,Object? hint = null,Object? onColoredContent = null,Object? onColoredSelected = null,Object? onColoredHover = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? primary = null,Object? accent = null,Object? field = null,Object? canvas = null,Object? error = null,Object? disabled = null,Object? text = null,Object? surface = null,Object? border = null,Object? divider = freezed,Object? rowAlt = null,Object? hover = null,Object? chipBackground = null,Object? chipForeground = null,Object? hint = null,Object? onColoredContent = null,Object? onColoredSelected = null,Object? onColoredHover = null,}) {
   return _then(_UtopiaThemeColors(
 primary: null == primary ? _self.primary : primary // ignore: cast_nullable_to_non_nullable
 as Color,accent: null == accent ? _self.accent : accent // ignore: cast_nullable_to_non_nullable
@@ -333,7 +341,8 @@ as Color,disabled: null == disabled ? _self.disabled : disabled // ignore: cast_
 as Color,text: null == text ? _self.text : text // ignore: cast_nullable_to_non_nullable
 as Color,surface: null == surface ? _self.surface : surface // ignore: cast_nullable_to_non_nullable
 as Color,border: null == border ? _self.border : border // ignore: cast_nullable_to_non_nullable
-as Color,rowAlt: null == rowAlt ? _self.rowAlt : rowAlt // ignore: cast_nullable_to_non_nullable
+as Color,divider: freezed == divider ? _self.divider : divider // ignore: cast_nullable_to_non_nullable
+as Color?,rowAlt: null == rowAlt ? _self.rowAlt : rowAlt // ignore: cast_nullable_to_non_nullable
 as Color,hover: null == hover ? _self.hover : hover // ignore: cast_nullable_to_non_nullable
 as Color,chipBackground: null == chipBackground ? _self.chipBackground : chipBackground // ignore: cast_nullable_to_non_nullable
 as Color,chipForeground: null == chipForeground ? _self.chipForeground : chipForeground // ignore: cast_nullable_to_non_nullable

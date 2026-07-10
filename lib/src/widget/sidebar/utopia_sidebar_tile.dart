@@ -51,8 +51,9 @@ class UtopiaSidebarTile extends StatelessWidget {
     final hoverColor = onColored ? colors.onColoredHover : colors.hover;
     final baseStyle = onColored ? context.textStyles.button : context.textStyles.label;
 
+    final spacing = context.spacing;
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 3),
+      padding: EdgeInsets.symmetric(horizontal: spacing.md, vertical: spacing.xs),
       child: Material(
         color: isSelected ? selectedColor : Colors.transparent,
         borderRadius: context.theme.borderRadius,
@@ -61,7 +62,7 @@ class UtopiaSidebarTile extends StatelessWidget {
           onTap: onPressed,
           hoverColor: hoverColor,
           child: Padding(
-            padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
+            padding: EdgeInsets.symmetric(horizontal: spacing.lg, vertical: spacing.md),
             child: IconTheme.merge(
               data: IconThemeData(color: contentColor, size: 22),
               child: DefaultTextStyle(
@@ -82,7 +83,8 @@ class UtopiaSidebarTile extends StatelessWidget {
   }
 
   Widget _buildLabel(BuildContext context) {
-    final duration = isExpanded ? const Duration(milliseconds: 400) : const Duration(milliseconds: 150);
+    final durations = context.tokens.durations;
+    final duration = isExpanded ? durations.xl : durations.sm;
     return AnimatedOpacity(
       curve: Curves.easeOutExpo,
       duration: duration,
@@ -95,7 +97,7 @@ class UtopiaSidebarTile extends StatelessWidget {
           scale: isExpanded ? 1 : 0,
           curve: Curves.easeOutExpo,
           duration: duration,
-          child: Padding(padding: const EdgeInsets.only(left: 12.0), child: label),
+          child: Padding(padding: EdgeInsets.only(left: context.spacing.md), child: label),
         ),
       ),
     );

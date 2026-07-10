@@ -1,18 +1,23 @@
 import 'package:flutter/material.dart';
 import 'package:utopia_ui/src/theme/utopia_theme.dart';
 import 'package:utopia_ui/src/util/utopia_context_extensions.dart';
+import 'package:utopia_ui/src/widget/button/utopia_button.dart';
 
-/// A themed confirm/cancel prompt built on [AlertDialog].
+/// A themed confirm/cancel prompt drawn with the utopia card chrome - the
+/// same surface, border, shadow and radius as every other card - rather than
+/// a Material [AlertDialog].
 ///
 /// A neutral confirm/cancel prefab: no default title/subtitle strings are
 /// baked in here - callers own their own copy. Title renders in
-/// `textStyles.header`, content is capped at 360 logical pixels, and both
-/// actions are text buttons.
+/// `textStyles.header`, body copy in `textStyles.text`, and the card is
+/// capped at 400 logical pixels wide. The confirming action is a dense
+/// [UtopiaButton]; the cancelling action is a quiet text button, so the
+/// primary action carries the visual weight.
 class UtopiaConfirmDialog extends StatelessWidget {
   /// Dialog title, shown in `textStyles.header`.
   final String title;
 
-  /// Optional body copy, shown in `textStyles.text` inside a 360-wide box.
+  /// Optional body copy, shown in `textStyles.text` below the title.
   /// When null, the dialog renders with no content section.
   final String? subtitle;
 
@@ -41,25 +46,58 @@ class UtopiaConfirmDialog extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final colors = context.colors;
+    final theme = context.theme;
     final texts = context.textStyles;
+    final spacing = context.spacing;
     final subtitle = this.subtitle;
-    return AlertDialog(
-      title: Text(title, style: texts.header),
-      buttonPadding: const EdgeInsets.symmetric(vertical: 20, horizontal: 12),
-      content: subtitle == null ? null : SizedBox(width: 360, child: Text(subtitle, style: texts.text)),
-      actions: [
-        if (hasCancel)
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(false),
-            child: Text(cancelLabel, style: texts.label.copyWith(color: colors.primary)),
+
+    return Center(
+      child: Padding(
+        // Keeps the card off the screen edges on narrow windows.
+        padding: EdgeInsets.symmetric(horizontal: spacing.xl),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 400),
+          child: Material(
+            color: Colors.transparent,
+            child: Container(
+              decoration: theme.cardDecoration,
+              foregroundDecoration: theme.cardBorderDecoration,
+              clipBehavior: Clip.antiAlias,
+              padding: EdgeInsets.all(spacing.xl),
+              child: Column(
+                mainAxisSize: MainAxisSize.min,
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  Text(title, style: texts.header),
+                  if (subtitle != null) ...[
+                    SizedBox(height: spacing.md),
+                    Text(subtitle, style: texts.text),
+                  ],
+                  SizedBox(height: spacing.xl),
+                  Row(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    children: [
+                      if (hasCancel) _GhostButton(label: cancelLabel, onTap: () => Navigator.of(context).pop(false)),
+                      if (hasCancel && hasConfirm) SizedBox(width: spacing.md),
+                      if (hasConfirm)
+                        IntrinsicWidth(
+                          child: UtopiaButton(
+                            dense: true,
+                            onTap: () => Navigator.of(context).pop(true),
+                            child: Padding(
+                              padding: EdgeInsets.symmetric(horizontal: spacing.xl),
+                              child: Text(confirmLabel),
+                            ),
+                          ),
+                        ),
+                    ],
+                  ),
+                ],
+              ),
+            ),
           ),
-        if (hasConfirm)
-          TextButton(
-            onPressed: () => Navigator.of(context).pop(true),
-            child: Text(confirmLabel, style: texts.label),
-          ),
-      ],
+        ),
+      ),
     );
   }
 
@@ -88,6 +126,37 @@ class UtopiaConfirmDialog extends StatelessWidget {
           cancelLabel: cancelLabel,
           hasConfirm: hasConfirm,
           hasCancel: hasCancel,
+        ),
+      ),
+    );
+  }
+}
+
+/// The quiet cancelling action: label-styled text with a soft hover fill and
+/// the same resting height as a dense [UtopiaButton], so the action row
+/// baseline-aligns.
+class _GhostButton extends StatelessWidget {
+  final String label;
+  final VoidCallback onTap;
+
+  const _GhostButton({required this.label, required this.onTap});
+
+  @override
+  Widget build(BuildContext context) {
+    final tokens = context.tokens;
+    return Material(
+      color: Colors.transparent,
+      borderRadius: context.theme.borderRadius,
+      clipBehavior: Clip.antiAlias,
+      child: InkWell(
+        onTap: onTap,
+        hoverColor: context.colors.hover,
+        child: ConstrainedBox(
+          constraints: BoxConstraints(minHeight: tokens.x * 10),
+          child: Padding(
+            padding: EdgeInsets.symmetric(horizontal: context.spacing.xl),
+            child: Center(widthFactor: 1, child: Text(label, style: context.textStyles.label)),
+          ),
         ),
       ),
     );

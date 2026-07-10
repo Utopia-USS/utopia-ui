@@ -2,133 +2,198 @@ import 'package:flutter/material.dart';
 import 'package:utopia_hooks/utopia_hooks.dart';
 import 'package:utopia_ui/utopia_ui.dart';
 
-import 'sections/buttons_section.dart';
-import 'sections/chips_text_section.dart';
-import 'sections/colors_section.dart';
-import 'sections/dialogs_section.dart';
-import 'sections/fields_section.dart';
-import 'sections/loading_section.dart';
-import 'sections/selection_section.dart';
-import 'sections/sidebar_section.dart';
-import 'sections/surfaces_section.dart';
-import 'sections/table_section.dart';
-import 'sections/typography_section.dart';
+import 'pages/components_page.dart';
+import 'pages/dashboard/dashboard_page.dart';
+import 'pages/editor/editor_page.dart';
+import 'pages/settings_page.dart';
 import 'state/theme_mode_state.dart';
 import 'theme.dart';
-import 'widgets/theme_mode_picker.dart';
 
 void main() => runApp(const DesignSystemApp());
 
-/// App-wide hook providers. [ThemeModeState] holds the selected theme mode,
-/// written by [ThemeModePicker] and read by [DesignSystemSheet] to re-theme
-/// the whole sheet.
 const _providers = <Type, Object? Function()>{ThemeModeState: useThemeModeState};
 
-/// A design-system reference for `utopia_ui`: every token and component
-/// laid out on one themable page, so a change to a widget or a theme value is
-/// visible across the whole catalog at once.
+/// The utopia_ui showcase: a small admin app driven entirely by the design
+/// system, with a [UtopiaSidebar] rail navigating between working pages.
 class DesignSystemApp extends HookWidget {
-  /// Creates the design-system sheet app.
   const DesignSystemApp({super.key});
 
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
-      title: 'utopia_ui - Design System',
+      title: 'utopia_ui - Showcase',
       debugShowCheckedModeBanner: false,
-      home: const DesignSystemSheet(),
+      home: const ShowcaseShell(),
       builder: (context, child) =>
           HookProviderContainerWidget(_providers, alwaysNotifyDependents: false, child: child!),
     );
   }
 }
 
-/// The sheet itself: a header band with the title and [ThemeModePicker],
-/// followed by one scrollable column of sections, each demonstrating a slice
-/// of the design system under the currently selected theme. Sections open
-/// with the library's flagship component - the table - before working down
-/// to individual controls and finally the raw tokens.
-class DesignSystemSheet extends HookWidget {
-  /// Creates the design-system sheet page.
-  const DesignSystemSheet({super.key});
+/// The showcase's pages, one per sidebar destination; the enum's `name` doubles
+/// as the [UtopiaSidebarDestination.id].
+enum ShowcasePage {
+  dashboard('Dashboard', Icons.space_dashboard_outlined),
+  editor('Editor', Icons.edit_note_outlined),
+  settings('Settings', Icons.settings_outlined),
+  components('Components', Icons.widgets_outlined);
 
-  static const double _maxContentWidth = 1120;
+  final String label;
+  final IconData icon;
+
+  const ShowcasePage(this.label, this.icon);
+
+  Widget build() => switch (this) {
+    ShowcasePage.dashboard => const DashboardPage(),
+    ShowcasePage.editor => const EditorPage(),
+    ShowcasePage.settings => const SettingsPage(),
+    ShowcasePage.components => const ComponentsPage(),
+  };
+}
+
+/// Resolves the active theme and picks the rail or drawer shell by size class.
+class ShowcaseShell extends HookWidget {
+  const ShowcaseShell({super.key});
 
   @override
   Widget build(BuildContext context) {
     final themeMode = useProvided<ThemeModeState>();
     final theme = themeFor(themeMode.mode.value);
+    final selected = useState(ShowcasePage.dashboard);
+
     return UtopiaTheme(
       data: theme,
-      child: Scaffold(
-        backgroundColor: theme.colors.canvas,
-        body: Column(
-          children: [
-            Padding(
-              padding: const EdgeInsets.fromLTRB(24, 32, 24, 24),
-              child: Wrap(
-                spacing: 24,
-                runSpacing: 16,
-                crossAxisAlignment: WrapCrossAlignment.center,
-                children: [
-                  Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisSize: MainAxisSize.min,
-                    children: [
-                      Text('utopia_ui', style: theme.textStyles.header),
-                      const SizedBox(height: 4),
-                      Text(
-                        'Design system reference - every token and component, themed live.',
-                        style: theme.textStyles.text.copyWith(color: theme.colors.hint),
-                      ),
-                    ],
-                  ),
-                  const ThemeModePicker(),
-                ],
-              ),
-            ),
-            const UtopiaDivider(),
-            Expanded(
-              child: SingleChildScrollView(
-                child: Center(
-                  child: ConstrainedBox(
-                    constraints: const BoxConstraints(maxWidth: _maxContentWidth),
-                    child: const Padding(
-                      padding: EdgeInsets.fromLTRB(24, 8, 24, 64),
-                      child: Column(
-                        crossAxisAlignment: CrossAxisAlignment.start,
-                        children: [
-                          TableSection(),
-                          SizedBox(height: 48),
-                          FieldsSection(),
-                          SizedBox(height: 48),
-                          ButtonsSection(),
-                          SizedBox(height: 48),
-                          SelectionSection(),
-                          SizedBox(height: 48),
-                          ChipsTextSection(),
-                          SizedBox(height: 48),
-                          DialogsSection(),
-                          SizedBox(height: 48),
-                          SidebarSection(),
-                          SizedBox(height: 48),
-                          LoadingSection(),
-                          SizedBox(height: 48),
-                          ColorsSection(),
-                          SizedBox(height: 48),
-                          TypographySection(),
-                          SizedBox(height: 48),
-                          SurfacesSection(),
-                        ],
-                      ),
-                    ),
-                  ),
-                ),
-              ),
-            ),
-          ],
-        ),
+      child: UtopiaPageWrapper(
+        builder: (context, pageType) => pageType.isMobile
+            ? _MobileShell(selected: selected)
+            : _RailShell(selected: selected),
       ),
     );
   }
+}
+
+class _RailShell extends StatelessWidget {
+  final MutableValue<ShowcasePage> selected;
+
+  const _RailShell({required this.selected});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: context.colors.canvas,
+      body: Row(
+        children: [
+          _ShowcaseSidebar(selected: selected),
+          Expanded(child: selected.value.build()),
+        ],
+      ),
+    );
+  }
+}
+
+class _MobileShell extends StatelessWidget {
+  final MutableValue<ShowcasePage> selected;
+
+  const _MobileShell({required this.selected});
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      backgroundColor: context.colors.canvas,
+      drawer: _ShowcaseSidebar(selected: selected, isDrawer: true),
+      body: Column(
+        crossAxisAlignment: CrossAxisAlignment.stretch,
+        children: [
+          SafeArea(
+            bottom: false,
+            child: Padding(
+              padding: const EdgeInsets.fromLTRB(8, 8, 16, 8),
+              child: Row(
+                children: [
+                  Builder(
+                    builder: (context) => IconButton(
+                      icon: Icon(Icons.menu, color: context.colors.text),
+                      tooltip: 'Open menu',
+                      onPressed: () => Scaffold.of(context).openDrawer(),
+                    ),
+                  ),
+                  const SizedBox(width: 4),
+                  Icon(Icons.auto_awesome, size: 18, color: context.colors.primary),
+                  const SizedBox(width: 8),
+                  Text('utopia_ui', style: context.textStyles.label),
+                ],
+              ),
+            ),
+          ),
+          const UtopiaDivider(),
+          Expanded(child: selected.value.build()),
+        ],
+      ),
+    );
+  }
+}
+
+class _ShowcaseSidebar extends StatelessWidget {
+  final MutableValue<ShowcasePage> selected;
+  final bool isDrawer;
+
+  const _ShowcaseSidebar({required this.selected, this.isDrawer = false});
+
+  @override
+  Widget build(BuildContext context) {
+    return UtopiaSidebar(
+      presentation: isDrawer ? UtopiaSidebarPresentation.drawer : UtopiaSidebarPresentation.rail,
+      selectedId: selected.value.name,
+      onDestinationPressed: (destination) {
+        selected.value = ShowcasePage.values.byName(destination.id);
+        if (isDrawer) Navigator.of(context).pop();
+      },
+      style: UtopiaSidebarStyle(
+        backgroundColors: [context.colors.primary, context.colors.accent],
+        headerBuilder: _buildBrandHeader,
+      ),
+      items: [
+        for (final page in ShowcasePage.values)
+          UtopiaSidebarDestination(id: page.name, label: Text(page.label), icon: Icon(page.icon)),
+        UtopiaSidebarAction(
+          label: const Text('Sign out'),
+          icon: const Icon(Icons.logout),
+          onPressed: () => UtopiaConfirmDialog.show(
+            context,
+            title: 'Sign out?',
+            subtitle: 'This is a showcase - there is no session to end.',
+            confirmLabel: 'Sign out',
+          ),
+        ),
+      ],
+    );
+  }
+}
+
+/// A fixed-height brand mark for the sidebar header: an icon plus a wordmark
+/// when expanded, icon only when collapsed. Colored with the button text
+/// colour - the theme's "content on primary" - so it follows the theme on the
+/// gradient background (dark on bright-gradient themes, white on dark ones),
+/// matching the sidebar tiles.
+Widget _buildBrandHeader(BuildContext context, bool isCollapsed) {
+  final onColoredContent = context.textStyles.button.color ?? context.colors.onColoredContent;
+  final spacing = context.spacing;
+  return SizedBox(
+    height: 56,
+    child: Padding(
+      // md + lg mirrors a tile's outer + inner padding, so the header icon
+      // lines up with the tile icons below it.
+      padding: EdgeInsets.symmetric(horizontal: isCollapsed ? 0 : spacing.md + spacing.lg),
+      child: Row(
+        mainAxisAlignment: isCollapsed ? MainAxisAlignment.center : MainAxisAlignment.start,
+        children: [
+          Icon(Icons.auto_awesome, color: onColoredContent),
+          if (!isCollapsed) ...[
+            SizedBox(width: spacing.md),
+            Text('utopia_ui', style: context.textStyles.label.copyWith(color: onColoredContent)),
+          ],
+        ],
+      ),
+    ),
+  );
 }

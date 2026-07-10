@@ -25,12 +25,13 @@ class UtopiaChip extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final contentColor = this.contentColor ?? context.colors.chipForeground;
+    final spacing = context.spacing;
     return Container(
       decoration: BoxDecoration(
         color: color ?? context.colors.chipBackground,
         borderRadius: BorderRadius.circular(context.theme.chipRadius),
       ),
-      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
+      padding: EdgeInsets.symmetric(horizontal: spacing.md, vertical: spacing.xs),
       child: DefaultTextStyle.merge(
         style: context.textStyles.caption.copyWith(color: contentColor),
         child: IconTheme.merge(
@@ -38,7 +39,7 @@ class UtopiaChip extends StatelessWidget {
           child: Row(
             mainAxisSize: MainAxisSize.min,
             children: [
-              if (leading != null) ...[leading!, const SizedBox(width: 6)],
+              if (leading != null) ...[leading!, SizedBox(width: spacing.xs)],
               Flexible(child: child),
             ],
           ),

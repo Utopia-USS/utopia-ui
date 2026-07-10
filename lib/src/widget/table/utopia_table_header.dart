@@ -47,16 +47,18 @@ class UtopiaTableHeader<T> extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     // Column headers are a restrained take on the row data: same medium weight
-    // (capped at w500 - any heavier reads as too bold here), only a hair larger,
+    // (capped at medium - any heavier reads as too bold here), only a hair larger,
     // not the full section/page title size which renders too big and too heavy.
     final body = context.textStyles.text;
     final style = body.copyWith(
       color: context.colors.text,
-      fontWeight: FontWeight.w500,
+      fontWeight: context.tokens.fontWeights.medium,
       fontSize: (body.fontSize ?? 14) + 1,
     );
     return Padding(
-      padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+      // Full lg breathing room: rows scroll under this pinned row, so a tight
+      // header reads as the table crowding itself.
+      padding: EdgeInsets.symmetric(horizontal: context.spacing.lg, vertical: context.spacing.lg),
       child: Row(
         children: [
           for (final entry in entries) entry.wrapTableCell(_buildHeaderItem(context, entry, style)),
@@ -86,22 +88,41 @@ class UtopiaTableHeader<T> extends StatelessWidget {
         if (entry.tooltip != null) _buildTooltip(context, entry.tooltip!),
       ],
     );
-    final content = Padding(padding: UtopiaTable.itemPadding, child: titleRow);
 
     if (hasOptions) {
       return UtopiaOverlayAnchor(
         matchTriggerWidth: false,
-        triggerBuilder: (context, open) => MouseRegion(
-          cursor: SystemMouseCursors.click,
-          child: GestureDetector(onTap: open, child: content),
-        ),
+        triggerBuilder: (context, open) => _buildHeaderTrigger(context, onTap: open, child: titleRow),
         overlayBuilder: (context, close) => _buildSortOptionsMenu(context, entry, close),
       );
     }
-    if (!entry.isSortable) return content;
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      child: GestureDetector(onTap: () => onSortPressed?.call(entry), child: content),
+    if (!entry.isSortable) return Padding(padding: UtopiaTable.itemPadding, child: titleRow);
+    return _buildHeaderTrigger(context, onTap: () => onSortPressed?.call(entry), child: titleRow);
+  }
+
+  /// Wraps a sortable column title as a click target with a hover pill that
+  /// hugs the title + indicator instead of stretching across the whole cell
+  /// (the cell wrap hands the header a tight width, so the pill must be
+  /// shrink-wrapped through an [Align]). The pill's own side padding is pulled
+  /// out of the cell inset so the title keeps lining up with the row cells.
+  Widget _buildHeaderTrigger(BuildContext context, {required VoidCallback onTap, required Widget child}) {
+    final pillInset = context.spacing.sm;
+    final sideInset = (UtopiaTable.itemPadding.left - pillInset).clamp(0.0, double.infinity);
+    return Padding(
+      padding: EdgeInsets.symmetric(horizontal: sideInset),
+      child: Align(
+        alignment: Alignment.centerLeft,
+        heightFactor: 1,
+        child: GestureDetector(
+          onTap: onTap,
+          child: _HoverHighlight(
+            child: Padding(
+              padding: EdgeInsets.symmetric(horizontal: pillInset),
+              child: child,
+            ),
+          ),
+        ),
+      ),
     );
   }
 
@@ -118,7 +139,7 @@ class UtopiaTableHeader<T> extends StatelessWidget {
     );
 
     return Padding(
-      padding: const EdgeInsets.only(right: 8),
+      padding: EdgeInsets.only(right: context.spacing.sm),
       child: SizedBox(
         width: 16,
         height: 22,
@@ -134,14 +155,14 @@ class UtopiaTableHeader<T> extends StatelessWidget {
 
   Widget _buildDropdownIndicator(BuildContext context, {required bool active}) {
     return Padding(
-      padding: const EdgeInsets.only(left: 2),
+      padding: EdgeInsets.only(left: context.spacing.xxs),
       child: Icon(Icons.arrow_drop_down, size: 18, color: active ? context.colors.accent : context.colors.hint),
     );
   }
 
   Widget _buildTooltip(BuildContext context, String message) {
     return Padding(
-      padding: const EdgeInsets.only(left: 4),
+      padding: EdgeInsets.only(left: context.spacing.xs),
       child: Tooltip(
         message: message,
         child: Icon(Icons.info_outline, size: 14, color: context.colors.hint),
@@ -155,7 +176,7 @@ class UtopiaTableHeader<T> extends StatelessWidget {
     final options = entry.sortOptions!;
     return ListView(
       shrinkWrap: true,
-      padding: const EdgeInsets.symmetric(vertical: 4),
+      padding: EdgeInsets.symmetric(vertical: context.spacing.xs),
       children: [
         for (final option in options) ...[
           _buildSortOption(context, option, descending: false, close: close),
@@ -172,22 +193,58 @@ class UtopiaTableHeader<T> extends StatelessWidget {
     required VoidCallback close,
   }) {
     final isActive = currentSort?.columnId == option.id && currentSort?.descending == descending;
+    final fontWeights = context.tokens.fontWeights;
     final style = context.textStyles.text.copyWith(
       color: isActive ? context.colors.text : context.colors.hint,
-      fontWeight: isActive ? FontWeight.w600 : FontWeight.w400,
+      fontWeight: isActive ? fontWeights.semiBold : fontWeights.regular,
     );
-    return MouseRegion(
-      cursor: SystemMouseCursors.click,
-      child: GestureDetector(
+    // Same hover treatment as UtopiaDropdownField's options: a flat themed
+    // hover fill, no ink splash. The Material carries the active fill so the
+    // InkWell's hover highlight still paints on top of it.
+    return Material(
+      color: isActive ? context.colors.hover : Colors.transparent,
+      child: InkWell(
         onTap: () {
           onSortSelected?.call((columnId: option.id, descending: descending));
           close();
         },
-        child: Container(
-          color: isActive ? context.colors.hover : null,
-          padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
+        splashColor: Colors.transparent,
+        highlightColor: Colors.transparent,
+        hoverColor: context.colors.hover,
+        child: Padding(
+          padding: EdgeInsets.symmetric(horizontal: context.spacing.lg, vertical: context.spacing.md),
           child: Text('${option.label} ${descending ? 'descending' : 'ascending'}', style: style),
         ),
+      ),
+    );
+  }
+}
+
+/// Hover chrome for a sortable column-header trigger: a soft themed fill
+/// (rounded like the sidebar's icon button) plus the click cursor.
+class _HoverHighlight extends HookWidget {
+  final Widget child;
+
+  const _HoverHighlight({required this.child});
+
+  @override
+  Widget build(BuildContext context) {
+    final hover = context.colors.hover;
+    final hovering = useState<bool>(false);
+    return MouseRegion(
+      cursor: SystemMouseCursors.click,
+      onEnter: (_) => hovering.value = true,
+      onExit: (_) => hovering.value = false,
+      child: AnimatedContainer(
+        duration: context.tokens.durations.xs,
+        decoration: BoxDecoration(
+          // Fade within the hover colour's own hue: animating from
+          // Colors.transparent (black at zero alpha) flashes dark grey
+          // mid-transition.
+          color: hovering.value ? hover : hover.withValues(alpha: 0),
+          borderRadius: context.radius.mdAll,
+        ),
+        child: child,
       ),
     );
   }

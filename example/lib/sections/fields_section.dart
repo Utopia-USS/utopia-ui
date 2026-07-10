@@ -43,12 +43,11 @@ class FieldsSection extends HookWidget {
             ),
           ),
           SpecimenTile(
-            label: 'Text - prefix / suffix',
+            label: 'Text - suffix',
             width: 320,
             child: UtopiaTextField(
               value: 'ava@example.com',
               label: const Text('Email'),
-              prefix: const Padding(padding: EdgeInsets.only(right: 8), child: Icon(Icons.mail_outline, size: 18)),
               suffix: UtopiaRemoveIconButton(onPressed: () {}),
               onChanged: (_) {},
             ),

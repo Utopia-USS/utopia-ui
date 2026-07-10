@@ -11,6 +11,7 @@ export 'src/theme/utopia_theme.dart';
 export 'src/theme/utopia_theme_colors.dart';
 export 'src/theme/utopia_theme_data.dart';
 export 'src/theme/utopia_theme_text_styles.dart';
+export 'src/theme/utopia_tokens.dart';
 
 // utils
 /// `DateTime` display-formatting and calendar-arithmetic helpers used by the

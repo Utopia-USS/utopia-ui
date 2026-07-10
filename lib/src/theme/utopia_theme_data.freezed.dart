@@ -14,13 +14,20 @@ T _$identity<T>(T value) => value;
 /// @nodoc
 mixin _$UtopiaThemeData {
 
- UtopiaThemeColors get colors; UtopiaThemeTextStyles get textStyles; BorderRadius get borderRadius; EdgeInsets get fieldContentPadding; double get pageTopPadding; List<BoxShadow> get menuShadow; BorderRadius get menuRadius; double get shortButtonWidth;/// Corner radius of the table card.
- BorderRadius get cardRadius;/// Stroke width of the table card border.
- double get cardBorderWidth;/// Drop shadow cast by the table card.
- List<BoxShadow> get cardShadow;/// Height of a single table row.
- double get tileHeight;/// Thickness of row / header dividers.
- double get dividerThickness;/// Corner radius of a `UtopiaChip`.
- double get chipRadius;
+/// The foundational token scale (base unit, spacing, radii) this theme
+/// carries. Components resolve it through context - `context.theme.tokens`
+/// or the `context.spacing` / `context.radius` shorthands - so nested
+/// `UtopiaTheme`s can swap or rescale the whole system per subtree.
+ UtopiaTokens get tokens; UtopiaThemeColors get colors; UtopiaThemeTextStyles get textStyles;/// Corner radius of interactive controls (fields, buttons, tiles) -
+/// which radius step controls sit on is a theme decision, so this is a
+/// slot rather than a fixed token alias.
+ BorderRadius get borderRadius; EdgeInsets get fieldContentPadding;/// Minimum height of the content area inside a field's chrome (the
+/// `UtopiaFieldWrapper` floor). Total resting field height is this plus
+/// the vertical [fieldContentPadding].
+ double get fieldMinHeight;/// Vertical padding above page-level content (and the sidebar rail).
+ double get pageTopPadding;/// Corner radius of card surfaces (the table card, dialogs).
+ BorderRadius get cardRadius;/// Height of a single table row.
+ double get tileHeight;
 /// Create a copy of UtopiaThemeData
 /// with the given fields replaced by the non-null parameter values.
 @JsonKey(includeFromJson: false, includeToJson: false)
@@ -31,16 +38,16 @@ $UtopiaThemeDataCopyWith<UtopiaThemeData> get copyWith => _$UtopiaThemeDataCopyW
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is UtopiaThemeData&&(identical(other.colors, colors) || other.colors == colors)&&(identical(other.textStyles, textStyles) || other.textStyles == textStyles)&&(identical(other.borderRadius, borderRadius) || other.borderRadius == borderRadius)&&(identical(other.fieldContentPadding, fieldContentPadding) || other.fieldContentPadding == fieldContentPadding)&&(identical(other.pageTopPadding, pageTopPadding) || other.pageTopPadding == pageTopPadding)&&const DeepCollectionEquality().equals(other.menuShadow, menuShadow)&&(identical(other.menuRadius, menuRadius) || other.menuRadius == menuRadius)&&(identical(other.shortButtonWidth, shortButtonWidth) || other.shortButtonWidth == shortButtonWidth)&&(identical(other.cardRadius, cardRadius) || other.cardRadius == cardRadius)&&(identical(other.cardBorderWidth, cardBorderWidth) || other.cardBorderWidth == cardBorderWidth)&&const DeepCollectionEquality().equals(other.cardShadow, cardShadow)&&(identical(other.tileHeight, tileHeight) || other.tileHeight == tileHeight)&&(identical(other.dividerThickness, dividerThickness) || other.dividerThickness == dividerThickness)&&(identical(other.chipRadius, chipRadius) || other.chipRadius == chipRadius));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is UtopiaThemeData&&(identical(other.tokens, tokens) || other.tokens == tokens)&&(identical(other.colors, colors) || other.colors == colors)&&(identical(other.textStyles, textStyles) || other.textStyles == textStyles)&&(identical(other.borderRadius, borderRadius) || other.borderRadius == borderRadius)&&(identical(other.fieldContentPadding, fieldContentPadding) || other.fieldContentPadding == fieldContentPadding)&&(identical(other.fieldMinHeight, fieldMinHeight) || other.fieldMinHeight == fieldMinHeight)&&(identical(other.pageTopPadding, pageTopPadding) || other.pageTopPadding == pageTopPadding)&&(identical(other.cardRadius, cardRadius) || other.cardRadius == cardRadius)&&(identical(other.tileHeight, tileHeight) || other.tileHeight == tileHeight));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,colors,textStyles,borderRadius,fieldContentPadding,pageTopPadding,const DeepCollectionEquality().hash(menuShadow),menuRadius,shortButtonWidth,cardRadius,cardBorderWidth,const DeepCollectionEquality().hash(cardShadow),tileHeight,dividerThickness,chipRadius);
+int get hashCode => Object.hash(runtimeType,tokens,colors,textStyles,borderRadius,fieldContentPadding,fieldMinHeight,pageTopPadding,cardRadius,tileHeight);
 
 @override
 String toString() {
-  return 'UtopiaThemeData(colors: $colors, textStyles: $textStyles, borderRadius: $borderRadius, fieldContentPadding: $fieldContentPadding, pageTopPadding: $pageTopPadding, menuShadow: $menuShadow, menuRadius: $menuRadius, shortButtonWidth: $shortButtonWidth, cardRadius: $cardRadius, cardBorderWidth: $cardBorderWidth, cardShadow: $cardShadow, tileHeight: $tileHeight, dividerThickness: $dividerThickness, chipRadius: $chipRadius)';
+  return 'UtopiaThemeData(tokens: $tokens, colors: $colors, textStyles: $textStyles, borderRadius: $borderRadius, fieldContentPadding: $fieldContentPadding, fieldMinHeight: $fieldMinHeight, pageTopPadding: $pageTopPadding, cardRadius: $cardRadius, tileHeight: $tileHeight)';
 }
 
 
@@ -51,11 +58,11 @@ abstract mixin class $UtopiaThemeDataCopyWith<$Res>  {
   factory $UtopiaThemeDataCopyWith(UtopiaThemeData value, $Res Function(UtopiaThemeData) _then) = _$UtopiaThemeDataCopyWithImpl;
 @useResult
 $Res call({
- UtopiaThemeColors colors, UtopiaThemeTextStyles textStyles, BorderRadius borderRadius, EdgeInsets fieldContentPadding, double pageTopPadding, List<BoxShadow> menuShadow, BorderRadius menuRadius, double shortButtonWidth, BorderRadius cardRadius, double cardBorderWidth, List<BoxShadow> cardShadow, double tileHeight, double dividerThickness, double chipRadius
+ UtopiaTokens tokens, UtopiaThemeColors colors, UtopiaThemeTextStyles textStyles, BorderRadius borderRadius, EdgeInsets fieldContentPadding, double fieldMinHeight, double pageTopPadding, BorderRadius cardRadius, double tileHeight
 });
 
 
-$UtopiaThemeColorsCopyWith<$Res> get colors;$UtopiaThemeTextStylesCopyWith<$Res> get textStyles;
+$UtopiaTokensCopyWith<$Res> get tokens;$UtopiaThemeColorsCopyWith<$Res> get colors;$UtopiaThemeTextStylesCopyWith<$Res> get textStyles;
 
 }
 /// @nodoc
@@ -68,26 +75,30 @@ class _$UtopiaThemeDataCopyWithImpl<$Res>
 
 /// Create a copy of UtopiaThemeData
 /// with the given fields replaced by the non-null parameter values.
-@pragma('vm:prefer-inline') @override $Res call({Object? colors = null,Object? textStyles = null,Object? borderRadius = null,Object? fieldContentPadding = null,Object? pageTopPadding = null,Object? menuShadow = null,Object? menuRadius = null,Object? shortButtonWidth = null,Object? cardRadius = null,Object? cardBorderWidth = null,Object? cardShadow = null,Object? tileHeight = null,Object? dividerThickness = null,Object? chipRadius = null,}) {
+@pragma('vm:prefer-inline') @override $Res call({Object? tokens = null,Object? colors = null,Object? textStyles = null,Object? borderRadius = null,Object? fieldContentPadding = null,Object? fieldMinHeight = null,Object? pageTopPadding = null,Object? cardRadius = null,Object? tileHeight = null,}) {
   return _then(_self.copyWith(
-colors: null == colors ? _self.colors : colors // ignore: cast_nullable_to_non_nullable
+tokens: null == tokens ? _self.tokens : tokens // ignore: cast_nullable_to_non_nullable
+as UtopiaTokens,colors: null == colors ? _self.colors : colors // ignore: cast_nullable_to_non_nullable
 as UtopiaThemeColors,textStyles: null == textStyles ? _self.textStyles : textStyles // ignore: cast_nullable_to_non_nullable
 as UtopiaThemeTextStyles,borderRadius: null == borderRadius ? _self.borderRadius : borderRadius // ignore: cast_nullable_to_non_nullable
 as BorderRadius,fieldContentPadding: null == fieldContentPadding ? _self.fieldContentPadding : fieldContentPadding // ignore: cast_nullable_to_non_nullable
-as EdgeInsets,pageTopPadding: null == pageTopPadding ? _self.pageTopPadding : pageTopPadding // ignore: cast_nullable_to_non_nullable
-as double,menuShadow: null == menuShadow ? _self.menuShadow : menuShadow // ignore: cast_nullable_to_non_nullable
-as List<BoxShadow>,menuRadius: null == menuRadius ? _self.menuRadius : menuRadius // ignore: cast_nullable_to_non_nullable
-as BorderRadius,shortButtonWidth: null == shortButtonWidth ? _self.shortButtonWidth : shortButtonWidth // ignore: cast_nullable_to_non_nullable
+as EdgeInsets,fieldMinHeight: null == fieldMinHeight ? _self.fieldMinHeight : fieldMinHeight // ignore: cast_nullable_to_non_nullable
+as double,pageTopPadding: null == pageTopPadding ? _self.pageTopPadding : pageTopPadding // ignore: cast_nullable_to_non_nullable
 as double,cardRadius: null == cardRadius ? _self.cardRadius : cardRadius // ignore: cast_nullable_to_non_nullable
-as BorderRadius,cardBorderWidth: null == cardBorderWidth ? _self.cardBorderWidth : cardBorderWidth // ignore: cast_nullable_to_non_nullable
-as double,cardShadow: null == cardShadow ? _self.cardShadow : cardShadow // ignore: cast_nullable_to_non_nullable
-as List<BoxShadow>,tileHeight: null == tileHeight ? _self.tileHeight : tileHeight // ignore: cast_nullable_to_non_nullable
-as double,dividerThickness: null == dividerThickness ? _self.dividerThickness : dividerThickness // ignore: cast_nullable_to_non_nullable
-as double,chipRadius: null == chipRadius ? _self.chipRadius : chipRadius // ignore: cast_nullable_to_non_nullable
+as BorderRadius,tileHeight: null == tileHeight ? _self.tileHeight : tileHeight // ignore: cast_nullable_to_non_nullable
 as double,
   ));
 }
 /// Create a copy of UtopiaThemeData
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$UtopiaTokensCopyWith<$Res> get tokens {
+  
+  return $UtopiaTokensCopyWith<$Res>(_self.tokens, (value) {
+    return _then(_self.copyWith(tokens: value));
+  });
+}/// Create a copy of UtopiaThemeData
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')
@@ -187,10 +198,10 @@ return $default(_that);case _:
 /// }
 /// ```
 
-@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( UtopiaThemeColors colors,  UtopiaThemeTextStyles textStyles,  BorderRadius borderRadius,  EdgeInsets fieldContentPadding,  double pageTopPadding,  List<BoxShadow> menuShadow,  BorderRadius menuRadius,  double shortButtonWidth,  BorderRadius cardRadius,  double cardBorderWidth,  List<BoxShadow> cardShadow,  double tileHeight,  double dividerThickness,  double chipRadius)?  $default,{required TResult orElse(),}) {final _that = this;
+@optionalTypeArgs TResult maybeWhen<TResult extends Object?>(TResult Function( UtopiaTokens tokens,  UtopiaThemeColors colors,  UtopiaThemeTextStyles textStyles,  BorderRadius borderRadius,  EdgeInsets fieldContentPadding,  double fieldMinHeight,  double pageTopPadding,  BorderRadius cardRadius,  double tileHeight)?  $default,{required TResult orElse(),}) {final _that = this;
 switch (_that) {
 case _UtopiaThemeData() when $default != null:
-return $default(_that.colors,_that.textStyles,_that.borderRadius,_that.fieldContentPadding,_that.pageTopPadding,_that.menuShadow,_that.menuRadius,_that.shortButtonWidth,_that.cardRadius,_that.cardBorderWidth,_that.cardShadow,_that.tileHeight,_that.dividerThickness,_that.chipRadius);case _:
+return $default(_that.tokens,_that.colors,_that.textStyles,_that.borderRadius,_that.fieldContentPadding,_that.fieldMinHeight,_that.pageTopPadding,_that.cardRadius,_that.tileHeight);case _:
   return orElse();
 
 }
@@ -208,10 +219,10 @@ return $default(_that.colors,_that.textStyles,_that.borderRadius,_that.fieldCont
 /// }
 /// ```
 
-@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( UtopiaThemeColors colors,  UtopiaThemeTextStyles textStyles,  BorderRadius borderRadius,  EdgeInsets fieldContentPadding,  double pageTopPadding,  List<BoxShadow> menuShadow,  BorderRadius menuRadius,  double shortButtonWidth,  BorderRadius cardRadius,  double cardBorderWidth,  List<BoxShadow> cardShadow,  double tileHeight,  double dividerThickness,  double chipRadius)  $default,) {final _that = this;
+@optionalTypeArgs TResult when<TResult extends Object?>(TResult Function( UtopiaTokens tokens,  UtopiaThemeColors colors,  UtopiaThemeTextStyles textStyles,  BorderRadius borderRadius,  EdgeInsets fieldContentPadding,  double fieldMinHeight,  double pageTopPadding,  BorderRadius cardRadius,  double tileHeight)  $default,) {final _that = this;
 switch (_that) {
 case _UtopiaThemeData():
-return $default(_that.colors,_that.textStyles,_that.borderRadius,_that.fieldContentPadding,_that.pageTopPadding,_that.menuShadow,_that.menuRadius,_that.shortButtonWidth,_that.cardRadius,_that.cardBorderWidth,_that.cardShadow,_that.tileHeight,_that.dividerThickness,_that.chipRadius);case _:
+return $default(_that.tokens,_that.colors,_that.textStyles,_that.borderRadius,_that.fieldContentPadding,_that.fieldMinHeight,_that.pageTopPadding,_that.cardRadius,_that.tileHeight);case _:
   throw StateError('Unexpected subclass');
 
 }
@@ -228,10 +239,10 @@ return $default(_that.colors,_that.textStyles,_that.borderRadius,_that.fieldCont
 /// }
 /// ```
 
-@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( UtopiaThemeColors colors,  UtopiaThemeTextStyles textStyles,  BorderRadius borderRadius,  EdgeInsets fieldContentPadding,  double pageTopPadding,  List<BoxShadow> menuShadow,  BorderRadius menuRadius,  double shortButtonWidth,  BorderRadius cardRadius,  double cardBorderWidth,  List<BoxShadow> cardShadow,  double tileHeight,  double dividerThickness,  double chipRadius)?  $default,) {final _that = this;
+@optionalTypeArgs TResult? whenOrNull<TResult extends Object?>(TResult? Function( UtopiaTokens tokens,  UtopiaThemeColors colors,  UtopiaThemeTextStyles textStyles,  BorderRadius borderRadius,  EdgeInsets fieldContentPadding,  double fieldMinHeight,  double pageTopPadding,  BorderRadius cardRadius,  double tileHeight)?  $default,) {final _that = this;
 switch (_that) {
 case _UtopiaThemeData() when $default != null:
-return $default(_that.colors,_that.textStyles,_that.borderRadius,_that.fieldContentPadding,_that.pageTopPadding,_that.menuShadow,_that.menuRadius,_that.shortButtonWidth,_that.cardRadius,_that.cardBorderWidth,_that.cardShadow,_that.tileHeight,_that.dividerThickness,_that.chipRadius);case _:
+return $default(_that.tokens,_that.colors,_that.textStyles,_that.borderRadius,_that.fieldContentPadding,_that.fieldMinHeight,_that.pageTopPadding,_that.cardRadius,_that.tileHeight);case _:
   return null;
 
 }
@@ -243,42 +254,31 @@ return $default(_that.colors,_that.textStyles,_that.borderRadius,_that.fieldCont
 
 
 class _UtopiaThemeData extends UtopiaThemeData {
-  const _UtopiaThemeData({required this.colors, required this.textStyles, required this.borderRadius, required this.fieldContentPadding, required this.pageTopPadding, required final  List<BoxShadow> menuShadow, required this.menuRadius, required this.shortButtonWidth, this.cardRadius = const BorderRadius.all(Radius.circular(16)), this.cardBorderWidth = 1.5, final  List<BoxShadow> cardShadow = const <BoxShadow>[BoxShadow(color: Color(0x0D000000), blurRadius: 6, offset: Offset(0, 1))], this.tileHeight = 58.0, this.dividerThickness = 1.0, this.chipRadius = 8.0}): _menuShadow = menuShadow,_cardShadow = cardShadow,super._();
+  const _UtopiaThemeData({this.tokens = const UtopiaTokens(), required this.colors, required this.textStyles, required this.borderRadius, required this.fieldContentPadding, this.fieldMinHeight = 44.0, required this.pageTopPadding, this.cardRadius = const BorderRadius.all(Radius.circular(16)), this.tileHeight = 58.0}): super._();
   
 
+/// The foundational token scale (base unit, spacing, radii) this theme
+/// carries. Components resolve it through context - `context.theme.tokens`
+/// or the `context.spacing` / `context.radius` shorthands - so nested
+/// `UtopiaTheme`s can swap or rescale the whole system per subtree.
+@override@JsonKey() final  UtopiaTokens tokens;
 @override final  UtopiaThemeColors colors;
 @override final  UtopiaThemeTextStyles textStyles;
+/// Corner radius of interactive controls (fields, buttons, tiles) -
+/// which radius step controls sit on is a theme decision, so this is a
+/// slot rather than a fixed token alias.
 @override final  BorderRadius borderRadius;
 @override final  EdgeInsets fieldContentPadding;
+/// Minimum height of the content area inside a field's chrome (the
+/// `UtopiaFieldWrapper` floor). Total resting field height is this plus
+/// the vertical [fieldContentPadding].
+@override@JsonKey() final  double fieldMinHeight;
+/// Vertical padding above page-level content (and the sidebar rail).
 @override final  double pageTopPadding;
- final  List<BoxShadow> _menuShadow;
-@override List<BoxShadow> get menuShadow {
-  if (_menuShadow is EqualUnmodifiableListView) return _menuShadow;
-  // ignore: implicit_dynamic_type
-  return EqualUnmodifiableListView(_menuShadow);
-}
-
-@override final  BorderRadius menuRadius;
-@override final  double shortButtonWidth;
-/// Corner radius of the table card.
+/// Corner radius of card surfaces (the table card, dialogs).
 @override@JsonKey() final  BorderRadius cardRadius;
-/// Stroke width of the table card border.
-@override@JsonKey() final  double cardBorderWidth;
-/// Drop shadow cast by the table card.
- final  List<BoxShadow> _cardShadow;
-/// Drop shadow cast by the table card.
-@override@JsonKey() List<BoxShadow> get cardShadow {
-  if (_cardShadow is EqualUnmodifiableListView) return _cardShadow;
-  // ignore: implicit_dynamic_type
-  return EqualUnmodifiableListView(_cardShadow);
-}
-
 /// Height of a single table row.
 @override@JsonKey() final  double tileHeight;
-/// Thickness of row / header dividers.
-@override@JsonKey() final  double dividerThickness;
-/// Corner radius of a `UtopiaChip`.
-@override@JsonKey() final  double chipRadius;
 
 /// Create a copy of UtopiaThemeData
 /// with the given fields replaced by the non-null parameter values.
@@ -290,16 +290,16 @@ _$UtopiaThemeDataCopyWith<_UtopiaThemeData> get copyWith => __$UtopiaThemeDataCo
 
 @override
 bool operator ==(Object other) {
-  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UtopiaThemeData&&(identical(other.colors, colors) || other.colors == colors)&&(identical(other.textStyles, textStyles) || other.textStyles == textStyles)&&(identical(other.borderRadius, borderRadius) || other.borderRadius == borderRadius)&&(identical(other.fieldContentPadding, fieldContentPadding) || other.fieldContentPadding == fieldContentPadding)&&(identical(other.pageTopPadding, pageTopPadding) || other.pageTopPadding == pageTopPadding)&&const DeepCollectionEquality().equals(other._menuShadow, _menuShadow)&&(identical(other.menuRadius, menuRadius) || other.menuRadius == menuRadius)&&(identical(other.shortButtonWidth, shortButtonWidth) || other.shortButtonWidth == shortButtonWidth)&&(identical(other.cardRadius, cardRadius) || other.cardRadius == cardRadius)&&(identical(other.cardBorderWidth, cardBorderWidth) || other.cardBorderWidth == cardBorderWidth)&&const DeepCollectionEquality().equals(other._cardShadow, _cardShadow)&&(identical(other.tileHeight, tileHeight) || other.tileHeight == tileHeight)&&(identical(other.dividerThickness, dividerThickness) || other.dividerThickness == dividerThickness)&&(identical(other.chipRadius, chipRadius) || other.chipRadius == chipRadius));
+  return identical(this, other) || (other.runtimeType == runtimeType&&other is _UtopiaThemeData&&(identical(other.tokens, tokens) || other.tokens == tokens)&&(identical(other.colors, colors) || other.colors == colors)&&(identical(other.textStyles, textStyles) || other.textStyles == textStyles)&&(identical(other.borderRadius, borderRadius) || other.borderRadius == borderRadius)&&(identical(other.fieldContentPadding, fieldContentPadding) || other.fieldContentPadding == fieldContentPadding)&&(identical(other.fieldMinHeight, fieldMinHeight) || other.fieldMinHeight == fieldMinHeight)&&(identical(other.pageTopPadding, pageTopPadding) || other.pageTopPadding == pageTopPadding)&&(identical(other.cardRadius, cardRadius) || other.cardRadius == cardRadius)&&(identical(other.tileHeight, tileHeight) || other.tileHeight == tileHeight));
 }
 
 
 @override
-int get hashCode => Object.hash(runtimeType,colors,textStyles,borderRadius,fieldContentPadding,pageTopPadding,const DeepCollectionEquality().hash(_menuShadow),menuRadius,shortButtonWidth,cardRadius,cardBorderWidth,const DeepCollectionEquality().hash(_cardShadow),tileHeight,dividerThickness,chipRadius);
+int get hashCode => Object.hash(runtimeType,tokens,colors,textStyles,borderRadius,fieldContentPadding,fieldMinHeight,pageTopPadding,cardRadius,tileHeight);
 
 @override
 String toString() {
-  return 'UtopiaThemeData(colors: $colors, textStyles: $textStyles, borderRadius: $borderRadius, fieldContentPadding: $fieldContentPadding, pageTopPadding: $pageTopPadding, menuShadow: $menuShadow, menuRadius: $menuRadius, shortButtonWidth: $shortButtonWidth, cardRadius: $cardRadius, cardBorderWidth: $cardBorderWidth, cardShadow: $cardShadow, tileHeight: $tileHeight, dividerThickness: $dividerThickness, chipRadius: $chipRadius)';
+  return 'UtopiaThemeData(tokens: $tokens, colors: $colors, textStyles: $textStyles, borderRadius: $borderRadius, fieldContentPadding: $fieldContentPadding, fieldMinHeight: $fieldMinHeight, pageTopPadding: $pageTopPadding, cardRadius: $cardRadius, tileHeight: $tileHeight)';
 }
 
 
@@ -310,11 +310,11 @@ abstract mixin class _$UtopiaThemeDataCopyWith<$Res> implements $UtopiaThemeData
   factory _$UtopiaThemeDataCopyWith(_UtopiaThemeData value, $Res Function(_UtopiaThemeData) _then) = __$UtopiaThemeDataCopyWithImpl;
 @override @useResult
 $Res call({
- UtopiaThemeColors colors, UtopiaThemeTextStyles textStyles, BorderRadius borderRadius, EdgeInsets fieldContentPadding, double pageTopPadding, List<BoxShadow> menuShadow, BorderRadius menuRadius, double shortButtonWidth, BorderRadius cardRadius, double cardBorderWidth, List<BoxShadow> cardShadow, double tileHeight, double dividerThickness, double chipRadius
+ UtopiaTokens tokens, UtopiaThemeColors colors, UtopiaThemeTextStyles textStyles, BorderRadius borderRadius, EdgeInsets fieldContentPadding, double fieldMinHeight, double pageTopPadding, BorderRadius cardRadius, double tileHeight
 });
 
 
-@override $UtopiaThemeColorsCopyWith<$Res> get colors;@override $UtopiaThemeTextStylesCopyWith<$Res> get textStyles;
+@override $UtopiaTokensCopyWith<$Res> get tokens;@override $UtopiaThemeColorsCopyWith<$Res> get colors;@override $UtopiaThemeTextStylesCopyWith<$Res> get textStyles;
 
 }
 /// @nodoc
@@ -327,27 +327,31 @@ class __$UtopiaThemeDataCopyWithImpl<$Res>
 
 /// Create a copy of UtopiaThemeData
 /// with the given fields replaced by the non-null parameter values.
-@override @pragma('vm:prefer-inline') $Res call({Object? colors = null,Object? textStyles = null,Object? borderRadius = null,Object? fieldContentPadding = null,Object? pageTopPadding = null,Object? menuShadow = null,Object? menuRadius = null,Object? shortButtonWidth = null,Object? cardRadius = null,Object? cardBorderWidth = null,Object? cardShadow = null,Object? tileHeight = null,Object? dividerThickness = null,Object? chipRadius = null,}) {
+@override @pragma('vm:prefer-inline') $Res call({Object? tokens = null,Object? colors = null,Object? textStyles = null,Object? borderRadius = null,Object? fieldContentPadding = null,Object? fieldMinHeight = null,Object? pageTopPadding = null,Object? cardRadius = null,Object? tileHeight = null,}) {
   return _then(_UtopiaThemeData(
-colors: null == colors ? _self.colors : colors // ignore: cast_nullable_to_non_nullable
+tokens: null == tokens ? _self.tokens : tokens // ignore: cast_nullable_to_non_nullable
+as UtopiaTokens,colors: null == colors ? _self.colors : colors // ignore: cast_nullable_to_non_nullable
 as UtopiaThemeColors,textStyles: null == textStyles ? _self.textStyles : textStyles // ignore: cast_nullable_to_non_nullable
 as UtopiaThemeTextStyles,borderRadius: null == borderRadius ? _self.borderRadius : borderRadius // ignore: cast_nullable_to_non_nullable
 as BorderRadius,fieldContentPadding: null == fieldContentPadding ? _self.fieldContentPadding : fieldContentPadding // ignore: cast_nullable_to_non_nullable
-as EdgeInsets,pageTopPadding: null == pageTopPadding ? _self.pageTopPadding : pageTopPadding // ignore: cast_nullable_to_non_nullable
-as double,menuShadow: null == menuShadow ? _self._menuShadow : menuShadow // ignore: cast_nullable_to_non_nullable
-as List<BoxShadow>,menuRadius: null == menuRadius ? _self.menuRadius : menuRadius // ignore: cast_nullable_to_non_nullable
-as BorderRadius,shortButtonWidth: null == shortButtonWidth ? _self.shortButtonWidth : shortButtonWidth // ignore: cast_nullable_to_non_nullable
+as EdgeInsets,fieldMinHeight: null == fieldMinHeight ? _self.fieldMinHeight : fieldMinHeight // ignore: cast_nullable_to_non_nullable
+as double,pageTopPadding: null == pageTopPadding ? _self.pageTopPadding : pageTopPadding // ignore: cast_nullable_to_non_nullable
 as double,cardRadius: null == cardRadius ? _self.cardRadius : cardRadius // ignore: cast_nullable_to_non_nullable
-as BorderRadius,cardBorderWidth: null == cardBorderWidth ? _self.cardBorderWidth : cardBorderWidth // ignore: cast_nullable_to_non_nullable
-as double,cardShadow: null == cardShadow ? _self._cardShadow : cardShadow // ignore: cast_nullable_to_non_nullable
-as List<BoxShadow>,tileHeight: null == tileHeight ? _self.tileHeight : tileHeight // ignore: cast_nullable_to_non_nullable
-as double,dividerThickness: null == dividerThickness ? _self.dividerThickness : dividerThickness // ignore: cast_nullable_to_non_nullable
-as double,chipRadius: null == chipRadius ? _self.chipRadius : chipRadius // ignore: cast_nullable_to_non_nullable
+as BorderRadius,tileHeight: null == tileHeight ? _self.tileHeight : tileHeight // ignore: cast_nullable_to_non_nullable
 as double,
   ));
 }
 
 /// Create a copy of UtopiaThemeData
+/// with the given fields replaced by the non-null parameter values.
+@override
+@pragma('vm:prefer-inline')
+$UtopiaTokensCopyWith<$Res> get tokens {
+  
+  return $UtopiaTokensCopyWith<$Res>(_self.tokens, (value) {
+    return _then(_self.copyWith(tokens: value));
+  });
+}/// Create a copy of UtopiaThemeData
 /// with the given fields replaced by the non-null parameter values.
 @override
 @pragma('vm:prefer-inline')

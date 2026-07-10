@@ -24,17 +24,14 @@ class UtopiaCheckRow extends StatelessWidget {
       splashColor: Colors.transparent,
       highlightColor: Colors.transparent,
       hoverColor: colors.hover,
-      child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-        child: Row(
-          children: [
-            _CheckBox(selected: selected),
-            const SizedBox(width: 12),
-            Expanded(
-              child: Text(label, style: context.textStyles.text, overflow: TextOverflow.ellipsis),
-            ),
-          ],
-        ),
+      child: Row(
+        children: [
+          _CheckBox(selected: selected),
+          SizedBox(width: context.spacing.md),
+          Expanded(
+            child: Text(label, style: context.textStyles.text, overflow: TextOverflow.ellipsis),
+          ),
+        ],
       ),
     );
   }
@@ -48,14 +45,15 @@ class _CheckBox extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final tokens = context.tokens;
     return AnimatedContainer(
-      duration: const Duration(milliseconds: 120),
+      duration: tokens.durations.xs,
       width: 20,
       height: 20,
       decoration: BoxDecoration(
         color: selected ? colors.accent : Colors.transparent,
-        borderRadius: BorderRadius.circular(6),
-        border: Border.all(color: selected ? colors.accent : colors.disabled, width: 1.5),
+        borderRadius: tokens.radius.smAll,
+        border: Border.all(color: selected ? colors.accent : colors.disabled, width: tokens.borders.thin),
       ),
       child: selected ? const Icon(Icons.check, size: 14, color: Colors.white) : null,
     );

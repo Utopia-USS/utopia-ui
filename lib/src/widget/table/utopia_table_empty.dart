@@ -27,20 +27,21 @@ class UtopiaTableEmpty extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final spacing = context.spacing;
     return Padding(
-      padding: const EdgeInsets.symmetric(vertical: 48, horizontal: 24),
+      padding: EdgeInsets.symmetric(vertical: spacing.xxxl, horizontal: spacing.xl),
       child: Center(
         child: Column(
           mainAxisSize: MainAxisSize.min,
           children: [
-            if (icon != null) ...[icon!, const SizedBox(height: 12)],
+            if (icon != null) ...[icon!, SizedBox(height: spacing.md)],
             Text(
               title,
               textAlign: TextAlign.center,
               style: context.textStyles.text.copyWith(color: context.colors.hint),
             ),
             if (subtitle != null) ...[
-              const SizedBox(height: 4),
+              SizedBox(height: spacing.xs),
               Text(
                 subtitle!,
                 textAlign: TextAlign.center,
@@ -48,8 +49,8 @@ class UtopiaTableEmpty extends StatelessWidget {
               ),
             ],
             if (actions.isNotEmpty) ...[
-              const SizedBox(height: 16),
-              Wrap(alignment: WrapAlignment.center, spacing: 12, runSpacing: 8, children: actions),
+              SizedBox(height: spacing.lg),
+              Wrap(alignment: WrapAlignment.center, spacing: spacing.md, runSpacing: spacing.sm, children: actions),
             ],
           ],
         ),
