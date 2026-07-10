@@ -530,7 +530,8 @@ machine-readable output.
 `generate_theme` is the consumer-facing codegen: given `design/tokens.json` it emits a Dart
 file exposing a `UtopiaThemeData` factory built via `UtopiaThemeData.fromTokens` plus
 `copyWith` for the semantic slots. Round-trip guarantee: exporting `defaultTheme` and
-generating a theme from that export MUST produce a theme equal to `defaultTheme`.
+generating a theme from that export MUST produce a theme equal to `defaultTheme` up to 8-bit
+color quantization (colors compare by their ARGB32 value).
 
 ---
 
@@ -568,6 +569,10 @@ Three-way diffing uses the sync metadata keys of 2.6 (`lastSyncedValue`, `lastSy
 - Matching priority: external id (`sourceRef`) -> token path -> value fingerprint.
 - A token counts as **conflicted** when both sides changed since `lastSyncedValue`.
 - Conflict modes: `ask` (default - report, write nothing), `theirs`, `ours`, `skip`.
+- Metadata advancement: resolving a conflict via `theirs` or `ours` refreshes
+  `lastSyncedValue`/`lastSyncedAt` to the resolved value (the decision becomes the new merge
+  base, so the same conflict does not resurface); `skip` leaves the metadata untouched, so
+  the conflict deliberately reappears on the next import.
 
 ---
 
