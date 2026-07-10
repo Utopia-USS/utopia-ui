@@ -126,6 +126,9 @@ Future<void> main(List<String> arguments) async {
     stdout.writeln(const JsonEncoder.withIndent('  ').convert({'status': 'ok', 'path': outputFile.path}));
   } else {
     stdout.writeln('wrote ${outputFile.path}');
+    // The last mile: without wiring, UtopiaTheme.of silently falls back to
+    // defaultTheme and a completed rebrand produces no visible change.
+    stdout.writeln('next step: wrap your app root with UtopiaTheme(data: buildUtopiaTheme(), child: ...)');
   }
   exitCode = 0;
 }
@@ -157,5 +160,7 @@ String _bootstrapMessage() {
         'then bootstrap with: mkdir -p design && cp <utopia_ui>/tokens/utopia.tokens.json design/tokens.json';
   }
   final sourcePath = p.join(packageRoot.path, 'tokens', 'utopia.tokens.json');
-  return 'no token document found. Bootstrap one with: mkdir -p design && cp $sourcePath design/tokens.json';
+  return 'no token document found. Bootstrap one by copying the packaged default into your project '
+      '(POSIX: mkdir -p design && cp $sourcePath design/tokens.json): '
+      'source file: $sourcePath -> target: design/tokens.json';
 }

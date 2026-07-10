@@ -440,11 +440,28 @@ Two sources of truth, one derived view:
   `utopiaUiVersion` records the resolved `utopia_ui` version the document was generated
   against (REQUIRED on project and merged manifests); `merged: true` marks the merged view.
 - Freshness gates on the merged view (`validate_manifest`): recorded `utopiaUiVersion` MUST
-  equal the resolved pubspec version; the embedded library entries MUST equal the shipped
-  library manifest; regeneration MUST be byte-identical (same determinism principle as the
-  twin's tokens.css freshness gate). A stale merged view is an error, not a warning -
-  embedding a copy of the library manifest is exactly the silent upgrade drift the
-  `packageVersion` gate exists to prevent.
+  equal the resolved pubspec version, and the embedded library entries MUST equal the
+  shipped library manifest. Both are cheap equality/version checks. Byte-identical
+  regeneration is a determinism GUARANTEE on `generate_manifest --project` (verified by its
+  tests, same principle as the twin's tokens.css freshness), NOT a validate-side gate -
+  `validate_manifest` never re-runs project extraction just to compare bytes; staleness of
+  the project half is caught by the existing source-backed gates (tokenBindings
+  re-extraction, stale-class, file cross-checks) run against project sources. A stale
+  merged view is an error, not a warning - embedding a copy of the library manifest is
+  exactly the silent upgrade drift the `packageVersion` gate exists to prevent.
+- Namespace enforcement (`validate_manifest`): in a project manifest, every component id's
+  namespace MUST equal the document's `package`; bare ids there are an error. In the
+  library manifest, namespaced ids are an error. In the merged view both flavors coexist
+  and each id MUST carry the namespace of its origin. `utopiaUiVersion` presence (required
+  on project/merged, absent on library) is enforced by the validator, not the schema.
+- `file` path roots: a bare-id entry's `file` resolves against the `utopia_ui` package
+  root; a namespaced entry's `file` resolves against the project root.
+- Project manifests MAY carry their own `models` and `helpers` (a custom component's props
+  will reference project data classes - the portable type vocabulary of 3.5 applies with
+  "exported utopia_ui class" read as "class exported/declared by the describing package").
+  `modelName` resolves within the containing document; in the merged view, model names MUST
+  be unique across both halves and `generate_manifest --project` MUST fail the merge on a
+  collision (flat model namespace in MVP).
 - Referential integrity across the merge: custom components' `composes` and prop `modelName`
   references MAY point at library ids/models; `validate_manifest` enforces resolution on the
   merged view.
