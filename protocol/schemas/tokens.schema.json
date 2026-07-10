@@ -1,0 +1,522 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/Utopia-USS/utopia-ui/main/protocol/schemas/tokens.schema.json",
+  "title": "Utopia Design Protocol - token document (DTCG 2025.10 profile)",
+  "description": "Strict schema for the utopia token tree: a single-context DTCG 2025.10 (Format + Color modules) document carrying the full UtopiaThemeData surface. Protocol version 0.1.0; see protocol/VERSIONING.md.",
+  "type": "object",
+  "properties": {
+    "$schema": { "type": "string" },
+    "$description": { "type": "string" },
+    "$extensions": { "$ref": "#/definitions/extensions" },
+    "x": {
+      "allOf": [{ "$ref": "#/definitions/numberToken" }],
+      "description": "The base unit of the design system in logical pixels. Every derivation-carrying token is a multiple of this value."
+    },
+    "spacing": {
+      "type": "object",
+      "properties": {
+        "$description": { "type": "string" },
+        "$extensions": { "$ref": "#/definitions/extensions" },
+        "xxs": { "$ref": "#/definitions/dimensionToken" },
+        "xs": { "$ref": "#/definitions/dimensionToken" },
+        "sm": { "$ref": "#/definitions/dimensionToken" },
+        "md": { "$ref": "#/definitions/dimensionToken" },
+        "lg": { "$ref": "#/definitions/dimensionToken" },
+        "xl": { "$ref": "#/definitions/dimensionToken" },
+        "xxl": { "$ref": "#/definitions/dimensionToken" },
+        "xxxl": { "$ref": "#/definitions/dimensionToken" }
+      },
+      "required": ["xxs", "xs", "sm", "md", "lg", "xl", "xxl", "xxxl"],
+      "additionalProperties": false
+    },
+    "radius": {
+      "type": "object",
+      "properties": {
+        "$description": { "type": "string" },
+        "$extensions": { "$ref": "#/definitions/extensions" },
+        "xs": { "$ref": "#/definitions/dimensionToken" },
+        "sm": { "$ref": "#/definitions/dimensionToken" },
+        "md": { "$ref": "#/definitions/dimensionToken" },
+        "lg": { "$ref": "#/definitions/dimensionToken" },
+        "xl": { "$ref": "#/definitions/dimensionToken" },
+        "full": { "$ref": "#/definitions/dimensionToken" }
+      },
+      "required": ["xs", "sm", "md", "lg", "xl", "full"],
+      "additionalProperties": false
+    },
+    "border": {
+      "type": "object",
+      "properties": {
+        "$description": { "type": "string" },
+        "$extensions": { "$ref": "#/definitions/extensions" },
+        "hairline": { "$ref": "#/definitions/dimensionToken" },
+        "thin": { "$ref": "#/definitions/dimensionToken" },
+        "thick": { "$ref": "#/definitions/dimensionToken" }
+      },
+      "required": ["hairline", "thin", "thick"],
+      "additionalProperties": false
+    },
+    "shadow": {
+      "type": "object",
+      "properties": {
+        "$description": { "type": "string" },
+        "$extensions": { "$ref": "#/definitions/extensions" },
+        "sm": { "$ref": "#/definitions/shadowToken" },
+        "md": { "$ref": "#/definitions/shadowToken" },
+        "lg": { "$ref": "#/definitions/shadowToken" }
+      },
+      "required": ["sm", "md", "lg"],
+      "additionalProperties": false
+    },
+    "fontWeight": {
+      "type": "object",
+      "properties": {
+        "$description": { "type": "string" },
+        "$extensions": { "$ref": "#/definitions/extensions" },
+        "regular": { "$ref": "#/definitions/fontWeightToken" },
+        "medium": { "$ref": "#/definitions/fontWeightToken" },
+        "semiBold": { "$ref": "#/definitions/fontWeightToken" },
+        "bold": { "$ref": "#/definitions/fontWeightToken" }
+      },
+      "required": ["regular", "medium", "semiBold", "bold"],
+      "additionalProperties": false
+    },
+    "duration": {
+      "type": "object",
+      "properties": {
+        "$description": { "type": "string" },
+        "$extensions": { "$ref": "#/definitions/extensions" },
+        "xs": { "$ref": "#/definitions/durationToken" },
+        "sm": { "$ref": "#/definitions/durationToken" },
+        "md": { "$ref": "#/definitions/durationToken" },
+        "lg": { "$ref": "#/definitions/durationToken" },
+        "xl": { "$ref": "#/definitions/durationToken" }
+      },
+      "required": ["xs", "sm", "md", "lg", "xl"],
+      "additionalProperties": false
+    },
+    "breakpoint": {
+      "type": "object",
+      "properties": {
+        "$description": { "type": "string" },
+        "$extensions": { "$ref": "#/definitions/extensions" },
+        "tablet": { "$ref": "#/definitions/dimensionToken" },
+        "web": { "$ref": "#/definitions/dimensionToken" },
+        "sidebar": { "$ref": "#/definitions/dimensionToken" }
+      },
+      "required": ["tablet", "web", "sidebar"],
+      "additionalProperties": false
+    },
+    "color": {
+      "type": "object",
+      "properties": {
+        "$description": { "type": "string" },
+        "$extensions": { "$ref": "#/definitions/extensions" },
+        "primary": { "$ref": "#/definitions/colorToken" },
+        "accent": { "$ref": "#/definitions/colorToken" },
+        "field": { "$ref": "#/definitions/colorToken" },
+        "canvas": { "$ref": "#/definitions/colorToken" },
+        "error": { "$ref": "#/definitions/colorToken" },
+        "disabled": { "$ref": "#/definitions/colorToken" },
+        "text": { "$ref": "#/definitions/colorToken" },
+        "surface": { "$ref": "#/definitions/colorToken" },
+        "border": { "$ref": "#/definitions/colorToken" },
+        "divider": { "$ref": "#/definitions/colorToken" },
+        "rowAlt": { "$ref": "#/definitions/colorToken" },
+        "hover": { "$ref": "#/definitions/colorToken" },
+        "chipBackground": { "$ref": "#/definitions/colorToken" },
+        "chipForeground": { "$ref": "#/definitions/colorToken" },
+        "hint": { "$ref": "#/definitions/colorToken" },
+        "onColoredContent": { "$ref": "#/definitions/colorToken" },
+        "onColoredSelected": { "$ref": "#/definitions/colorToken" },
+        "onColoredHover": { "$ref": "#/definitions/colorToken" }
+      },
+      "required": [
+        "primary", "accent", "field", "canvas", "error", "disabled", "text",
+        "surface", "border", "rowAlt", "hover", "chipBackground", "chipForeground",
+        "hint", "onColoredContent", "onColoredSelected", "onColoredHover"
+      ],
+      "additionalProperties": false
+    },
+    "textStyle": {
+      "type": "object",
+      "properties": {
+        "$description": { "type": "string" },
+        "$extensions": { "$ref": "#/definitions/extensions" },
+        "header": { "$ref": "#/definitions/typographyToken" },
+        "label": { "$ref": "#/definitions/typographyToken" },
+        "text": { "$ref": "#/definitions/typographyToken" },
+        "title": { "$ref": "#/definitions/typographyToken" },
+        "caption": { "$ref": "#/definitions/typographyToken" },
+        "button": { "$ref": "#/definitions/typographyToken" }
+      },
+      "required": ["header", "label", "text", "title", "caption", "button"],
+      "additionalProperties": false
+    },
+    "textStyle-colors": {
+      "type": "object",
+      "description": "Sibling color tokens for the textStyle typography composites (DTCG typography has no color property).",
+      "properties": {
+        "$description": { "type": "string" },
+        "$extensions": { "$ref": "#/definitions/extensions" },
+        "header": { "$ref": "#/definitions/colorToken" },
+        "label": { "$ref": "#/definitions/colorToken" },
+        "text": { "$ref": "#/definitions/colorToken" },
+        "title": { "$ref": "#/definitions/colorToken" },
+        "caption": { "$ref": "#/definitions/colorToken" },
+        "button": { "$ref": "#/definitions/colorToken" }
+      },
+      "required": ["header", "label", "text", "title", "caption", "button"],
+      "additionalProperties": false
+    },
+    "theme": {
+      "type": "object",
+      "description": "Semantic UtopiaThemeData slots: design decisions beyond 'which token'.",
+      "properties": {
+        "$description": { "type": "string" },
+        "$extensions": { "$ref": "#/definitions/extensions" },
+        "borderRadius": { "$ref": "#/definitions/dimensionToken" },
+        "cardRadius": { "$ref": "#/definitions/dimensionToken" },
+        "fieldContentPadding": {
+          "type": "object",
+          "properties": {
+            "$description": { "type": "string" },
+            "$extensions": { "$ref": "#/definitions/extensions" },
+            "top": { "$ref": "#/definitions/dimensionToken" },
+            "right": { "$ref": "#/definitions/dimensionToken" },
+            "bottom": { "$ref": "#/definitions/dimensionToken" },
+            "left": { "$ref": "#/definitions/dimensionToken" }
+          },
+          "required": ["top", "right", "bottom", "left"],
+          "additionalProperties": false
+        },
+        "fieldMinHeight": { "$ref": "#/definitions/dimensionToken" },
+        "pageTopPadding": { "$ref": "#/definitions/dimensionToken" },
+        "tileHeight": { "$ref": "#/definitions/dimensionToken" }
+      },
+      "required": [
+        "borderRadius", "cardRadius", "fieldContentPadding",
+        "fieldMinHeight", "pageTopPadding", "tileHeight"
+      ],
+      "additionalProperties": false
+    }
+  },
+  "required": [
+    "x", "spacing", "radius", "border", "shadow", "fontWeight", "duration",
+    "breakpoint", "color", "textStyle", "textStyle-colors", "theme"
+  ],
+  "additionalProperties": false,
+  "definitions": {
+    "alias": {
+      "type": "string",
+      "pattern": "^\\{[^{}.]+(\\.[^{}.]+)*\\}$",
+      "description": "DTCG curly-brace reference to another token's value, e.g. \"{radius.sm}\"."
+    },
+    "extensions": {
+      "type": "object",
+      "description": "DTCG $extensions. Unknown vendor namespaces MUST be preserved on rewrite.",
+      "properties": {
+        "io.utopiasoft.design": {
+          "type": "object",
+          "properties": {
+            "derivation": {
+              "type": "string",
+              "pattern": "^x\\*[0-9]+(\\.[0-9]+)?$",
+              "description": "Base-unit multiple, e.g. \"x*3\". The token value MUST equal x * multiple."
+            },
+            "colorToken": {
+              "type": "string",
+              "description": "Reference path of the sibling color token bound to a typography token, e.g. \"textStyle-colors.header\"."
+            },
+            "fontPackage": {
+              "type": "string",
+              "description": "Flutter package bundling the typography token's font family (TextStyle package: argument)."
+            },
+            "profileVersion": {
+              "type": "string",
+              "description": "Utopia Design Protocol version this document targets (document root only)."
+            },
+            "lastSyncedValue": {
+              "description": "Snapshot of $value at the last external sync (three-way diff base)."
+            },
+            "lastSyncedAt": {
+              "type": "string",
+              "description": "ISO 8601 timestamp of the last external sync."
+            },
+            "sourceRef": {
+              "type": "string",
+              "description": "Opaque identity of this token in an external source, e.g. a Figma variable id."
+            }
+          },
+          "additionalProperties": true
+        }
+      },
+      "additionalProperties": true
+    },
+    "tokenCommon": {
+      "type": "object",
+      "properties": {
+        "$description": { "type": "string" },
+        "$deprecated": { "type": ["boolean", "string"] },
+        "$extensions": { "$ref": "#/definitions/extensions" }
+      }
+    },
+    "dimensionValue": {
+      "type": "object",
+      "properties": {
+        "value": { "type": "number" },
+        "unit": { "const": "px" }
+      },
+      "required": ["value", "unit"],
+      "additionalProperties": false
+    },
+    "dimensionToken": {
+      "allOf": [
+        { "$ref": "#/definitions/tokenCommon" },
+        {
+          "properties": {
+            "$type": { "const": "dimension" },
+            "$value": {
+              "oneOf": [
+                { "$ref": "#/definitions/dimensionValue" },
+                { "$ref": "#/definitions/alias" }
+              ]
+            },
+            "$description": true,
+            "$deprecated": true,
+            "$extensions": true
+          },
+          "required": ["$type", "$value"],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "durationToken": {
+      "allOf": [
+        { "$ref": "#/definitions/tokenCommon" },
+        {
+          "properties": {
+            "$type": { "const": "duration" },
+            "$value": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "value": { "type": "number", "minimum": 0 },
+                    "unit": { "const": "ms" }
+                  },
+                  "required": ["value", "unit"],
+                  "additionalProperties": false
+                },
+                { "$ref": "#/definitions/alias" }
+              ]
+            },
+            "$description": true,
+            "$deprecated": true,
+            "$extensions": true
+          },
+          "required": ["$type", "$value"],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "numberToken": {
+      "allOf": [
+        { "$ref": "#/definitions/tokenCommon" },
+        {
+          "properties": {
+            "$type": { "const": "number" },
+            "$value": {
+              "oneOf": [
+                { "type": "number", "exclusiveMinimum": 0 },
+                { "$ref": "#/definitions/alias" }
+              ]
+            },
+            "$description": true,
+            "$deprecated": true,
+            "$extensions": true
+          },
+          "required": ["$type", "$value"],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "fontWeightToken": {
+      "allOf": [
+        { "$ref": "#/definitions/tokenCommon" },
+        {
+          "properties": {
+            "$type": { "const": "fontWeight" },
+            "$value": {
+              "oneOf": [
+                { "enum": [100, 200, 300, 400, 500, 600, 700, 800, 900] },
+                { "$ref": "#/definitions/alias" }
+              ]
+            },
+            "$description": true,
+            "$deprecated": true,
+            "$extensions": true
+          },
+          "required": ["$type", "$value"],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "colorValue": {
+      "type": "object",
+      "properties": {
+        "colorSpace": { "const": "srgb" },
+        "components": {
+          "type": "array",
+          "items": { "type": "number", "minimum": 0, "maximum": 1 },
+          "minItems": 3,
+          "maxItems": 3
+        },
+        "alpha": { "type": "number", "minimum": 0, "maximum": 1 },
+        "hex": { "type": "string", "pattern": "^#[0-9a-f]{6}$" }
+      },
+      "required": ["colorSpace", "components", "hex"],
+      "additionalProperties": false
+    },
+    "colorToken": {
+      "allOf": [
+        { "$ref": "#/definitions/tokenCommon" },
+        {
+          "properties": {
+            "$type": { "const": "color" },
+            "$value": {
+              "oneOf": [
+                { "$ref": "#/definitions/colorValue" },
+                { "$ref": "#/definitions/alias" }
+              ]
+            },
+            "$description": true,
+            "$deprecated": true,
+            "$extensions": true
+          },
+          "required": ["$type", "$value"],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "shadowLayer": {
+      "type": "object",
+      "properties": {
+        "color": {
+          "oneOf": [
+            { "$ref": "#/definitions/colorValue" },
+            { "$ref": "#/definitions/alias" }
+          ]
+        },
+        "offsetX": {
+          "oneOf": [
+            { "$ref": "#/definitions/dimensionValue" },
+            { "$ref": "#/definitions/alias" }
+          ]
+        },
+        "offsetY": {
+          "oneOf": [
+            { "$ref": "#/definitions/dimensionValue" },
+            { "$ref": "#/definitions/alias" }
+          ]
+        },
+        "blur": {
+          "oneOf": [
+            { "$ref": "#/definitions/dimensionValue" },
+            { "$ref": "#/definitions/alias" }
+          ]
+        },
+        "spread": {
+          "oneOf": [
+            { "$ref": "#/definitions/dimensionValue" },
+            { "$ref": "#/definitions/alias" }
+          ]
+        }
+      },
+      "required": ["color", "offsetX", "offsetY", "blur", "spread"],
+      "additionalProperties": false
+    },
+    "shadowToken": {
+      "allOf": [
+        { "$ref": "#/definitions/tokenCommon" },
+        {
+          "properties": {
+            "$type": { "const": "shadow" },
+            "$value": {
+              "oneOf": [
+                {
+                  "type": "array",
+                  "items": {
+                    "oneOf": [
+                      { "$ref": "#/definitions/shadowLayer" },
+                      { "$ref": "#/definitions/alias" }
+                    ]
+                  },
+                  "minItems": 1
+                },
+                { "$ref": "#/definitions/alias" }
+              ]
+            },
+            "$description": true,
+            "$deprecated": true,
+            "$extensions": true
+          },
+          "required": ["$type", "$value"],
+          "additionalProperties": false
+        }
+      ]
+    },
+    "typographyToken": {
+      "allOf": [
+        { "$ref": "#/definitions/tokenCommon" },
+        {
+          "properties": {
+            "$type": { "const": "typography" },
+            "$value": {
+              "oneOf": [
+                {
+                  "type": "object",
+                  "properties": {
+                    "fontFamily": {
+                      "oneOf": [
+                        { "type": "string" },
+                        { "type": "array", "items": { "type": "string" }, "minItems": 1 },
+                        { "$ref": "#/definitions/alias" }
+                      ]
+                    },
+                    "fontSize": {
+                      "oneOf": [
+                        { "$ref": "#/definitions/dimensionValue" },
+                        { "$ref": "#/definitions/alias" }
+                      ]
+                    },
+                    "fontWeight": {
+                      "oneOf": [
+                        { "enum": [100, 200, 300, 400, 500, 600, 700, 800, 900] },
+                        { "$ref": "#/definitions/alias" }
+                      ]
+                    },
+                    "letterSpacing": {
+                      "oneOf": [
+                        { "$ref": "#/definitions/dimensionValue" },
+                        { "$ref": "#/definitions/alias" }
+                      ]
+                    }
+                  },
+                  "required": ["fontFamily", "fontSize", "fontWeight", "letterSpacing"],
+                  "additionalProperties": false
+                },
+                { "$ref": "#/definitions/alias" }
+              ]
+            },
+            "$description": true,
+            "$deprecated": true,
+            "$extensions": true
+          },
+          "required": ["$type", "$value"],
+          "additionalProperties": false
+        }
+      ]
+    }
+  }
+}

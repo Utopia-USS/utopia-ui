@@ -1,0 +1,233 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "$id": "https://raw.githubusercontent.com/Utopia-USS/utopia-ui/main/protocol/schemas/manifest.schema.json",
+  "title": "Utopia Design Protocol - component manifest",
+  "description": "Machine-readable API registry of a utopia_ui release: components (concrete widgets exported from the barrel), models (data classes used in props) and helpers (functions, hooks, typedefs). Modeled on custom-elements-manifest, adapted to Flutter. Protocol version 0.1.0; see protocol/VERSIONING.md.",
+  "type": "object",
+  "properties": {
+    "$schema": { "type": "string" },
+    "schemaVersion": {
+      "type": "string",
+      "pattern": "^[0-9]+\\.[0-9]+\\.[0-9]+$",
+      "description": "Version of the manifest schema (the protocol version) this document conforms to."
+    },
+    "package": {
+      "const": "utopia_ui",
+      "description": "The Dart package this manifest describes."
+    },
+    "packageVersion": {
+      "type": "string",
+      "description": "Version of the described package, stamped from pubspec.yaml at generation time. MUST match the consumer's resolved package version (drift gate)."
+    },
+    "generatedAt": {
+      "type": "string",
+      "description": "ISO 8601 generation timestamp."
+    },
+    "components": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/component" }
+    },
+    "models": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/model" }
+    },
+    "helpers": {
+      "type": "array",
+      "items": { "$ref": "#/definitions/helper" }
+    }
+  },
+  "required": ["schemaVersion", "package", "packageVersion", "components"],
+  "additionalProperties": false,
+  "definitions": {
+    "kebabId": {
+      "type": "string",
+      "pattern": "^[a-z][a-z0-9]*(-[a-z0-9]+)*$"
+    },
+    "dartName": {
+      "type": "string",
+      "pattern": "^[A-Za-z_][A-Za-z0-9_]*$"
+    },
+    "portableType": {
+      "type": "string",
+      "enum": [
+        "string", "number", "bool", "enum", "color", "duration", "date",
+        "callback", "widget-slot", "builder-slot", "list", "generic-model",
+        "model", "other"
+      ],
+      "description": "Portable prop type vocabulary (SPEC.md 3.5). The verbatim Dart type always travels alongside in dartType."
+    },
+    "prop": {
+      "type": "object",
+      "properties": {
+        "name": { "$ref": "#/definitions/dartName" },
+        "type": { "$ref": "#/definitions/portableType" },
+        "dartType": {
+          "type": "string",
+          "description": "Verbatim Dart type of the parameter, e.g. \"void Function(String?)\"."
+        },
+        "required": { "type": "boolean" },
+        "default": {
+          "type": "string",
+          "description": "Verbatim Dart default expression, e.g. \"false\", \"const []\". Absent when the parameter has no default."
+        },
+        "description": { "type": "string" },
+        "enumName": {
+          "$ref": "#/definitions/dartName",
+          "description": "For type \"enum\": the Dart enum's name."
+        },
+        "values": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "For type \"enum\": the enum's value names."
+        },
+        "itemType": {
+          "$ref": "#/definitions/portableType",
+          "description": "For type \"list\": portable type of the list elements."
+        },
+        "itemDartType": {
+          "type": "string",
+          "description": "For type \"list\": verbatim Dart type of the list elements."
+        },
+        "modelName": {
+          "$ref": "#/definitions/dartName",
+          "description": "For type \"model\" (or list of models): the referenced entry in the models section."
+        }
+      },
+      "required": ["name", "type", "dartType", "required"],
+      "additionalProperties": false
+    },
+    "constructor": {
+      "type": "object",
+      "properties": {
+        "name": {
+          "type": "string",
+          "pattern": "^([a-z][A-Za-z0-9_]*)?$",
+          "description": "Named-constructor name; empty string for the unnamed constructor."
+        },
+        "description": { "type": "string" },
+        "props": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/prop" }
+        }
+      },
+      "required": ["name", "props"],
+      "additionalProperties": false
+    },
+    "tokenBinding": {
+      "type": "string",
+      "pattern": "^(colors|textStyles|theme|tokens)(\\.[a-zA-Z][a-zA-Z0-9]*)+$",
+      "description": "Dotted UtopiaThemeData member path the component reads, e.g. \"colors.primary\", \"tokens.durations.xs\", \"theme.borderRadius\"."
+    },
+    "state": {
+      "type": "string",
+      "enum": [
+        "hover", "focus", "pressed", "loading", "disabled", "selected",
+        "error", "empty", "readOnly", "expanded", "open"
+      ]
+    },
+    "component": {
+      "type": "object",
+      "properties": {
+        "id": {
+          "$ref": "#/definitions/kebabId",
+          "description": "Stable id: class name minus the Utopia prefix, kebab-cased. Unique across the manifest."
+        },
+        "name": { "$ref": "#/definitions/dartName" },
+        "description": { "type": "string" },
+        "file": {
+          "type": "string",
+          "pattern": "^lib/",
+          "description": "Repo-relative source path."
+        },
+        "generic": {
+          "type": "boolean",
+          "description": "True when the widget is generic over a row/item type T."
+        },
+        "constructors": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/constructor" },
+          "minItems": 1
+        },
+        "tokenBindings": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/tokenBinding" }
+        },
+        "states": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/state" }
+        },
+        "composes": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/kebabId" },
+          "description": "Ids of other manifest components this component renders internally."
+        },
+        "twin": {
+          "type": "object",
+          "properties": {
+            "file": { "type": "string" },
+            "selector": { "type": "string" }
+          },
+          "required": ["file", "selector"],
+          "additionalProperties": false
+        },
+        "examples": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "Repo-relative paths demonstrating the component (example app sections)."
+        },
+        "notes": {
+          "type": "string",
+          "description": "Curated semantic notes from the overlay (usage guidance an analyzer cannot derive)."
+        }
+      },
+      "required": ["id", "name", "description", "file", "constructors", "tokenBindings"],
+      "additionalProperties": false
+    },
+    "model": {
+      "type": "object",
+      "properties": {
+        "name": { "$ref": "#/definitions/dartName" },
+        "description": { "type": "string" },
+        "file": { "type": "string", "pattern": "^lib/" },
+        "kind": {
+          "type": "string",
+          "enum": ["class", "sealed-class", "enum", "record"],
+          "description": "Dart declaration kind. Sealed hierarchies list subtypes as separate model entries whose supertype names the sealed parent."
+        },
+        "supertype": {
+          "$ref": "#/definitions/dartName",
+          "description": "For subtypes of a sealed hierarchy: the sealed parent's name."
+        },
+        "values": {
+          "type": "array",
+          "items": { "type": "string" },
+          "description": "For kind \"enum\": the value names."
+        },
+        "constructors": {
+          "type": "array",
+          "items": { "$ref": "#/definitions/constructor" }
+        }
+      },
+      "required": ["name", "description", "file", "kind"],
+      "additionalProperties": false
+    },
+    "helper": {
+      "type": "object",
+      "properties": {
+        "name": { "$ref": "#/definitions/dartName" },
+        "kind": {
+          "type": "string",
+          "enum": ["function", "hook", "typedef", "extension"]
+        },
+        "description": { "type": "string" },
+        "file": { "type": "string", "pattern": "^lib/" },
+        "signature": {
+          "type": "string",
+          "description": "Verbatim declaration signature."
+        }
+      },
+      "required": ["name", "kind", "description", "file"],
+      "additionalProperties": false
+    }
+  }
+}
