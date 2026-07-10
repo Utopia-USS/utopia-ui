@@ -2,14 +2,13 @@
 
 # utopia_ui
 
-A themeable, general-purpose set of Flutter components for building admin-panel-quality UI - tables,
-dialogs, a navigation sidebar and the form primitives they're built from.
+A themeable, general-purpose Flutter design system: one foundational token scale and the basic building
+blocks built on it - buttons, fields, tables, dialogs, chips, a navigation sidebar and layout primitives.
 
 `utopia_ui` is data-shape agnostic and carries no domain logic. It doesn't know what a `JsonMap` is, doesn't
 assume a delegate or a backend, and doesn't ship any CRUD logic - every component is generic over your own
-model types and driven by plain values and callbacks. If your project needs "an admin-panel-quality table /
-button / dialog" but has its own models, its own data layer and its own brand, you can adopt this package
-without forking it.
+model types and driven by plain values and callbacks. If your project needs a themed table / button / dialog
+but has its own models, its own data layer and its own brand, you can adopt this package without forking it.
 
 ## Install
 
@@ -57,31 +56,43 @@ class MyApp extends StatelessWidget {
 }
 ```
 
-## Theming
+## Design tokens & theming
 
-Every visual constant a component reads - colors, text styles, radii, paddings, shadows - comes from one token
-root: `UtopiaThemeData`. Components never hardcode a color or a font; if you need a new visual constant, it's
-added to `UtopiaThemeData`, never inlined into a widget.
+Every visual constant a component reads comes from one context-resolved root: `UtopiaThemeData`, carried by the
+`UtopiaTheme` inherited widget. Components never hardcode a color, a font, a gap or a radius; if a component
+needs a new visual constant, it's added to the token system, never inlined into a widget.
 
-`UtopiaThemeData` (a freezed class) is a flat set of fields - no per-component theme objects in v1:
+**The token scale.** All dimensional values derive from a single base unit, `UtopiaTokens.x` (4 logical pixels
+by default). `UtopiaTokens` groups the foundational families:
 
-| Field | Type | Notes |
+| Family | Type | Steps |
 |---|---|---|
-| `colors` | `UtopiaThemeColors` | its own freezed token class - `primary`, `text`, `surface`, `border`, `hover`, `hint`, ... |
-| `textStyles` | `UtopiaThemeTextStyles` | its own freezed token class of `TextStyle`s (`header`, `title`, `text`, `label`, `button`, `caption`) |
-| `borderRadius` | `BorderRadius` | default corner radius (buttons, fields) |
-| `fieldContentPadding` | `EdgeInsets` | padding inside a field's content area |
-| `pageTopPadding` | `double` | top inset used by pages and dialogs |
-| `menuShadow` / `menuRadius` | `List<BoxShadow>` / `BorderRadius` | popup/dropdown chrome |
-| `shortButtonWidth` | `double` | width for compact button layouts |
-| `cardRadius` / `cardBorderWidth` / `cardShadow` | - | the table card's corner radius, border stroke and drop shadow |
-| `tileHeight` | `double` | height of a single table row |
-| `dividerThickness` | `double` | row/header divider stroke width |
-| `chipRadius` | `double` | corner radius of a `UtopiaChip` |
+| `spacing` | `UtopiaSpacingTokens` | `xxs 2 · xs 4 · sm 8 · md 12 · lg 16 · xl 24 · xxl 32 · xxxl 48` |
+| `radius` | `UtopiaRadiusTokens` | `xs 4 · sm 6 · md 8 · lg 12 · xl 16 · full`, each with a `BorderRadius` preset (`smAll`, ...) |
+| `borders` | `UtopiaBorderTokens` | `hairline 1 · thin 1.5 · thick 2` |
+| `shadows` | `UtopiaShadowTokens` | `sm · md · lg` elevation presets |
+| `fontWeights` | `UtopiaFontWeightTokens` | `regular · medium · semiBold · bold` |
+| `durations` | `UtopiaDurationTokens` | `xs 100ms · sm 150 · md 200 · lg 300 · xl 400` |
+| `breakpoints` | `UtopiaBreakpointTokens` | `tabletMin 600 · webMin 900 · sidebarMin 900` |
 
-`colors` and `textStyles` are extended as separate token classes because they group naturally; the rest are
-flat layout tokens used directly by components (table row height, divider thickness, chip radius, and so on).
-Extend `UtopiaThemeData` itself when a component needs a new visual constant - never inline it into the widget.
+`UtopiaTokens.fromBase(5)` re-derives the spatial families from a new base - the whole system rescales from one
+number. The token identifiers double as the canonical names for mirroring the scale into external tools (Figma
+variables, CSS custom properties).
+
+**The theme.** `UtopiaThemeData` carries the token scale plus the color and type families and a small set of
+semantic slots - values that encode a design decision beyond "which token":
+
+- `tokens` - the `UtopiaTokens` scale above
+- `colors` (`UtopiaThemeColors`) - `primary`, `text`, `surface`, `border`, `hover`, `hint`, ...
+- `textStyles` (`UtopiaThemeTextStyles`) - `header`, `title`, `text`, `label`, `button`, `caption`
+- `borderRadius`, `cardRadius` - which radius step controls and cards sit on
+- `fieldContentPadding`, `fieldMinHeight`, `pageTopPadding`, `tileHeight` - field/page/table metrics
+
+Pure token aliases (`cardShadow`, `menuShadow`, `cardBorderWidth`, `dividerThickness`, `chipRadius`) are derived
+getters, so they always track `tokens` and can never go stale.
+
+`UtopiaThemeData.fromTokens(colors:, textStyles:, tokens:)` is the canonical constructor - it derives every
+dimensional slot from the token scale so the whole theme sits on one grid.
 
 **Distribution.** `UtopiaTheme` is a plain `InheritedWidget`, like `Theme` or `DefaultTextStyle` - no `provider`
 dependency:
@@ -90,6 +101,7 @@ dependency:
   `UtopiaThemeData.defaultTheme` when there is none. Every component works zero-config.
 - `UtopiaTheme.maybeOf(context)` returns `null` instead of falling back, for callers that need to tell the two
   cases apart.
+- Nested `UtopiaTheme`s re-theme (or rescale) just their subtree.
 
 **Ergonomic lookups** are context extensions, backed by `UtopiaTheme.of`:
 
@@ -97,11 +109,15 @@ dependency:
 context.theme;           // UtopiaThemeData
 context.colors;          // UtopiaThemeColors
 context.textStyles;      // UtopiaThemeTextStyles
+context.tokens;          // UtopiaTokens
+context.spacing;         // UtopiaSpacingTokens  e.g. context.spacing.md
+context.radius;          // UtopiaRadiusTokens   e.g. context.radius.lgAll
 context.fieldDecoration; // BoxDecoration for a field's background
 ```
 
-To rebrand an app, construct your own `UtopiaThemeData` (typically as `UtopiaThemeData.defaultTheme.copyWith(...)`)
-and pass it to a `UtopiaTheme` at the root - every descendant re-themes automatically.
+To rebrand an app, construct your own `UtopiaThemeData` (via `UtopiaThemeData.fromTokens(...)` or
+`UtopiaThemeData.defaultTheme.copyWith(...)`) and pass it to a `UtopiaTheme` at the root - every descendant
+re-themes automatically.
 
 ## The table
 
@@ -296,9 +312,11 @@ constraints-aware layout.
 Everything below is exported from the single barrel, `package:utopia_ui/utopia_ui.dart` - there are no
 per-family barrels and no deep imports into `src/`.
 
-**Theme**
-`UtopiaTheme`, `UtopiaThemeData`, `UtopiaThemeColors`, `UtopiaThemeTextStyles`, and the `context.theme` / `context.colors` /
-`context.textStyles` / `context.fieldDecoration` extensions.
+**Theme & tokens**
+`UtopiaTheme`, `UtopiaThemeData`, `UtopiaThemeColors`, `UtopiaThemeTextStyles`, `UtopiaTokens` (with the
+`UtopiaSpacingTokens` / `UtopiaRadiusTokens` / `UtopiaBorderTokens` / `UtopiaShadowTokens` / `UtopiaFontWeightTokens` /
+`UtopiaDurationTokens` / `UtopiaBreakpointTokens` families), and the `context.theme` / `context.colors` /
+`context.textStyles` / `context.tokens` / `context.spacing` / `context.radius` / `context.fieldDecoration` extensions.
 
 **Buttons**
 `UtopiaButton` - the primary call-to-action button, with an inline loading state.

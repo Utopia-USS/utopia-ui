@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:utopia_ui/utopia_ui.dart';
 
-/// The stock [UtopiaThemeData] retuned to a polished admin look: a soft canvas,
+/// The stock [UtopiaThemeData] retuned to a polished dashboard look: a soft canvas,
 /// white rounded/bordered table card, light-blue dividers and chips, and a real
 /// weight hierarchy in the typography.
 ///

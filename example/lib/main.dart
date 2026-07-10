@@ -13,7 +13,7 @@ void main() => runApp(const DesignSystemApp());
 
 const _providers = <Type, Object? Function()>{ThemeModeState: useThemeModeState};
 
-/// The utopia_ui showcase: a small admin app driven entirely by the design
+/// The utopia_ui showcase: a small app driven entirely by the design
 /// system, with a [UtopiaSidebar] rail navigating between working pages.
 class DesignSystemApp extends HookWidget {
   const DesignSystemApp({super.key});

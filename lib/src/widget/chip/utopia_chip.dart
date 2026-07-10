@@ -5,7 +5,7 @@ import 'package:utopia_ui/src/util/utopia_context_extensions.dart';
 /// `UtopiaTable` cell (e.g. a dropdown value or one element of a to-many relation).
 ///
 /// Colours and corner radius come from `UtopiaThemeData` / `UtopiaThemeColors` so the
-/// whole admin app stays themable from one place.
+/// whole app stays themable from one place.
 class UtopiaChip extends StatelessWidget {
   /// The chip label.
   final Widget child;
