@@ -1,0 +1,8 @@
+states: [focus, disabled]
+notes: >-
+  A prominent, full-width search field with a leading magnifier and a clear
+  affordance once text is entered. Uncontrolled, like text-field: value seeds
+  the internal state on first build only.
+examples:
+  - example/lib/sections/fields_section.dart
+  - example/lib/sections/table_section.dart

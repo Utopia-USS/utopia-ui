@@ -1,0 +1,9 @@
+states: [error, readOnly, focus, disabled]
+notes: >-
+  The base editable text field. Uncontrolled: value seeds the internal state
+  on first build only, so changes flow out through onChanged - key the widget
+  to force a new external value. disabled is modeled through readOnly, which
+  keeps the field's normal styling instead of Flutter's faded look.
+examples:
+  - example/lib/sections/fields_section.dart
+  - example/lib/sections/dialogs_section.dart

@@ -1,0 +1,8 @@
+states: [hover, loading, disabled]
+notes: >-
+  The primary call-to-action button. Loading swaps the label for an inline
+  UtopiaThreeBounce indicator while keeping the button's size stable; disabled
+  dims the gradient fill instead of hiding the button.
+examples:
+  - example/lib/sections/buttons_section.dart
+  - example/lib/sections/dialogs_section.dart

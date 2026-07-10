@@ -1,0 +1,9 @@
+states: [empty, loading, hover]
+notes: >-
+  A general-purpose, data-shape-agnostic data table, generic over the row
+  type. Fully controlled: rows being null renders the loading skeleton, an
+  empty (non-null) list renders the empty state, and rows hover individually
+  under the pointer. Rendered as a sliver so it composes into a
+  CustomScrollView; columns give way by hidePriority when the table narrows.
+examples:
+  - example/lib/sections/table_section.dart

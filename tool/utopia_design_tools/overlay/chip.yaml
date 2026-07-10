@@ -1,0 +1,7 @@
+notes: >-
+  A small rounded pill for a categorical/tag-like value, typically inside a
+  table cell. color and contentColor override the theme's chip
+  background/foreground defaults per-instance.
+examples:
+  - example/lib/sections/chips_text_section.dart
+  - example/lib/sections/table_section.dart

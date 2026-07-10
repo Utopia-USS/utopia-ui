@@ -1,0 +1,6 @@
+states: [selected, hover]
+notes: >-
+  A non-Material selectable row: a label preceded by a check box, used inside
+  dropdown popups. Styled from the Utopia theme, with no ink splash.
+examples:
+  - example/lib/sections/selection_section.dart

@@ -1,0 +1,9 @@
+notes: >-
+  A raised, rounded, hairline-bordered surface - the container the table and
+  other grouped content sit on. Styling comes entirely from
+  UtopiaThemeData.cardDecoration/cardBorderDecoration, so it stays themable
+  from one place. See utopiaCardSliver for the sliver counterpart used inside
+  a CustomScrollView.
+examples:
+  - example/lib/sections/surfaces_section.dart
+  - example/lib/sections/typography_section.dart

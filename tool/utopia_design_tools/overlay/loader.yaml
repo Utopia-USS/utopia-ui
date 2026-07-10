@@ -1,0 +1,6 @@
+states: [loading]
+notes: >-
+  A small circular progress indicator, sized and coloured to fit inline in
+  text-scale contexts (e.g. a loading row or a compact overlay).
+examples:
+  - example/lib/sections/loading_section.dart

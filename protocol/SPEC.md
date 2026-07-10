@@ -291,6 +291,11 @@ enums, typedefs, extensions, abstract/static-only classes (`UtopiaBreakpoints`),
 classes (`UtopiaTableEntry`, `UtopiaSidebarItem` and subtypes, `UtopiaSidebarStyle`,
 `UtopiaTableSortOption`, `UtopiaTableState`), free functions and hooks.
 
+Known v0 limitation: only constructors are modeled. Static presentation helpers
+(`UtopiaConfirmDialog.show`, `UtopiaDialog.show`) have no structured representation; the
+overlay's `notes` field carries their usage guidance as prose. A `staticMethods` section is
+a candidate additive (minor-version) extension if agents prove to need it.
+
 Two auxiliary sections keep the excluded-but-needed API queryable:
 
 - `models` - data/config classes that appear in component props (e.g. `UtopiaTableEntry`,

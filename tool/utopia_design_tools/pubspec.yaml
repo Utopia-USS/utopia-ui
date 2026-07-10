@@ -11,14 +11,18 @@ environment:
 executables:
   export_tokens: export_tokens
   validate_tokens: validate_tokens
+  generate_manifest: generate_manifest
+  validate_manifest: validate_manifest
 
 dependencies:
   flutter:
     sdk: flutter
   utopia_ui: ^0.1.0
+  analyzer: ^8.4.1
   args: ^2.7.0
   path: ^1.9.1
   json_schema: ^5.2.2
+  yaml: ^3.1.3
 
 dev_dependencies:
   flutter_test:

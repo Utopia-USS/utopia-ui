@@ -1,0 +1,7 @@
+states: [readOnly]
+notes: >-
+  A titled row pairing a label with a switch, wrapped in the shared
+  field-wrapper chrome so it lines up with the other utopia_ui fields.
+examples:
+  - example/lib/sections/selection_section.dart
+  - example/lib/sections/dialogs_section.dart

@@ -1,0 +1,7 @@
+notes: >-
+  A themed confirm/cancel prompt drawn with the utopia card chrome rather than
+  a Material AlertDialog. danger renders the confirming action in the theme's
+  error colour, for destructive confirmations (delete, sign out, ...). Use
+  show to present it as a route with the ambient theme re-attached.
+examples:
+  - example/lib/sections/dialogs_section.dart

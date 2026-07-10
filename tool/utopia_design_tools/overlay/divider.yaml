@@ -1,0 +1,7 @@
+notes: >-
+  A hairline divider drawn in the theme's divider colour. When
+  UtopiaThemeColors.divider is unset, the colour derives from the theme's text
+  colour over the surface, so it stays visible in any theme.
+examples:
+  - example/lib/sections/surfaces_section.dart
+  - example/lib/sections/typography_section.dart

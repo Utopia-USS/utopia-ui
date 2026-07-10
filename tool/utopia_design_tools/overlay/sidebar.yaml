@@ -1,0 +1,8 @@
+states: [hover, selected, expanded]
+notes: >-
+  An adaptive navigation sidebar: a collapsible hover/pin rail on wide
+  screens, a flush full-width drawer body on small screens. selected means
+  only that selectedId matches a destination's id - the sidebar carries no
+  navigation opinions of its own.
+examples:
+  - example/lib/sections/sidebar_section.dart
