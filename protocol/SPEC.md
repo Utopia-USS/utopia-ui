@@ -97,6 +97,12 @@ Derived Dart getters (`cardShadow`, `menuShadow`, `chipRadius`, `cardBorderWidth
 `dividerThickness`, decoration getters) are **not** tokens. They are aliases in Dart and stay
 in Dart; emitting them as tokens would create a second source of truth.
 
+The token tree is deliberately **closed**: a token that has no landing spot in
+`UtopiaThemeData` would be silently dead on the Flutter surface, so unknown names are
+rejected rather than accepted-and-ignored. The top-level name `custom` is reserved for a
+possible future consumer-extension group (an additive, minor-version change per
+VERSIONING.md); protocol 0.1 documents remain closed to unknown names.
+
 ### 2.3 Type mapping rules (Flutter <-> DTCG)
 
 | Flutter value | DTCG shape |
@@ -427,7 +433,9 @@ Composite expansions:
   `textStyle.header` -> `--utopia-text-style-header-font-family`, `...-font-size`,
   `...-font-weight`, `...-letter-spacing`.
 - The sibling color group folds into the same prefix: `textStyle-colors.header` ->
-  `--utopia-text-style-header-color` (NOT `--utopia-text-style-colors-header`).
+  `--utopia-text-style-header-color` (NOT `--utopia-text-style-colors-header`). The reverse
+  mapping applies on import: `--utopia-text-style-<role>-color` resolves to
+  `textStyle-colors.<role>`.
 - `shadow` tokens emit one variable holding the full CSS `box-shadow` value list:
   `--utopia-shadow-sm: 0 1px 6px 0 rgb(0 0 0 / 0.05);`.
 
@@ -492,9 +500,13 @@ only rewrites the front matter block.
 
 ## 5. Tooling surface
 
-All tools ship as executables of the nested Dart package `tool/utopia_design_tools` and are
-invoked as `dart run utopia_design_tools:<command>`. The exact CLI contract (arguments, exit
-codes, output formats) is published separately (handoff H1); the command set is fixed here:
+All tools ship as executables of the Dart package `utopia_design_tools` (developed nested in
+this repo under `tool/`, published to pub.dev as its own package) and are invoked as
+`dart run utopia_design_tools:<command>`. Consumers install it as a dev dependency
+(`flutter pub add --dev utopia_design_tools`); `export_tokens` is the one maintainer-only
+tool that additionally requires a checkout of this repo. The exact CLI contract (arguments,
+exit codes, output formats) is published separately (handoff H1); the command set is fixed
+here:
 
 | Command | Role |
 |---|---|
