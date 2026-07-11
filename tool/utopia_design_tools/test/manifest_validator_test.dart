@@ -38,6 +38,12 @@ void main() {
         '(bindings + packageVersion gates included)', () {
       final validator = ManifestValidator(schema, utopiaUiRoot: repoRoot);
       final doc = loadFixture('valid/mini.manifest.json');
+      // The fixture's packageVersion is stamped from the repo's own resolved
+      // version rather than hardcoded, so this test passes at any pubspec.yaml
+      // version (RELEASING.md bumps it) instead of failing as a phantom
+      // drift-gate red. The negative wrong-package-version fixture below is
+      // deliberately left mismatched and untouched.
+      doc['packageVersion'] = readPackageVersion(File(p.join(repoRoot.path, 'pubspec.yaml')));
       final errors = errorsOnly(validator.validate(doc));
       expect(errors, isEmpty, reason: errors.map((f) => f.toLine()).join('; '));
     });

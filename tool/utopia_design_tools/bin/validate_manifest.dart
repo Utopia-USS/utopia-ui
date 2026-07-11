@@ -41,7 +41,7 @@ Future<void> main(List<String> arguments) async {
   if (args['help'] as bool) {
     stdout.writeln(
       'Usage: dart run utopia_design_tools:validate_manifest [<file>] [--json] [--sources <dir>] '
-      '[--project-dir <dir>]',
+      '[--project-dir <dir>] [--schema <path>]',
     );
     stdout.writeln(parser.usage);
     exitCode = 0;
