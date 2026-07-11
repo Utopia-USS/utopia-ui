@@ -12,6 +12,7 @@ import 'dart:io';
 import 'package:args/args.dart';
 import 'package:path/path.dart' as p;
 import 'package:utopia_design_tools/src/cli/output.dart';
+import 'package:utopia_design_tools/src/dtcg/token_fixer.dart';
 import 'package:utopia_design_tools/src/dtcg/validator.dart';
 import 'package:utopia_design_tools/src/util/repo.dart';
 
@@ -88,16 +89,74 @@ Future<void> main(List<String> arguments) async {
     return;
   }
   final validator = TokenValidator(schema);
-  final findings = validator.validate(rawJson);
-  final report = FindingReport(findings);
 
   if (doFix) {
-    stderr.writeln('validate_tokens: --fix is not yet implemented; running in report-only mode.');
+    _runFix(targetFile: targetFile, rawJson: rawJson, validator: validator, asJson: asJson);
+    return;
   }
 
+  final findings = validator.validate(rawJson);
+  final report = FindingReport(findings);
   if (asJson) {
     stdout.writeln(report.toJson());
   } else {
+    stdout.writeln(report.toText());
+  }
+  exitCode = report.exitCode;
+}
+
+/// Runs the `--fix` path: applies the two mechanical repair classes
+/// (protocol SPEC 2.5, 2.7 gate 4) to [rawJson], writes the result back to
+/// [targetFile] only when at least one repair was made, then re-validates
+/// and reports the outcome.
+///
+/// Exit codes: 0 when the post-fix document is clean (including the no-op
+/// case where nothing needed fixing), 1 when errors remain that `--fix`
+/// cannot repair.
+void _runFix({
+  required File targetFile,
+  required Map<String, dynamic> rawJson,
+  required TokenValidator validator,
+  required bool asJson,
+}) {
+  final fixes = TokenFixer.fix(rawJson);
+
+  if (fixes.isEmpty) {
+    if (asJson) {
+      stdout.writeln(
+        const JsonEncoder.withIndent('  ').convert({'status': 'ok', 'fixed': <dynamic>[], 'message': 'nothing to fix'}),
+      );
+    } else {
+      stdout.writeln('nothing to fix');
+    }
+    exitCode = 0;
+    return;
+  }
+
+  final jsonText = '${const JsonEncoder.withIndent('  ').convert(rawJson)}\n';
+  try {
+    targetFile.writeAsStringSync(jsonText);
+  } on FileSystemException catch (e) {
+    exitCode = 2;
+    stderr.writeln('validate_tokens: failed to write ${targetFile.path}: ${e.message}');
+    return;
+  }
+
+  final findings = validator.validate(rawJson);
+  final report = FindingReport(findings);
+
+  if (asJson) {
+    final map = {
+      'status': report.hasErrors ? 'fail' : 'ok',
+      'fixed': fixes.map((f) => f.toJsonEntry()).toList(),
+      'errors': report.errors.map((f) => f.toJsonEntry()).toList(),
+      'warnings': report.warnings.map((f) => f.toJsonEntry()).toList(),
+    };
+    stdout.writeln(const JsonEncoder.withIndent('  ').convert(map));
+  } else {
+    for (final fix in fixes) {
+      stdout.writeln(fix.toLine());
+    }
     stdout.writeln(report.toText());
   }
   exitCode = report.exitCode;
