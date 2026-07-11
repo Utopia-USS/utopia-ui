@@ -119,6 +119,71 @@ To rebrand an app, construct your own `UtopiaThemeData` (via `UtopiaThemeData.fr
 `UtopiaThemeData.defaultTheme.copyWith(...)`) and pass it to a `UtopiaTheme` at the root - every descendant
 re-themes automatically.
 
+## Design protocol
+
+`utopia_ui` is the reference implementation of the Utopia Design Protocol - the first open,
+bidirectional design-system protocol for Flutter. A shared, generic contract (design tokens plus
+stable component ids) lets a design surface and a Flutter app stay in sync in both directions,
+instead of a one-way "design-to-code" handoff.
+
+<img src="https://raw.githubusercontent.com/Utopia-USS/utopia-ui/feat/design-protocol/docs/protocol/hero-flutter-components.png" width="49%" alt="The utopia_ui example app's Components page, live in Flutter"/> <img src="https://raw.githubusercontent.com/Utopia-USS/utopia-ui/feat/design-protocol/docs/protocol/hero-twin-default.png" width="49%" alt="The HTML twin's gallery, mirroring the same components"/>
+
+The Flutter app (left) and the HTML twin (right) render the same components from the same
+tokens. Rebrand the tokens and both surfaces follow - here the default theme becomes a pink
+gradient brand with one token edit:
+
+<img src="https://raw.githubusercontent.com/Utopia-USS/utopia-ui/feat/design-protocol/docs/protocol/hero-twin-rebrand.png" width="100%" alt="The HTML twin gallery after a token-only rebrand to a pink gradient brand"/>
+
+The package ships three protocol artifacts, version-matched to the `utopia_ui` release you resolve:
+
+- **Tokens** - a DTCG 2025.10 token document at [`tokens/utopia.tokens.json`](tokens/utopia.tokens.json),
+  the canonical export of the default theme.
+- **Manifest** - a component registry at [`manifest/utopia.manifest.json`](manifest/utopia.manifest.json)
+  mapping every `utopia_ui` widget to a stable id, its props and its states.
+- **Twin** - a static HTML/CSS mirror of the component library at [`twin/`](twin/), for design
+  tools and reviewers that never open Flutter.
+
+### The consumer loop
+
+1. Bootstrap `design/tokens.json` in your project via the command printed by the tools (a copy of
+   the packaged default DTCG document).
+2. Edit or rebrand it - change token values to match your brand.
+3. Validate it: `dart run utopia_design_tools:validate_tokens` (add `--fix` to re-derive
+   rescaled values after changing the base unit).
+4. Generate the theme and wire it: `dart run utopia_design_tools:generate_theme`, then pass the
+   result to your root widget - `UtopiaTheme(data: buildUtopiaTheme(), child: ...)`.
+5. Optionally, `dart run utopia_design_tools:generate_twin` for an always-current HTML design
+   surface, and `dart run utopia_design_tools:generate_manifest --project` to register your own
+   custom components with stable ids alongside the library's.
+
+### v0 limits (roadmap)
+
+Stated up front, not discovered later:
+
+- **Single-context.** The protocol carries one theme at a time - there is no dark-mode pairing
+  yet. A future version will add a second linked context.
+- **Closed token tree.** The token document covers `utopia_ui`'s own scale and slots. Project-specific
+  values (a one-off brand color used nowhere else, a bespoke metric) live as plain constants in your
+  project code; custom components earn a manifest id through the project manifest (`generate_manifest
+  --project`), not by growing the shared token tree.
+
+### Install the tools
+
+```
+flutter pub add --dev utopia_design_tools
+```
+
+<sub>Before `utopia_design_tools` reaches pub.dev, add it as a git dependency on this repo
+(path `tool/utopia_design_tools`) with a matching `dependency_overrides` entry - drop this
+sentence once the tools package is published.</sub>
+
+### Learn more
+
+- [Protocol spec](https://github.com/Utopia-USS/utopia-ui/blob/feat/design-protocol/protocol/SPEC.md)
+- [Versioning policy](https://github.com/Utopia-USS/utopia-ui/blob/feat/design-protocol/protocol/VERSIONING.md)
+- [Token schema](https://github.com/Utopia-USS/utopia-ui/blob/feat/design-protocol/protocol/schemas/tokens.schema.json)
+- [Manifest schema](https://github.com/Utopia-USS/utopia-ui/blob/feat/design-protocol/protocol/schemas/manifest.schema.json)
+
 ## The table
 
 `UtopiaTable<T>` is a general-purpose, data-shape-agnostic table generic over a row type `T` of your choosing. It

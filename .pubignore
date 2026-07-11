@@ -33,3 +33,6 @@ tool/
 # Repo-internal docs not useful to package consumers
 AGENTS.md
 CHARTER.md
+
+# README hero images: GitHub-hosted (raw.githubusercontent.com), must not ship in the tarball
+docs/
