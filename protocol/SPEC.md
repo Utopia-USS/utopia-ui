@@ -631,6 +631,10 @@ There is no runtime sync, no watching, no network: regeneration is an explicit, 
 step. Any surface-side edit (a tweak made in the twin's CSS, a Figma variable change) becomes
 durable only by landing in the token document and regenerating.
 
+Fan-out is conditional by presence: regeneration targets every surface the consumer has
+materialized. A project without a `twin/` directory gets no twin written as a rebrand side
+effect - creating the design surface for the first time is an explicit choice.
+
 ### 6.2 Importing external sources
 
 Imports (Figma DTCG exports, foreign `tokens.css` / Tailwind `@theme` files, design handoff

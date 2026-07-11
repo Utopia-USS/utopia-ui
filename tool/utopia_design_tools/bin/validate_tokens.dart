@@ -188,7 +188,10 @@ String _bootstrapMessage() {
         'then bootstrap with: mkdir -p design && cp <utopia_ui>/tokens/utopia.tokens.json design/tokens.json';
   }
   final sourcePath = p.join(packageRoot.path, 'tokens', 'utopia.tokens.json');
-  return 'no token document found. Bootstrap one by copying the packaged default into your project '
-      '(POSIX: mkdir -p design && cp $sourcePath design/tokens.json): '
-      'source file: $sourcePath -> target: design/tokens.json';
+  return 'no token document found. Bootstrap one by copying the packaged default into your project:\n'
+      '\n'
+      '  mkdir -p design && cp -n $sourcePath design/tokens.json\n'
+      '\n'
+      '(cp -n refuses to overwrite an existing design/tokens.json; on Windows use '
+      'copy "$sourcePath" design\\tokens.json after creating the design directory)';
 }

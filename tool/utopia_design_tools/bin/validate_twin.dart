@@ -116,6 +116,13 @@ Future<void> main(List<String> arguments) async {
   final tokenDocument = TokenDocument.parse(tokensJson);
   final profileVersion = (tokenDocument.rootExtensions?['profileVersion'] as String?) ?? protocolVersion;
 
+  if (!File(p.join(twinDir.path, 'components.html')).existsSync()) {
+    stderr.writeln(
+      'validate_twin: info: components.html absent - id-coverage gate skipped (generated-only twin, RFC-B5); '
+      'literals linter and tokens.css freshness still enforced.',
+    );
+  }
+
   final validator = TwinValidator(
     twinDir: twinDir,
     manifestComponentIds: manifestComponentIds,

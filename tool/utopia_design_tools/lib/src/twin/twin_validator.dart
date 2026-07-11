@@ -78,7 +78,13 @@ class TwinValidator {
     }
 
     // Gate 2: id coverage, both directions, across every twin HTML file.
-    findings.addAll(_checkIdCoverage());
+    // RFC-B5 auto-partial mode: a generated-only consumer twin has no
+    // components.html - there is nothing for the id-coverage gate to cover,
+    // so it is skipped (the CLI prints an info line); the literals linter and
+    // the tokens.css freshness gate still run and still carry value.
+    if (File(p.join(twinDir.path, 'components.html')).existsSync()) {
+      findings.addAll(_checkIdCoverage());
+    }
 
     // Gate 3: tokens.css freshness (regenerate and byte-compare).
     findings.addAll(_checkTokensCssFreshness(tokensCssFile));
