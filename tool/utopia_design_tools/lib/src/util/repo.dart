@@ -116,4 +116,22 @@ class RepoLocator {
     }
     return Directory(p.normalize(p.join(dartToolDir.path, rootUri)));
   }
+
+  /// Normalizes a token-document input path for embedding in generated-file
+  /// headers: when the file lives under the resolved utopia_ui root, returns
+  /// the forward-slash path relative to that root (invocation-independent, so
+  /// freshness byte-compares work no matter how either tool was invoked);
+  /// otherwise returns [path] unchanged.
+  static String normalizeInputPath(String path) {
+    final root = findUtopiaUiRepoRoot() ?? resolveUtopiaUiPackageRoot();
+    if (root == null) {
+      return path;
+    }
+    final absolute = p.normalize(File(path).absolute.path);
+    final rootPath = p.normalize(root.absolute.path);
+    if (!p.isWithin(rootPath, absolute)) {
+      return path;
+    }
+    return p.relative(absolute, from: rootPath).replaceAll(r'\', '/');
+  }
 }

@@ -15,6 +15,7 @@ executables:
   validate_manifest: validate_manifest
   generate_theme: generate_theme
   generate_twin: generate_twin
+  validate_twin: validate_twin
 
 dependencies:
   flutter:

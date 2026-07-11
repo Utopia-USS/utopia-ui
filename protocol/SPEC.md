@@ -559,9 +559,13 @@ have a token equivalent:
 - hard-fail: raw hex/rgb/hsl colors; raw `px` values matching any current spacing/radius/
   border token value; raw `font-family`/`font-weight` literals
 - warn: any other raw `px`, `ms` and unitless numeric literals
-- allowed exceptions (never flagged): `9999px` / `--utopia-radius-full` usage, `0`, `1px`
-  where it encodes a CSS-only hairline concern documented inline, percentage/fraction layout
-  values, and values annotated `/* utopia-literal-ok: <reason> */` on the same line
+- allowed exceptions (never flagged): `9999px` / `--utopia-radius-full` usage, `0`,
+  percentage/fraction layout values, and values annotated
+  `/* utopia-literal-ok: <reason> */` on the same line (CSS-only concerns such as a `1px`
+  hairline tweak use this annotation - it IS the documented-inline mechanism)
+- scope: hand-authored `.css` files AND inline `<style>` blocks in the twin HTML files get
+  the full rule set; `style="..."` attributes in twin HTML are specimen scaffolding - raw
+  dimensions are allowed there, raw colors and font literals still hard-fail
 
 ### 4.6 DESIGN.md
 

@@ -120,14 +120,15 @@ Future<void> main(List<String> arguments) async {
 
   final writtenPaths = <String>[];
 
+  final headerInputPath = RepoLocator.normalizeInputPath(targetFile.path);
   final cssFile = File(p.join(outputDir.path, 'tokens.css'));
-  cssFile.writeAsStringSync(generateCss(document, inputPath: targetFile.path, profileVersion: profileVersion));
+  cssFile.writeAsStringSync(generateCss(document, inputPath: headerInputPath, profileVersion: profileVersion));
   writtenPaths.add(cssFile.path);
 
   if (!skipTailwind) {
     final tailwindFile = File(p.join(outputDir.path, 'tokens.tailwind.css'));
     tailwindFile.writeAsStringSync(
-      generateTailwind(document, inputPath: targetFile.path, profileVersion: profileVersion),
+      generateTailwind(document, inputPath: headerInputPath, profileVersion: profileVersion),
     );
     writtenPaths.add(tailwindFile.path);
   }

@@ -1,0 +1,918 @@
+<!--
+  twin/components.html - the Utopia Design Protocol HTML twin.
+  GENERATED-BY-HAND: this file is hand-authored (not codegen'd) per
+  protocol/SPEC.md 4.4 (component markup contract) and 4.1 (bundle layout).
+  Every component root below carries data-utopia-id="<manifest id>" and
+  matches manifest/utopia.manifest.json in manifest order.
+
+  PHASE 2 (A5a completion): every manifest component now has either a styled
+  specimen or a "no visual twin" note entry here, so id coverage is 100% both
+  directions (H4 contract, ledger/A.md). Styled: button, card, check-row,
+  chip, chip-list, confirm-dialog, dialog, divider, labeled-field, loader,
+  mock-loading-box, remove-icon-button, search-field, sidebar, switch,
+  switch-field, table (+ table-empty, table-search-panel composed into it),
+  text-field, three-bounce, title. Note entries (no visual twin): collapsible,
+  copyable-text, date-picker, dropdown-field, field-wrapper, form-layout,
+  gradient-background, multi-widget, overlay-anchor, page-wrapper - see
+  ledger/checkpoints/A5-spec.md for the per-component rationale.
+-->
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Utopia Design Protocol - HTML twin (components)</title>
+  <link rel="stylesheet" href="tokens.css" />
+  <link rel="stylesheet" href="components.css" />
+  <style>
+    /* Page chrome only (not part of any component's visual contract). */
+    body {
+      margin: 0;
+      background: var(--utopia-color-canvas);
+      color: var(--utopia-color-text);
+      font-family: var(--utopia-text-style-text-font-family), sans-serif;
+    }
+    .twin-page {
+      max-width: 1100px; /* utopia-literal-ok: catalog page chrome, reading width */
+      margin: 0 auto;
+      padding: var(--utopia-spacing-xxxl) var(--utopia-spacing-xl);
+    }
+    .twin-page__intro {
+      margin-bottom: var(--utopia-spacing-xxl);
+    }
+    .twin-section {
+      margin-bottom: var(--utopia-spacing-xxxl);
+    }
+    .twin-section__name {
+      font-family: var(--utopia-text-style-header-font-family), sans-serif;
+      font-size: var(--utopia-text-style-header-font-size);
+      font-weight: var(--utopia-text-style-header-font-weight);
+      letter-spacing: var(--utopia-text-style-header-letter-spacing);
+      color: var(--utopia-text-style-header-color);
+      margin: 0 0 var(--utopia-spacing-xxs) 0;
+    }
+    .twin-section__description {
+      font-size: var(--utopia-text-style-text-font-size);
+      color: var(--utopia-color-hint);
+      margin: 0 0 var(--utopia-spacing-xl) 0;
+      max-width: 640px; /* utopia-literal-ok: catalog page chrome, prose width */
+    }
+    .twin-specimens {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--utopia-spacing-xl);
+      align-items: flex-start;
+    }
+    .twin-specimen {
+      display: flex;
+      flex-direction: column;
+      gap: var(--utopia-spacing-sm);
+    }
+    .twin-specimen__label {
+      font-size: var(--utopia-text-style-caption-font-size);
+      color: var(--utopia-color-hint);
+    }
+    /* "No visual twin" note entries (SPEC 4.4): a component id with no
+       styled specimen still needs a data-utopia-id-carrying element, so id
+       coverage stays 100% both directions. Not part of any component's
+       visual contract - page chrome only. */
+    .twin-note {
+      font-size: var(--utopia-text-style-text-font-size);
+      color: var(--utopia-color-hint);
+      font-style: italic;
+      margin: 0;
+    }
+  </style>
+</head>
+<body>
+  <main class="twin-page">
+    <div class="twin-page__intro">
+      <h1 class="twin-section__name">Utopia components</h1>
+      <p class="twin-section__description">
+        A static, dependency-free rendering of the design system's tier-1
+        components, driven entirely by tokens.css. See DESIGN.md for the
+        full visual language.
+      </p>
+    </div>
+
+    <!-- data-utopia-id="button" - manifest index 0 -->
+    <section class="twin-section" data-utopia-id="button">
+      <h2 class="twin-section__name">Button</h2>
+      <p class="twin-section__description">
+        The primary call-to-action button: a gradient-filled, rounded surface with an inline loading state.
+      </p>
+      <div class="twin-specimens">
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Default</span>
+          <button class="utopia-button" data-utopia-id="button" type="button">
+            <span class="utopia-button__label">Save changes</span>
+          </button>
+        </div>
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Dense</span>
+          <button class="utopia-button utopia-button--dense" data-utopia-id="button" type="button" style="max-width: 180px;">
+            <span class="utopia-button__label">Apply</span>
+          </button>
+        </div>
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Loading (dense, is-loading)</span>
+          <button class="utopia-button utopia-button--dense is-loading" data-utopia-id="button" type="button" style="max-width: 180px;">
+            <span class="utopia-button__label">Apply</span>
+            <span class="utopia-button__dots" aria-hidden="true">
+              <span class="utopia-button__dot"></span>
+              <span class="utopia-button__dot"></span>
+              <span class="utopia-button__dot"></span>
+            </span>
+          </button>
+        </div>
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Disabled (dense, is-disabled)</span>
+          <button class="utopia-button utopia-button--dense is-disabled" data-utopia-id="button" type="button" disabled style="max-width: 180px;">
+            <span class="utopia-button__label">Unavailable</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- data-utopia-id="card" - manifest index 1 -->
+    <section class="twin-section" data-utopia-id="card">
+      <h2 class="twin-section__name">Card</h2>
+      <p class="twin-section__description">
+        A raised, rounded, hairline-bordered surface - the container the table and other grouped content sit on.
+      </p>
+      <div class="twin-specimens">
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Default</span>
+          <div class="utopia-card" data-utopia-id="card" style="width: 240px;">
+            <div class="utopia-card__content">
+              <p class="utopia-text-field__label" style="margin: 0 0 6px 0;">Raised surface</p>
+              <p class="utopia-text-field__hint" style="font-size: var(--utopia-text-style-caption-font-size);">
+                cardRadius + cardShadow + hairline border
+              </p>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- data-utopia-id="check-row" - manifest index 2 -->
+    <section class="twin-section" data-utopia-id="check-row">
+      <h2 class="twin-section__name">Check row</h2>
+      <p class="twin-section__description">
+        A non-Material selectable row: a label preceded by a check box, used inside dropdown popups. Styled from the Utopia theme, no ink splash.
+      </p>
+      <div class="twin-specimens">
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Unselected</span>
+          <button class="utopia-check-row" data-utopia-id="check-row" type="button" style="width: 240px;">
+            <span class="utopia-check-row__box" aria-hidden="true"></span>
+            <span class="utopia-check-row__label">Include archived</span>
+          </button>
+        </div>
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Selected (is-selected)</span>
+          <button class="utopia-check-row is-selected" data-utopia-id="check-row" type="button" style="width: 240px;">
+            <span class="utopia-check-row__box" aria-hidden="true"></span>
+            <span class="utopia-check-row__label">Include archived</span>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- data-utopia-id="chip" - manifest index 3 -->
+    <section class="twin-section" data-utopia-id="chip">
+      <h2 class="twin-section__name">Chip</h2>
+      <p class="twin-section__description">
+        A small rounded pill used to display a categorical / tag-like value in a UtopiaTable cell (e.g. a dropdown value or one element of a to-many relation).
+      </p>
+      <div class="twin-specimens">
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Default</span>
+          <span class="utopia-chip" data-utopia-id="chip">
+            <span class="utopia-chip__label">Published</span>
+          </span>
+        </div>
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Leading icon</span>
+          <span class="utopia-chip" data-utopia-id="chip">
+            <span class="utopia-chip__leading" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><path d="M20.59 13.41 11 3.83A2 2 0 0 0 9.59 3.24L4 3a1 1 0 0 0-1 1l.24 5.59a2 2 0 0 0 .59 1.41l9.59 9.59a2 2 0 0 0 2.83 0l4.34-4.34a2 2 0 0 0 0-2.84Z" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/><circle cx="7.5" cy="7.5" r="1" fill="currentColor"/></svg>
+            </span>
+            <span class="utopia-chip__label">release</span>
+          </span>
+        </div>
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Custom colors (accent)</span>
+          <span class="utopia-chip utopia-chip--accent" data-utopia-id="chip">
+            <span class="utopia-chip__label">Active</span>
+          </span>
+        </div>
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Custom colors (danger)</span>
+          <span class="utopia-chip utopia-chip--danger" data-utopia-id="chip">
+            <span class="utopia-chip__label">Overdue</span>
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <!-- data-utopia-id="chip-list" - manifest index 4 -->
+    <section class="twin-section" data-utopia-id="chip-list">
+      <h2 class="twin-section__name">Chip list</h2>
+      <p class="twin-section__description">
+        A wrap of UtopiaChips with a trailing "+N more" overflow chip.
+      </p>
+      <div class="twin-specimens">
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">maxLength: 4 (6 labels, 2 overflow)</span>
+          <div class="utopia-chip-list" data-utopia-id="chip-list" style="width: 280px;">
+            <span class="utopia-chip"><span class="utopia-chip__label">Design</span></span>
+            <span class="utopia-chip"><span class="utopia-chip__label">Docs</span></span>
+            <span class="utopia-chip"><span class="utopia-chip__label">Beta</span></span>
+            <span class="utopia-chip"><span class="utopia-chip__label">Admin</span></span>
+            <span class="utopia-chip"><span class="utopia-chip__label">+2 more</span></span>
+          </div>
+        </div>
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Empty</span>
+          <div class="utopia-chip-list" data-utopia-id="chip-list" style="width: 200px;">
+            <span class="utopia-chip-list--empty">-</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- data-utopia-id="collapsible" - manifest index 5 (no visual twin) -->
+    <section class="twin-section" data-utopia-id="collapsible">
+      <h2 class="twin-section__name">Collapsible</h2>
+      <p class="twin-note" data-utopia-id="collapsible">
+        No visual twin: pure animation behavior (expands/collapses a child along one axis, clipping while animating) with no static visual contract of its own - it renders whatever child it is given. See lib/src/widget/misc/utopia_collapsible.dart.
+      </p>
+    </section>
+
+    <!-- data-utopia-id="confirm-dialog" - manifest index 6 -->
+    <section class="twin-section" data-utopia-id="confirm-dialog">
+      <h2 class="twin-section__name">Confirm dialog</h2>
+      <p class="twin-section__description">
+        A themed confirm/cancel prompt drawn with the utopia card chrome - the same surface, border, shadow and radius as every other card - rather than a Material AlertDialog. Static, open state.
+      </p>
+      <div class="twin-specimens">
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Default</span>
+          <div class="utopia-confirm-dialog" data-utopia-id="confirm-dialog" style="width: 360px;">
+            <p class="utopia-confirm-dialog__title">Proceed with export?</p>
+            <p class="utopia-confirm-dialog__subtitle">This generates a CSV of every visible row.</p>
+            <div class="utopia-confirm-dialog__actions">
+              <button class="utopia-confirm-dialog__ghost" type="button">Cancel</button>
+              <button class="utopia-button utopia-button--dense utopia-confirm-dialog__confirm" type="button">
+                <span class="utopia-button__label">Proceed</span>
+              </button>
+            </div>
+          </div>
+        </div>
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Danger (destructive confirm)</span>
+          <div class="utopia-confirm-dialog" data-utopia-id="confirm-dialog" style="width: 360px;">
+            <p class="utopia-confirm-dialog__title">Delete workspace?</p>
+            <p class="utopia-confirm-dialog__subtitle">This is a sheet demo - nothing is deleted.</p>
+            <div class="utopia-confirm-dialog__actions">
+              <button class="utopia-confirm-dialog__ghost" type="button">Cancel</button>
+              <button class="utopia-button utopia-button--dense utopia-button--danger utopia-confirm-dialog__confirm" type="button">
+                <span class="utopia-button__label">Delete</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- data-utopia-id="copyable-text" - manifest index 7 (no visual twin) -->
+    <section class="twin-section" data-utopia-id="copyable-text">
+      <h2 class="twin-section__name">Copyable text</h2>
+      <p class="twin-note" data-utopia-id="copyable-text">
+        No visual twin: a plain, ellipsized text label at rest (textStyles.text, no distinguishing chrome) - its whole affordance is interactive behavior (clipboard copy on tap, hover tint, tooltip, snackbar confirmation) that a static HTML twin cannot demonstrate meaningfully. See lib/src/widget/text/utopia_copyable_text.dart.
+      </p>
+    </section>
+
+    <!-- data-utopia-id="date-picker" - manifest index 8 (no visual twin) -->
+    <section class="twin-section" data-utopia-id="date-picker">
+      <h2 class="twin-section__name">Date picker</h2>
+      <p class="twin-note" data-utopia-id="date-picker">
+        No visual twin: the closed trigger state is a plain UtopiaLabeledField (see the labeled-field specimen below for that shared chrome) with a calendar icon suffix; the component's own visual contract is the open popover calendar grid, which composes overlay-anchor and is behavior-heavy (month navigation, day selection) rather than a fixed layout worth a bespoke static specimen. See lib/src/widget/date_picker/utopia_date_picker.dart.
+      </p>
+    </section>
+
+    <!-- data-utopia-id="dialog" - manifest index 9 -->
+    <section class="twin-section" data-utopia-id="dialog">
+      <h2 class="twin-section__name">Dialog</h2>
+      <p class="twin-section__description">
+        Adaptive dialog chrome: a bottom sheet on mobile, a centered rounded card everywhere else. Static, open state, desktop (card) variant.
+      </p>
+      <div class="twin-specimens">
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Desktop card, form variant</span>
+          <div class="utopia-dialog" data-utopia-id="dialog" style="width: 420px;">
+            <div class="utopia-dialog__title-row">
+              <p class="utopia-dialog__title">Workspace settings</p>
+              <button class="utopia-dialog__close" type="button" aria-label="Close">
+                <svg viewBox="0 0 24 24" width="18" height="18"><path d="M6 6l12 12M18 6 6 18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"/></svg>
+              </button>
+            </div>
+            <div class="utopia-dialog__body">
+              <div class="utopia-text-field" style="width: 100%;">
+                <div class="utopia-text-field__chrome">
+                  <div class="utopia-text-field__body">
+                    <p class="utopia-text-field__label">Workspace name</p>
+                    <p class="utopia-text-field__value">Acme Inc.</p>
+                  </div>
+                </div>
+              </div>
+              <div class="utopia-switch-field">
+                <p class="utopia-switch-field__title">Public sign-up</p>
+                <span class="utopia-switch is-on" aria-hidden="true"><span class="utopia-switch__thumb"></span></span>
+              </div>
+            </div>
+            <div class="utopia-dialog__bottom">
+              <button class="utopia-button" type="button">
+                <span class="utopia-button__label">Done</span>
+              </button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- data-utopia-id="divider" - manifest index 10 -->
+    <section class="twin-section" data-utopia-id="divider">
+      <h2 class="twin-section__name">Divider</h2>
+      <p class="twin-section__description">
+        A hairline divider drawn in the theme's divider colour.
+      </p>
+      <div class="twin-specimens">
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Default</span>
+          <hr class="utopia-divider" data-utopia-id="divider" style="width: 240px;" />
+        </div>
+      </div>
+    </section>
+
+    <!-- data-utopia-id="dropdown-field" - manifest index 11 (no visual twin) -->
+    <section class="twin-section" data-utopia-id="dropdown-field">
+      <h2 class="twin-section__name">Dropdown field</h2>
+      <p class="twin-note" data-utopia-id="dropdown-field">
+        No visual twin: the closed trigger reuses UtopiaLabeledField's chrome exactly (see the labeled-field specimen below, "Trigger with chevron"); the component's own visual contract is the open popup listing UtopiaCheckRow-style options, which composes overlay-anchor and is a behavior-heavy popup rather than a fixed layout worth a bespoke static specimen. See lib/src/widget/dropdown/utopia_dropdown_field.dart.
+      </p>
+    </section>
+
+    <!-- data-utopia-id="field-wrapper" - manifest index 12 (no visual twin) -->
+    <section class="twin-section" data-utopia-id="field-wrapper">
+      <h2 class="twin-section__name">Field wrapper</h2>
+      <p class="twin-note" data-utopia-id="field-wrapper">
+        No visual twin as a standalone specimen: UtopiaFieldWrapper is the shared borderless chrome and interactive-height floor behind every field in this twin (.utopia-text-field__chrome, .utopia-search-field, .utopia-switch-field, .utopia-labeled-field all express its decoration/padding/min-height directly) - see the text-field, search-field, switch-field and labeled-field specimens for its rendered form. See lib/src/widget/wrapper/utopia_field_wrapper.dart.
+      </p>
+    </section>
+
+    <!-- data-utopia-id="form-layout" - manifest index 13 (no visual twin) -->
+    <section class="twin-section" data-utopia-id="form-layout">
+      <h2 class="twin-section__name">Form layout</h2>
+      <p class="twin-note" data-utopia-id="form-layout">
+        No visual twin: a scrollable-content-plus-pinned-bottom-bar layout shell with no fixed visual contract of its own (colors, radii, spacing all come from whatever content is passed in) - its rendered shape is fully visible in the dialog specimen above (UtopiaDialog.form composes it internally). See lib/src/widget/layout/utopia_form_layout.dart.
+      </p>
+    </section>
+
+    <!-- data-utopia-id="gradient-background" - manifest index 14 (no visual twin) -->
+    <section class="twin-section" data-utopia-id="gradient-background">
+      <h2 class="twin-section__name">Gradient background</h2>
+      <p class="twin-note" data-utopia-id="gradient-background">
+        No visual twin as a standalone specimen: the bottom-left-to-top-right primary/accent gradient (and its disabled-state dim fill) is a single reusable BoxDecoration with no chrome of its own to demonstrate in isolation - see the button specimens above (default and disabled) and the sidebar's gradient variant below, both of which render this exact gradient geometry inline. See lib/src/widget/layout/utopia_gradient_background.dart.
+      </p>
+    </section>
+
+    <!-- data-utopia-id="labeled-field" - manifest index 15 -->
+    <section class="twin-section" data-utopia-id="labeled-field">
+      <h2 class="twin-section__name">Labeled field</h2>
+      <p class="twin-section__description">
+        A read-only field that shares UtopiaTextField's chrome - the same borderless UtopiaFieldWrapper, floating label and height - but displays a picked value instead of an editable input.
+      </p>
+      <div class="twin-specimens">
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Read-only base</span>
+          <div class="utopia-labeled-field" data-utopia-id="labeled-field" style="width: 280px;">
+            <div class="utopia-text-field__chrome">
+              <div class="utopia-labeled-field__row">
+                <div class="utopia-text-field__body">
+                  <p class="utopia-text-field__label">Status</p>
+                  <p class="utopia-text-field__value">Active</p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Trigger with chevron (dropdown-field / date-picker closed state)</span>
+          <div class="utopia-labeled-field" data-utopia-id="labeled-field" style="width: 280px;">
+            <div class="utopia-text-field__chrome">
+              <div class="utopia-labeled-field__row">
+                <div class="utopia-text-field__body">
+                  <p class="utopia-text-field__label">Role</p>
+                  <p class="utopia-text-field__value">Editor</p>
+                </div>
+                <span class="utopia-labeled-field__suffix" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="18" height="18"><path d="M6 9l6 6 6-6" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- data-utopia-id="loader" - manifest index 16 -->
+    <section class="twin-section" data-utopia-id="loader">
+      <h2 class="twin-section__name">Loader</h2>
+      <p class="twin-section__description">
+        A small circular progress indicator, sized and coloured to fit inline in text-scale contexts (e.g. a loading row or a compact overlay).
+      </p>
+      <div class="twin-specimens">
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">12 / 20 / 32 (loading)</span>
+          <div style="display: flex; align-items: center; gap: 24px;">
+            <span class="utopia-loader" data-utopia-id="loader"><span class="utopia-loader__spinner"></span></span>
+            <span class="utopia-loader utopia-loader--md" data-utopia-id="loader"><span class="utopia-loader__spinner"></span></span>
+            <span class="utopia-loader utopia-loader--lg" data-utopia-id="loader"><span class="utopia-loader__spinner"></span></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- data-utopia-id="mock-loading-box" - manifest index 17 -->
+    <section class="twin-section" data-utopia-id="mock-loading-box">
+      <h2 class="twin-section__name">Mock loading box</h2>
+      <p class="twin-section__description">
+        A shimmering rectangle placeholder for text/content that has not loaded yet - a skeleton-loading building block sized to mimic the real content.
+      </p>
+      <div class="twin-specimens">
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Skeleton stack</span>
+          <div style="display: flex; flex-direction: column; gap: 12px; width: 220px;">
+            <span class="utopia-mock-loading-box" data-utopia-id="mock-loading-box" style="height: 12px; width: 140px;"></span>
+            <span class="utopia-mock-loading-box" data-utopia-id="mock-loading-box" style="height: 8px; width: 220px;"></span>
+            <span class="utopia-mock-loading-box" data-utopia-id="mock-loading-box" style="height: 8px; width: 180px;"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- data-utopia-id="multi-widget" - manifest index 18 (no visual twin) -->
+    <section class="twin-section" data-utopia-id="multi-widget">
+      <h2 class="twin-section__name">Multi widget</h2>
+      <p class="twin-note" data-utopia-id="multi-widget">
+        No visual twin: a pure composition helper (builds nested widgets from a flat list, innermost last) with no rendered appearance of its own. See lib/src/widget/misc/utopia_multi_widget.dart.
+      </p>
+    </section>
+
+    <!-- data-utopia-id="overlay-anchor" - manifest index 19 (no visual twin) -->
+    <section class="twin-section" data-utopia-id="overlay-anchor">
+      <h2 class="twin-section__name">Overlay anchor</h2>
+      <p class="twin-note" data-utopia-id="overlay-anchor">
+        No visual twin: an anchoring/positioning behavior (dismissible popup beneath a trigger, via OverlayPortal + CompositedTransformFollower) with no fixed visual contract of its own - the popup chrome it anchors (card decoration + border) is the same recipe as .utopia-card, visible in the card specimen above. See lib/src/widget/overlay/utopia_overlay_anchor.dart.
+      </p>
+    </section>
+
+    <!-- data-utopia-id="page-wrapper" - manifest index 20 (no visual twin) -->
+    <section class="twin-section" data-utopia-id="page-wrapper">
+      <h2 class="twin-section__name">Page wrapper</h2>
+      <p class="twin-note" data-utopia-id="page-wrapper">
+        No visual twin: a pure layout-resolution behavior (derives a UtopiaPageType from the available width and exposes it to the subtree) with no rendered appearance of its own. See lib/src/widget/layout/utopia_page_wrapper.dart.
+      </p>
+    </section>
+
+    <!-- data-utopia-id="remove-icon-button" - manifest index 21 -->
+    <section class="twin-section" data-utopia-id="remove-icon-button">
+      <h2 class="twin-section__name">Remove icon button</h2>
+      <p class="twin-section__description">
+        A small "x" icon button used to remove/clear a value (e.g. a chip or a filled field), tinting to the error colour on hover to signal the destructive action.
+      </p>
+      <div class="twin-specimens">
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Default</span>
+          <button class="utopia-remove-icon-button" data-utopia-id="remove-icon-button" type="button" aria-label="Clear">
+            <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg>
+          </button>
+        </div>
+      </div>
+    </section>
+
+    <!-- data-utopia-id="search-field" - manifest index 22 -->
+    <section class="twin-section" data-utopia-id="search-field">
+      <h2 class="twin-section__name">Search field</h2>
+      <p class="twin-section__description">
+        A prominent, full-width search field: a leading magnifier, a muted hint and no floating label - the search affordance at the top of a UtopiaTable card. Shares its field decoration and text state with UtopiaTextField.
+      </p>
+      <div class="twin-specimens">
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Hint (resting)</span>
+          <div class="utopia-search-field" data-utopia-id="search-field" style="width: 280px;">
+            <span class="utopia-search-field__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+            </span>
+            <input class="utopia-search-field__input" type="text" placeholder="Search components&hellip;" />
+          </div>
+        </div>
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Focus (value entered)</span>
+          <div class="utopia-search-field" data-utopia-id="search-field" style="width: 280px;">
+            <span class="utopia-search-field__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+            </span>
+            <input class="utopia-search-field__input" type="text" value="Northwind" />
+          </div>
+        </div>
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Disabled (dense)</span>
+          <div class="utopia-search-field utopia-search-field--dense is-disabled" data-utopia-id="search-field" style="width: 280px;">
+            <span class="utopia-search-field__icon" aria-hidden="true">
+              <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+            </span>
+            <input class="utopia-search-field__input" type="text" placeholder="Search by customer" disabled />
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- data-utopia-id="sidebar" - manifest index 23 -->
+    <section class="twin-section" data-utopia-id="sidebar">
+      <h2 class="twin-section__name">Sidebar</h2>
+      <p class="twin-section__description">
+        An adaptive navigation sidebar: a collapsible hover/pin rail on wide screens, a flush full-width drawer body on small screens.
+      </p>
+      <div class="twin-specimens">
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Rail, expanded (plain surface)</span>
+          <nav class="utopia-sidebar" data-utopia-id="sidebar">
+            <div class="utopia-sidebar__toolbar">
+              <span class="utopia-sidebar__toggle">
+                <button class="utopia-sidebar__toggle-btn" type="button" aria-label="Collapse menu">
+                  <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="9" y1="4" x2="9" y2="20"/></svg>
+                </button>
+              </span>
+            </div>
+            <ul class="utopia-sidebar__items" role="list">
+              <li>
+                <button class="utopia-sidebar-tile is-selected" type="button">
+                  <span class="utopia-sidebar-tile__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg></span>
+                  <span class="utopia-sidebar-tile__label">Dashboard</span>
+                </button>
+              </li>
+              <li>
+                <button class="utopia-sidebar-tile" type="button">
+                  <span class="utopia-sidebar-tile__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="16" y2="13"/></svg></span>
+                  <span class="utopia-sidebar-tile__label">Content</span>
+                </button>
+              </li>
+              <li>
+                <button class="utopia-sidebar-tile" type="button">
+                  <span class="utopia-sidebar-tile__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></span>
+                  <span class="utopia-sidebar-tile__label">Media</span>
+                </button>
+              </li>
+              <li>
+                <button class="utopia-sidebar-tile" type="button">
+                  <span class="utopia-sidebar-tile__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><circle cx="12" cy="12" r="3"/><path d="M19.4 15a1.7 1.7 0 0 0 .3 1.9l.1.1a2 2 0 1 1-2.8 2.8l-.1-.1a1.7 1.7 0 0 0-1.9-.3 1.7 1.7 0 0 0-1 1.5V21a2 2 0 1 1-4 0v-.1a1.7 1.7 0 0 0-1-1.6 1.7 1.7 0 0 0-1.9.3l-.1.1a2 2 0 1 1-2.8-2.8l.1-.1a1.7 1.7 0 0 0 .3-1.9 1.7 1.7 0 0 0-1.5-1H3a2 2 0 1 1 0-4h.1a1.7 1.7 0 0 0 1.6-1 1.7 1.7 0 0 0-.3-1.9l-.1-.1a2 2 0 1 1 2.8-2.8l.1.1a1.7 1.7 0 0 0 1.9.3H9a1.7 1.7 0 0 0 1-1.5V3a2 2 0 1 1 4 0v.1a1.7 1.7 0 0 0 1 1.5 1.7 1.7 0 0 0 1.9-.3l.1-.1a2 2 0 1 1 2.8 2.8l-.1.1a1.7 1.7 0 0 0-.3 1.9V9a1.7 1.7 0 0 0 1.5 1H21a2 2 0 1 1 0 4h-.1a1.7 1.7 0 0 0-1.5 1Z"/></svg></span>
+                  <span class="utopia-sidebar-tile__label">Settings</span>
+                </button>
+              </li>
+              <li>
+                <button class="utopia-sidebar-tile" type="button">
+                  <span class="utopia-sidebar-tile__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><path d="M16 17l5-5-5-5"/><line x1="21" y1="12" x2="9" y2="12"/></svg></span>
+                  <span class="utopia-sidebar-tile__label">Sign out</span>
+                </button>
+              </li>
+            </ul>
+          </nav>
+        </div>
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Rail, collapsed (plain surface)</span>
+          <nav class="utopia-sidebar utopia-sidebar--collapsed" data-utopia-id="sidebar">
+            <div class="utopia-sidebar__toolbar">
+              <span class="utopia-sidebar__toggle">
+                <button class="utopia-sidebar__toggle-btn" type="button" aria-label="Expand menu">
+                  <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="9" y1="4" x2="9" y2="20"/></svg>
+                </button>
+              </span>
+            </div>
+            <ul class="utopia-sidebar__items" role="list">
+              <li>
+                <button class="utopia-sidebar-tile is-selected" type="button">
+                  <span class="utopia-sidebar-tile__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg></span>
+                  <span class="utopia-sidebar-tile__label">Dashboard</span>
+                </button>
+              </li>
+              <li>
+                <button class="utopia-sidebar-tile" type="button">
+                  <span class="utopia-sidebar-tile__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="16" y2="13"/></svg></span>
+                  <span class="utopia-sidebar-tile__label">Content</span>
+                </button>
+              </li>
+              <li>
+                <button class="utopia-sidebar-tile" type="button">
+                  <span class="utopia-sidebar-tile__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><circle cx="8.5" cy="8.5" r="1.5"/><path d="M21 15l-5-5L5 21"/></svg></span>
+                  <span class="utopia-sidebar-tile__label">Media</span>
+                </button>
+              </li>
+            </ul>
+          </nav>
+        </div>
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Rail, expanded (gradient + header)</span>
+          <nav class="utopia-sidebar utopia-sidebar--gradient" data-utopia-id="sidebar">
+            <div class="utopia-sidebar__toolbar">
+              <span class="utopia-sidebar__toggle">
+                <button class="utopia-sidebar__toggle-btn" type="button" aria-label="Collapse menu">
+                  <svg viewBox="0 0 24 24"><rect x="3" y="4" width="18" height="16" rx="2"/><line x1="9" y1="4" x2="9" y2="20"/></svg>
+                </button>
+              </span>
+            </div>
+            <div class="utopia-sidebar__header">
+              <span class="utopia-sidebar__header-icon" aria-hidden="true">
+                <svg viewBox="0 0 24 24"><path d="M12 3l1.9 4.9L19 9l-4.9 1.9L12 16l-1.9-5L5 9l5-1.9Z"/></svg>
+              </span>
+              <span class="utopia-sidebar__header-label">Studio</span>
+            </div>
+            <ul class="utopia-sidebar__items" role="list">
+              <li>
+                <button class="utopia-sidebar-tile is-selected" type="button">
+                  <span class="utopia-sidebar-tile__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="9"/><rect x="14" y="3" width="7" height="5"/><rect x="14" y="12" width="7" height="9"/><rect x="3" y="16" width="7" height="5"/></svg></span>
+                  <span class="utopia-sidebar-tile__label">Dashboard</span>
+                </button>
+              </li>
+              <li>
+                <button class="utopia-sidebar-tile" type="button">
+                  <span class="utopia-sidebar-tile__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="16" y2="13"/></svg></span>
+                  <span class="utopia-sidebar-tile__label">Content</span>
+                </button>
+              </li>
+            </ul>
+          </nav>
+        </div>
+      </div>
+    </section>
+
+    <!-- data-utopia-id="switch" - manifest index 24 -->
+    <section class="twin-section" data-utopia-id="switch">
+      <h2 class="twin-section__name">Switch</h2>
+      <p class="twin-section__description">
+        A themed on/off switch, styled from UtopiaThemeColors instead of the ambient MaterialApp theme.
+      </p>
+      <div class="twin-specimens">
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">On</span>
+          <span class="utopia-switch is-on" data-utopia-id="switch"><span class="utopia-switch__thumb"></span></span>
+        </div>
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Off</span>
+          <span class="utopia-switch" data-utopia-id="switch"><span class="utopia-switch__thumb"></span></span>
+        </div>
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Read only (is-readonly)</span>
+          <span class="utopia-switch is-on is-readonly" data-utopia-id="switch"><span class="utopia-switch__thumb"></span></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- data-utopia-id="switch-field" - manifest index 25 -->
+    <section class="twin-section" data-utopia-id="switch-field">
+      <h2 class="twin-section__name">Switch field</h2>
+      <p class="twin-section__description">
+        A titled row pairing a label with a UtopiaSwitch, wrapped in the shared UtopiaFieldWrapper chrome so it lines up with the other utopia_ui fields.
+      </p>
+      <div class="twin-specimens">
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Default</span>
+          <div class="utopia-switch-field" data-utopia-id="switch-field" style="width: 280px;">
+            <p class="utopia-switch-field__title">Email notifications</p>
+            <span class="utopia-switch is-on" aria-hidden="true"><span class="utopia-switch__thumb"></span></span>
+          </div>
+        </div>
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Read only (is-readonly)</span>
+          <div class="utopia-switch-field" data-utopia-id="switch-field" style="width: 280px;">
+            <p class="utopia-switch-field__title">Public sign-up</p>
+            <span class="utopia-switch is-on is-readonly" aria-hidden="true"><span class="utopia-switch__thumb"></span></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- data-utopia-id="table" - manifest index 26 -->
+    <!-- data-utopia-id="table-empty" - manifest index 27 (composed: empty state within this section) -->
+    <!-- data-utopia-id="table-search-panel" - manifest index 28 (composed: search panel within this section) -->
+    <section class="twin-section" data-utopia-id="table">
+      <h2 class="twin-section__name">Table</h2>
+      <p class="twin-section__description">
+        A general-purpose, data-shape-agnostic data table: a pinned search panel + column headers, then divider-separated rows (or the loading skeleton / empty state). Table-search-panel and table-empty are composed here rather than given their own top-level sections - see the notes on each specimen below.
+      </p>
+      <div class="twin-specimens">
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Default (with rows) - composes table-search-panel</span>
+          <div class="utopia-table" data-utopia-id="table" style="width: 560px;">
+            <div class="utopia-table-search-panel" data-utopia-id="table-search-panel">
+              <div class="utopia-table-search-panel__search">
+                <div class="utopia-search-field utopia-search-field--dense">
+                  <span class="utopia-search-field__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+                  </span>
+                  <input class="utopia-search-field__input" type="text" placeholder="Search by customer" />
+                </div>
+              </div>
+            </div>
+            <div class="utopia-table__header">
+              <span class="utopia-table__header-cell utopia-table__header-cell--id">Id</span>
+              <span class="utopia-table__header-cell utopia-table__header-cell--customer utopia-table__header-cell--active">Customer</span>
+              <span class="utopia-table__header-cell utopia-table__header-cell--amount">Amount</span>
+              <span class="utopia-table__header-cell utopia-table__header-cell--status">Status</span>
+            </div>
+            <hr class="utopia-divider" />
+            <div class="utopia-table__row">
+              <span class="utopia-table__cell utopia-table__cell--id">INV-1042</span>
+              <span class="utopia-table__cell utopia-table__cell--customer">Northwind Traders</span>
+              <span class="utopia-table__cell utopia-table__cell--amount">$1,280.00</span>
+              <span class="utopia-table__cell utopia-table__cell--status">
+                <span class="utopia-chip utopia-chip--accent"><span class="utopia-chip__label">Paid</span></span>
+              </span>
+            </div>
+            <hr class="utopia-divider" />
+            <div class="utopia-table__row utopia-table__row--alt">
+              <span class="utopia-table__cell utopia-table__cell--id">INV-1043</span>
+              <span class="utopia-table__cell utopia-table__cell--customer">Blue Harbor Studio</span>
+              <span class="utopia-table__cell utopia-table__cell--amount">$640.50</span>
+              <span class="utopia-table__cell utopia-table__cell--status">
+                <span class="utopia-chip"><span class="utopia-chip__label">Pending</span></span>
+              </span>
+            </div>
+            <hr class="utopia-divider" />
+            <div class="utopia-table__row">
+              <span class="utopia-table__cell utopia-table__cell--id">INV-1044</span>
+              <span class="utopia-table__cell utopia-table__cell--customer">Cedar &amp; Finch</span>
+              <span class="utopia-table__cell utopia-table__cell--amount">$2,310.00</span>
+              <span class="utopia-table__cell utopia-table__cell--status">
+                <span class="utopia-chip utopia-chip--danger"><span class="utopia-chip__label">Overdue</span></span>
+              </span>
+            </div>
+          </div>
+        </div>
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Loading (is-loading skeleton rows)</span>
+          <div class="utopia-table is-loading" data-utopia-id="table" style="width: 420px;">
+            <div class="utopia-table__header">
+              <span class="utopia-table__header-cell utopia-table__header-cell--id">Id</span>
+              <span class="utopia-table__header-cell utopia-table__header-cell--customer">Customer</span>
+              <span class="utopia-table__header-cell utopia-table__header-cell--amount">Amount</span>
+            </div>
+            <hr class="utopia-divider" />
+            <div class="utopia-table__row utopia-table__row--loading">
+              <span class="utopia-table__cell utopia-table__cell--id"><span class="utopia-table__skeleton-bar" style="width: 70%;"></span></span>
+              <span class="utopia-table__cell utopia-table__cell--customer"><span class="utopia-table__skeleton-bar"></span></span>
+              <span class="utopia-table__cell utopia-table__cell--amount"><span class="utopia-table__skeleton-bar" style="width: 50%;"></span></span>
+            </div>
+            <hr class="utopia-divider" />
+            <div class="utopia-table__row utopia-table__row--loading utopia-table__row--alt">
+              <span class="utopia-table__cell utopia-table__cell--id"><span class="utopia-table__skeleton-bar" style="width: 70%;"></span></span>
+              <span class="utopia-table__cell utopia-table__cell--customer"><span class="utopia-table__skeleton-bar"></span></span>
+              <span class="utopia-table__cell utopia-table__cell--amount"><span class="utopia-table__skeleton-bar" style="width: 50%;"></span></span>
+            </div>
+          </div>
+        </div>
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Empty (is-empty) - composes table-empty</span>
+          <div class="utopia-table is-empty" data-utopia-id="table" style="width: 420px;">
+            <div class="utopia-table__header">
+              <span class="utopia-table__header-cell utopia-table__header-cell--id">Id</span>
+              <span class="utopia-table__header-cell utopia-table__header-cell--customer">Customer</span>
+              <span class="utopia-table__header-cell utopia-table__header-cell--amount">Amount</span>
+            </div>
+            <hr class="utopia-divider" />
+            <div class="utopia-table-empty" data-utopia-id="table-empty">
+              <p class="utopia-table-empty__title">No items</p>
+            </div>
+          </div>
+        </div>
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Empty, richer (icon + subtitle + actions) - table-empty</span>
+          <div class="utopia-table-empty" data-utopia-id="table-empty" style="width: 320px; border: var(--utopia-border-thin) solid var(--utopia-color-border); border-radius: var(--utopia-theme-card-radius); background: var(--utopia-color-surface);">
+            <p class="utopia-table-empty__title">No results</p>
+            <p class="utopia-table-empty__subtitle">Try a different search term or clear your filters.</p>
+            <div class="utopia-table-empty__actions">
+              <button class="utopia-confirm-dialog__ghost" type="button">Clear filters</button>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- data-utopia-id="text-field" - manifest index 29 -->
+    <section class="twin-section" data-utopia-id="text-field">
+      <h2 class="twin-section__name">Text field</h2>
+      <p class="twin-section__description">
+        The base editable text field: floating label, optional prefix/suffix and error slot, sharing its chrome with every other utopia_ui field via UtopiaFieldWrapper.
+      </p>
+      <div class="twin-specimens">
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Resting, with floating label</span>
+          <div class="utopia-text-field" data-utopia-id="text-field" style="width: 280px;">
+            <div class="utopia-text-field__chrome">
+              <div class="utopia-text-field__body">
+                <p class="utopia-text-field__label">Name</p>
+                <p class="utopia-text-field__value">Ava Chen</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Empty, hint only</span>
+          <div class="utopia-text-field" data-utopia-id="text-field" style="width: 280px;">
+            <div class="utopia-text-field__chrome">
+              <div class="utopia-text-field__body">
+                <p class="utopia-text-field__hint">Type to search&hellip;</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Error (is-error)</span>
+          <div class="utopia-text-field is-error" data-utopia-id="text-field" style="width: 280px;">
+            <div class="utopia-text-field__chrome">
+              <div class="utopia-text-field__body">
+                <p class="utopia-text-field__label">Email</p>
+              </div>
+            </div>
+            <p class="utopia-text-field__error">Required field</p>
+          </div>
+        </div>
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Disabled / read-only (is-disabled)</span>
+          <div class="utopia-text-field is-disabled" data-utopia-id="text-field" style="width: 280px;">
+            <div class="utopia-text-field__chrome">
+              <div class="utopia-text-field__body">
+                <p class="utopia-text-field__label">Version</p>
+                <p class="utopia-text-field__value">v0.1.0</p>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Dense</span>
+          <div class="utopia-text-field utopia-text-field--dense" data-utopia-id="text-field" style="width: 280px;">
+            <div class="utopia-text-field__chrome">
+              <div class="utopia-text-field__body">
+                <p class="utopia-text-field__hint">Search components&hellip;</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- data-utopia-id="three-bounce" - manifest index 30 -->
+    <section class="twin-section" data-utopia-id="three-bounce">
+      <h2 class="twin-section__name">Three bounce</h2>
+      <p class="twin-section__description">
+        Three dots pulsing in a staggered wave - the loading indicator shown inside UtopiaButton. Hand-rolled so this package does not depend on flutter_spinkit.
+      </p>
+      <div class="twin-specimens">
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Default</span>
+          <span class="utopia-three-bounce" data-utopia-id="three-bounce">
+            <span class="utopia-three-bounce__dot"></span>
+            <span class="utopia-three-bounce__dot"></span>
+            <span class="utopia-three-bounce__dot"></span>
+          </span>
+        </div>
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Primary color</span>
+          <span class="utopia-three-bounce utopia-three-bounce--primary" data-utopia-id="three-bounce">
+            <span class="utopia-three-bounce__dot"></span>
+            <span class="utopia-three-bounce__dot"></span>
+            <span class="utopia-three-bounce__dot"></span>
+          </span>
+        </div>
+      </div>
+    </section>
+
+    <!-- data-utopia-id="title" - manifest index 31 -->
+    <section class="twin-section" data-utopia-id="title">
+      <h2 class="twin-section__name">Title</h2>
+      <p class="twin-section__description">
+        A page/section heading, styled with UtopiaThemeTextStyles.title.
+      </p>
+      <div class="twin-specimens">
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Default</span>
+          <p class="utopia-title" data-utopia-id="title">Section title</p>
+        </div>
+      </div>
+    </section>
+
+  </main>
+</body>
+</html>
