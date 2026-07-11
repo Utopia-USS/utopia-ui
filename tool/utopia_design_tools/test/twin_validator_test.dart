@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
 import 'package:utopia_design_tools/src/cli/output.dart';
 import 'package:utopia_design_tools/src/dtcg/token_document.dart';
+import 'package:utopia_design_tools/src/twin/css_generator.dart';
 import 'package:utopia_design_tools/src/twin/twin_validator.dart';
 import 'package:utopia_design_tools/src/util/repo.dart';
 
@@ -174,6 +175,80 @@ void main() {
       });
       final errors = errorsOnly(validatorFor(twin).validate());
       expect(errors.any((f) => f.message.contains('stale')), isTrue);
+    });
+  });
+
+  group('CLI level: --tokens auto-discovery binds to the target twin (real bin/validate_twin.dart)', () {
+    // These exercise bin/validate_twin.dart's _resolveTokensFileForTwin: when
+    // --tokens is not passed, the freshness gate's token document must come
+    // from the TARGET twin's own tokens.css generated-header, resolved
+    // against the twin dir's owning root (its parent) - not from whatever
+    // design/tokens.json or tokens/utopia.tokens.json auto-discovery finds
+    // relative to the current working directory (here, this repo's own
+    // default tokens, which the scratch fixtures below deliberately diverge
+    // from).
+    final toolPackageDir = Directory.current;
+    final manifestFile = File(p.join(repoRoot.path, 'manifest', 'utopia.manifest.json'));
+
+    Future<ProcessResult> runValidateTwin(List<String> args) => Process.run('dart', [
+      'run',
+      'bin/validate_twin.dart',
+      '--manifest',
+      manifestFile.path,
+      ...args,
+    ], workingDirectory: toolPackageDir.path);
+
+    test('header present: the header-resolved path wins over CWD auto-discovery', () async {
+      final scratchRoot = Directory.systemTemp.createTempSync('validate_twin_header_present_');
+      addTearDown(() => scratchRoot.deleteSync(recursive: true));
+
+      // A rebranded token document (color.primary hex+components changed)
+      // living under the scratch root, deliberately different from this
+      // repo's own tokens/utopia.tokens.json that CWD auto-discovery would
+      // otherwise find.
+      final rebrandedJson = jsonDecode(tokensFile.readAsStringSync()) as Map<String, dynamic>;
+      final primaryValue = (rebrandedJson['color'] as Map<String, dynamic>)['primary']['\$value'] as Map<String, dynamic>;
+      final defaultPrimaryHex = primaryValue['hex'] as String;
+      primaryValue['hex'] = '#112233';
+      primaryValue['components'] = [0x11 / 255, 0x22 / 255, 0x33 / 255];
+      // Sanity: the rebrand really does diverge from this repo's own
+      // default tokens (what CWD auto-discovery would otherwise resolve) -
+      // otherwise a passing gate below would prove nothing about which
+      // path was actually used.
+      expect(defaultPrimaryHex, isNot('#112233'));
+
+      final designDir = Directory(p.join(scratchRoot.path, 'design'))..createSync(recursive: true);
+      File(p.join(designDir.path, 'tokens.json')).writeAsStringSync(const JsonEncoder.withIndent('  ').convert(rebrandedJson));
+
+      final rebrandedDocument = TokenDocument.parse(rebrandedJson);
+      final twinDir = Directory(p.join(scratchRoot.path, 'twin'))..createSync(recursive: true);
+      File(p.join(twinDir.path, 'tokens.css')).writeAsStringSync(
+        generateCss(rebrandedDocument, inputPath: 'design/tokens.json', profileVersion: '0.2.0'),
+      );
+
+      final result = await runValidateTwin(['--twin-dir', twinDir.path]);
+      expect(result.exitCode, 0, reason: 'stdout: ${result.stdout}\nstderr: ${result.stderr}');
+      expect(result.stdout as String, isNot(contains('stale')));
+    });
+
+    test('header absent: falls back to today\'s auto-discovery instead of crashing', () async {
+      final scratchRoot = Directory.systemTemp.createTempSync('validate_twin_header_absent_');
+      addTearDown(() => scratchRoot.deleteSync(recursive: true));
+
+      final twinDir = Directory(p.join(scratchRoot.path, 'twin'))..createSync(recursive: true);
+      // A hand-authored tokens.css with no GENERATED header line at all -
+      // the resolver must fall back to _resolveDefaultTokensFile (which,
+      // run from this repo's root, finds tokens/utopia.tokens.json) rather
+      // than failing outright.
+      File(p.join(twinDir.path, 'tokens.css')).writeAsStringSync(':root {\n  --utopia-x: 4;\n}\n');
+
+      final result = await runValidateTwin(['--twin-dir', twinDir.path]);
+      // The hand-authored tokens.css never byte-matches a real regeneration,
+      // so the freshness gate still fires - the point of this test is that
+      // resolution itself falls back cleanly (exit 1 from a real finding,
+      // not exit 2 from failing to resolve any token document at all).
+      expect(result.exitCode, 1, reason: 'stdout: ${result.stdout}\nstderr: ${result.stderr}');
+      expect(result.stdout as String, contains('stale'));
     });
   });
 }

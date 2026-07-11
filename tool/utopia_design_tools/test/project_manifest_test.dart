@@ -143,6 +143,26 @@ void main() {
       final errors = findings.where((f) => f.severity == FindingSeverity.error).toList();
       expect(errors, isEmpty, reason: errors.map((f) => f.toLine()).join('; '));
     });
+
+    test('a stripped project namespace (demo_consumer:market-tile -> market-tile) reports the '
+        'bare-id/stale-merge finding first, ahead of the file/class-not-found noise', () {
+      final result = generate();
+      final merged = jsonDecode(jsonEncode(result.mergedManifest)) as Map<String, dynamic>;
+      final components = (merged['components'] as List).cast<Map<String, dynamic>>();
+      final marketTile = components.firstWhere((c) => c['id'] == 'demo_consumer:market-tile');
+      marketTile['id'] = 'market-tile';
+
+      final validator = ManifestValidator(schema, utopiaUiRoot: repoRoot, projectRoot: projectRoot);
+      final errors = validator.validate(merged).where((f) => f.severity == FindingSeverity.error).toList();
+
+      expect(errors, isNotEmpty);
+      expect(errors.first.path, 'components[market-tile]');
+      expect(
+        errors.first.message,
+        'bare id not present in the shipped library manifest - project components must be namespaced '
+            '"<package>:<local-part>" (stale or hand-edited merged view - regenerate)',
+      );
+    });
   });
 
   group('determinism', () {

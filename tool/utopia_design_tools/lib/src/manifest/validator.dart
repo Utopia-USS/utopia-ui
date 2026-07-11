@@ -98,6 +98,15 @@ class ManifestValidator {
     // SPEC 3.8 gate: namespace enforcement.
     findings.addAll(_checkNamespaces(componentsRaw, flavor: flavor, package: package));
 
+    // SPEC 3.8 gate: on a merged view, a bare id absent from the shipped
+    // library manifest is a stale/hand-edited merge (most often a stripped
+    // namespace), not a genuine library component - report it before the
+    // file/class-not-found noise the same id would otherwise also trigger
+    // further down (gates 4/5).
+    if (flavor == ManifestFlavor.merged) {
+      findings.addAll(_checkBareIdsAgainstShippedLibrary(componentsRaw));
+    }
+
     // SPEC 3.8 gate: utopiaUiVersion presence.
     findings.addAll(_checkUtopiaUiVersionPresence(rawJson, flavor: flavor));
 
@@ -366,20 +375,56 @@ class ManifestValidator {
         );
       }
 
-      final libraryManifestFile = File(p.join(root.path, 'manifest', 'utopia.manifest.json'));
-      if (libraryManifestFile.existsSync()) {
-        Map<String, dynamic>? shippedLibrary;
-        try {
-          shippedLibrary = jsonDecode(libraryManifestFile.readAsStringSync()) as Map<String, dynamic>;
-        } on FormatException {
-          shippedLibrary = null;
-        }
-        if (shippedLibrary != null) {
-          findings.addAll(_checkEmbeddedLibraryMatchesShipped(rawJson, shippedLibrary));
-        }
+      final shippedLibrary = _loadShippedLibraryManifest(root);
+      if (shippedLibrary != null) {
+        findings.addAll(_checkEmbeddedLibraryMatchesShipped(rawJson, shippedLibrary));
       }
     }
 
+    return findings;
+  }
+
+  /// Loads and decodes `manifest/utopia.manifest.json` from [root], or
+  /// returns `null` when the file is missing or not valid JSON (both cases
+  /// mean the shipped-library-dependent checks are skipped silently).
+  Map<String, dynamic>? _loadShippedLibraryManifest(Directory root) {
+    final libraryManifestFile = File(p.join(root.path, 'manifest', 'utopia.manifest.json'));
+    if (!libraryManifestFile.existsSync()) return null;
+    try {
+      return jsonDecode(libraryManifestFile.readAsStringSync()) as Map<String, dynamic>;
+    } on FormatException {
+      return null;
+    }
+  }
+
+  /// SPEC 3.8: on a merged view, every bare (unnamespaced) component id must
+  /// exist in the shipped library manifest - a bare id absent there is a
+  /// stale or hand-edited merge (most commonly a project entry whose
+  /// namespace was stripped), reported here instead of leaking into the
+  /// file/class-not-found gates further down.
+  List<Finding> _checkBareIdsAgainstShippedLibrary(List<Map<String, dynamic>> components) {
+    final root = utopiaUiRoot;
+    if (root == null) return const [];
+    final shippedLibrary = _loadShippedLibraryManifest(root);
+    if (shippedLibrary == null) return const [];
+    final shippedIds = (shippedLibrary['components'] as List? ?? const [])
+        .whereType<Map<String, dynamic>>()
+        .map((c) => c['id'] as String?)
+        .whereType<String>()
+        .toSet();
+
+    final findings = <Finding>[];
+    for (final component in components) {
+      final id = component['id'] as String?;
+      if (id == null || _isNamespaced(id) || shippedIds.contains(id)) continue;
+      findings.add(
+        Finding.error(
+          'components[$id]',
+          'bare id not present in the shipped library manifest - project components must be namespaced '
+              '"<package>:<local-part>" (stale or hand-edited merged view - regenerate)',
+        ),
+      );
+    }
     return findings;
   }
 

@@ -147,14 +147,18 @@ The package ships three protocol artifacts, version-matched to the `utopia_ui` r
 
 1. Bootstrap `design/tokens.json` in your project via the command printed by the tools (a copy of
    the packaged default DTCG document).
-2. Edit or rebrand it - change token values to match your brand.
+2. Edit or rebrand it - change token values to match your brand. Color tokens carry both a
+   `hex` and matching `components` values - edit both (`validate_tokens` names the expected
+   value when they disagree).
 3. Validate it: `dart run utopia_design_tools:validate_tokens` (add `--fix` to re-derive
    rescaled values after changing the base unit).
 4. Generate the theme and wire it: `dart run utopia_design_tools:generate_theme`, then pass the
    result to your root widget - `UtopiaTheme(data: buildUtopiaTheme(), child: ...)`.
-5. Optionally, `dart run utopia_design_tools:generate_twin` for an always-current HTML design
-   surface, and `dart run utopia_design_tools:generate_manifest --project` to register your own
-   custom components with stable ids alongside the library's.
+5. Optionally, `dart run utopia_design_tools:generate_twin` to re-derive the twin's generated
+   stylesheets (`tokens.css`, a Tailwind variant, `DESIGN.md` front matter) from your tokens - pair
+   them with the packaged twin's gallery/components HTML to view your brand (the sync skill
+   documents the copy step), and `dart run utopia_design_tools:generate_manifest --project` to
+   register your own custom components with stable ids alongside the library's.
 
 ### v0 limits (roadmap)
 

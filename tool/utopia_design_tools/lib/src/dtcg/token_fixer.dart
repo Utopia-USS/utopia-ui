@@ -8,10 +8,20 @@
 /// foreign-vendor) are preserved untouched (protocol SPEC 2.1, 2.6).
 library;
 
+/// Which repair class produced a [TokenFix], so text-mode rendering can
+/// phrase each one appropriately (protocol SPEC 2.5, 2.7 gate 4).
+enum TokenFixKind {
+  /// Repair class 1: a `derivation`-carrying value re-derived from `x`.
+  derivation,
+
+  /// Repair class 2: a color's `hex` resynced to its `components`.
+  colorHexResync,
+}
+
 /// A single mechanical repair applied by [TokenFixer.fix].
 class TokenFix {
   /// Creates a record of one repair at [path], from [from] to [to].
-  const TokenFix({required this.path, required this.from, required this.to});
+  const TokenFix({required this.path, required this.from, required this.to, this.kind = TokenFixKind.derivation});
 
   /// Dotted path (jsonPath-ish, matching validator finding paths) of the
   /// value that was rewritten, e.g. `spacing.md` or `shadow.sm[0].color`.
@@ -23,8 +33,21 @@ class TokenFix {
   /// The new value, rendered as a display string.
   final String to;
 
-  /// Text-mode rendering: `FIXED <path>: <old> -> <new>`.
-  String toLine() => 'FIXED $path: $from -> $to';
+  /// Which repair class produced this fix.
+  final TokenFixKind kind;
+
+  /// Text-mode rendering. Derivation re-derivation: `FIXED <path>: <old> ->
+  /// <new>`. Color hex resync additionally states the direction and hints at
+  /// the field to edit instead: `FIXED <path>: hex "<old>" -> "<new>" (hex
+  /// re-derived from components; to change the color itself, edit
+  /// components)`.
+  String toLine() {
+    if (kind == TokenFixKind.colorHexResync) {
+      return 'FIXED $path: hex "$from" -> "$to" (hex re-derived from components; '
+          'to change the color itself, edit components)';
+    }
+    return 'FIXED $path: $from -> $to';
+  }
 
   /// JSON-mode rendering: `{"path": ..., "from": ..., "to": ...}`.
   Map<String, dynamic> toJsonEntry() => {'path': path, 'from': from, 'to': to};
@@ -182,7 +205,7 @@ class TokenFixer {
     }
     if (hex != expectedHex) {
       colorValue['hex'] = expectedHex;
-      fixes.add(TokenFix(path: path, from: hex, to: expectedHex));
+      fixes.add(TokenFix(path: path, from: hex, to: expectedHex, kind: TokenFixKind.colorHexResync));
     }
   }
 

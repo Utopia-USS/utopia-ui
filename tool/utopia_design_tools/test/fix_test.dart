@@ -129,6 +129,33 @@ void main() {
       expect(fixes.map((f) => f.path).toSet(), {'color.accent', 'shadow.lg[0].color'});
       expect(errorsOf(doc), isEmpty);
     });
+
+    test('a color hex resync line states the direction and hints at editing components instead', () {
+      final doc = loadDefaultTheme();
+      final primary = _colorValue(doc, 'color', 'primary');
+      primary['hex'] = '#16a34a';
+
+      final fixes = TokenFixer.fix(doc);
+
+      final fix = fixes.singleWhere((f) => f.path == 'color.primary');
+      expect(fix.kind, TokenFixKind.colorHexResync);
+      expect(
+        fix.toLine(),
+        'FIXED color.primary: hex "#16a34a" -> "#536dfe" '
+        '(hex re-derived from components; to change the color itself, edit components)',
+      );
+    });
+
+    test('a derivation re-derivation line keeps the plain "old -> new" wording', () {
+      final doc = loadDefaultTheme();
+      (doc['x'] as Map<String, dynamic>)[r'$value'] = 5;
+
+      final fixes = TokenFixer.fix(doc);
+
+      final fix = fixes.singleWhere((f) => f.path == 'spacing.md');
+      expect(fix.kind, TokenFixKind.derivation);
+      expect(fix.toLine(), 'FIXED spacing.md: 12 -> 15');
+    });
   });
 
   group('preservation', () {
@@ -253,6 +280,33 @@ void main() {
       final rerunFix = await runCli(['--fix', scratchFile.path]);
       expect(rerunFix.exitCode, 0);
       expect((rerunFix.stdout as String).trim(), 'nothing to fix');
+    });
+
+    test('a mismatched color.primary hex on a scratch copy: --fix prints the direction-hint FIXED line', () async {
+      final scratchDir = Directory.systemTemp.createTempSync('validate_tokens_fix_cli_hex_');
+      addTearDown(() => scratchDir.deleteSync(recursive: true));
+
+      final canonical = File(p.join(fixturesDir.path, 'valid', 'default-theme.tokens.json'));
+      final scratchFile = File(p.join(scratchDir.path, 'tokens.json'));
+      final doc = jsonDecode(canonical.readAsStringSync()) as Map<String, dynamic>;
+      _colorValue(doc, 'color', 'primary')['hex'] = '#16a34a';
+      scratchFile.writeAsStringSync('${const JsonEncoder.withIndent('  ').convert(doc)}\n');
+
+      final fixResult = await Process.run('dart', [
+        'run',
+        'bin/validate_tokens.dart',
+        '--fix',
+        scratchFile.path,
+      ], workingDirectory: toolPackageDir.path);
+
+      expect(fixResult.exitCode, 0, reason: 'stdout: ${fixResult.stdout}\nstderr: ${fixResult.stderr}');
+      expect(
+        fixResult.stdout as String,
+        contains(
+          'FIXED color.primary: hex "#16a34a" -> "#536dfe" '
+          '(hex re-derived from components; to change the color itself, edit components)',
+        ),
+      );
     });
 
     test('--fix --json on a scratch copy prints a fixed array and the file rewrite is well-formed JSON', () async {
