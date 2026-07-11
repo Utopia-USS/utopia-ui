@@ -1,8 +1,12 @@
-/// `validate_manifest` gates (protocol SPEC section 3.7): schema validity,
-/// packageVersion drift, id uniqueness/derivation, referential integrity
-/// (modelName / composes / twin), and bindings re-extraction against source.
+/// `validate_manifest` gates (protocol SPEC sections 3.7 and 3.8): schema
+/// validity, packageVersion drift, id uniqueness/derivation, referential
+/// integrity (modelName / composes / twin), bindings re-extraction against
+/// source, and the project/merged-manifest flavor gates (namespace
+/// enforcement, utopiaUiVersion presence, merged freshness, file-path roots,
+/// model flat-uniqueness).
 library;
 
+import 'dart:convert';
 import 'dart:io';
 
 import 'package:json_schema/json_schema.dart';
@@ -14,29 +18,51 @@ import 'extract.dart';
 import 'generator.dart';
 import 'source_model.dart';
 
+/// Which of the three SPEC 3.8 document flavors a manifest is, detected from
+/// the document itself (never from how it was invoked): `merged: true` marks
+/// a merged view; otherwise `package != "utopia_ui"` marks a project
+/// manifest; anything else is the library manifest.
+enum ManifestFlavor {
+  /// The shipped `utopia_ui` library manifest: bare ids, no `utopiaUiVersion`.
+  library,
+
+  /// A consumer project's manifest: namespaced ids, `utopiaUiVersion` required.
+  project,
+
+  /// The derived merged view: both id flavors coexist, `merged: true`.
+  merged,
+}
+
 /// Runs every `validate_manifest` gate against the decoded manifest document,
 /// reporting every finding (no fail-fast), mirroring `TokenValidator`'s style
 /// in `dtcg/validator.dart`.
 ///
 /// [schema] is the loaded `manifest.schema.json`. [utopiaUiRoot] is the
-/// `utopia_ui` checkout the manifest is being validated against (used for
-/// gate 2's packageVersion check, gate 4's twin lookup, and gate 5's bindings
-/// re-extraction); when `null`, gates 2/4/5 are skipped (their preconditions
-/// - a resolvable source/twin tree - are unavailable), matching the spec's
+/// `utopia_ui` checkout/package the manifest is being validated against (used
+/// for packageVersion/freshness checks, the twin lookup, and bindings
+/// re-extraction for bare-id components); [projectRoot] is the consumer
+/// project root (used for bindings re-extraction and file-root checks on
+/// namespaced components, SPEC 3.8). Either or both may be `null`; the gates
+/// that need an unavailable root are skipped silently, matching the spec's
 /// "skip silently when sources unavailable" rule.
 class ManifestValidator {
   /// Creates a validator bound to the given [schema] and (optional)
-  /// [utopiaUiRoot] for source/twin cross-checks.
-  const ManifestValidator(this.schema, {this.utopiaUiRoot});
+  /// [utopiaUiRoot] / [projectRoot] for source cross-checks.
+  const ManifestValidator(this.schema, {this.utopiaUiRoot, this.projectRoot});
 
   /// The loaded manifest JSON Schema.
   final JsonSchema schema;
 
-  /// The `utopia_ui` checkout to cross-check packageVersion/twin/bindings
-  /// against, or `null` to skip those source-dependent gates.
+  /// The `utopia_ui` checkout/package to cross-check bare-id
+  /// packageVersion/twin/bindings/file-root against, or `null` to skip those
+  /// source-dependent gates.
   final Directory? utopiaUiRoot;
 
-  /// Validates [rawJson], returning every [Finding] from gates 1-5.
+  /// The consumer project root to cross-check namespaced-id
+  /// bindings/file-root against (SPEC 3.8), or `null` to skip those gates.
+  final Directory? projectRoot;
+
+  /// Validates [rawJson], returning every [Finding] from every gate.
   List<Finding> validate(Map<String, dynamic> rawJson) {
     final findings = <Finding>[];
 
@@ -51,22 +77,56 @@ class ManifestValidator {
     }
 
     if (rawJson['components'] is! List) {
-      // Structurally unusable beyond this point - gates 2-5 all walk
+      // Structurally unusable beyond this point - every later gate walks
       // `components`.
       return findings;
     }
     final componentsRaw = (rawJson['components'] as List).whereType<Map<String, dynamic>>().toList();
     final modelsRaw = (rawJson['models'] as List? ?? const []).whereType<Map<String, dynamic>>().toList();
+    final flavor = _detectFlavor(rawJson);
+    final package = rawJson['package'] as String?;
 
-    // Gate 2: packageVersion drift.
-    findings.addAll(_checkPackageVersion(rawJson));
+    // Gate 2: packageVersion drift (library manifest only - a project/merged
+    // document's packageVersion describes the PROJECT, not utopia_ui).
+    if (flavor == ManifestFlavor.library) {
+      findings.addAll(_checkPackageVersion(rawJson));
+    }
 
     // Gate 3: id uniqueness + kebab derivation.
     findings.addAll(_checkIdsAndDerivation(componentsRaw));
 
+    // SPEC 3.8 gate: namespace enforcement.
+    findings.addAll(_checkNamespaces(componentsRaw, flavor: flavor, package: package));
+
+    // SPEC 3.8 gate: utopiaUiVersion presence.
+    findings.addAll(_checkUtopiaUiVersionPresence(rawJson, flavor: flavor));
+
+    // SPEC 3.8 gate: a merged document always describes a consumer project -
+    // package "utopia_ui" on a merged doc is library impersonation, even when
+    // it carries no namespaced components at all.
+    if (flavor == ManifestFlavor.merged && package == 'utopia_ui') {
+      findings.add(
+        const Finding.error(
+          'package',
+          'a merged manifest must carry the consumer project package name, not "utopia_ui" (SPEC 3.8)',
+        ),
+      );
+    }
+
+    // SPEC 3.8 gate: merged freshness (utopiaUiVersion == resolved version;
+    // embedded library entries deep-equal the shipped manifest).
+    if (flavor == ManifestFlavor.merged) {
+      findings.addAll(_checkMergedFreshness(rawJson));
+    }
+
+    // SPEC 3.8 gate: model flat-uniqueness on merged docs.
+    if (flavor == ManifestFlavor.merged) {
+      findings.addAll(_checkModelFlatUniqueness(modelsRaw));
+    }
+
     // Gate 4: referential integrity (modelName, composes, twin) + source file
     // existence for every entry that declares one.
-    findings.addAll(_checkReferentialIntegrity(componentsRaw, modelsRaw));
+    findings.addAll(_checkReferentialIntegrity(componentsRaw, modelsRaw, flavor: flavor));
     final helpersRaw = (rawJson['helpers'] as List? ?? const []).whereType<Map<String, dynamic>>().toList();
     findings.addAll(_checkFilesExist(componentsRaw, modelsRaw, helpersRaw));
 
@@ -77,17 +137,31 @@ class ManifestValidator {
     return findings;
   }
 
-  /// Checks that every `file` field points at an existing source file under
-  /// the utopia_ui root. Skipped silently when no root is available.
+  /// Detects the document's SPEC 3.8 flavor from its own content.
+  ManifestFlavor _detectFlavor(Map<String, dynamic> rawJson) {
+    if (rawJson['merged'] == true) return ManifestFlavor.merged;
+    final package = rawJson['package'];
+    if (package is String && package != 'utopia_ui') return ManifestFlavor.project;
+    return ManifestFlavor.library;
+  }
+
+  /// Whether [id] is namespaced (carries a `<package>:` prefix per the
+  /// `kebabId` schema pattern), vs bare.
+  bool _isNamespaced(String id) => id.contains(':');
+
+  /// Checks that every `file` field points at an existing source file: bare
+  /// ids resolve under [utopiaUiRoot], namespaced ids under [projectRoot].
+  /// Skipped per-entry when the relevant root is unavailable.
   List<Finding> _checkFilesExist(
     List<Map<String, dynamic>> components,
     List<Map<String, dynamic>> models,
     List<Map<String, dynamic>> helpers,
   ) {
-    final root = utopiaUiRoot;
-    if (root == null) return const [];
     final findings = <Finding>[];
-    void check(String section, Map<String, dynamic> entry) {
+
+    void check(String section, Map<String, dynamic> entry, {required bool namespaced}) {
+      final root = namespaced ? projectRoot : utopiaUiRoot;
+      if (root == null) return;
       final file = entry['file'];
       if (file is! String) return;
       if (!File(p.join(root.path, file)).existsSync()) {
@@ -97,15 +171,36 @@ class ManifestValidator {
     }
 
     for (final c in components) {
-      check('components', c);
+      final id = c['id'] as String?;
+      check('components', c, namespaced: id != null && _isNamespaced(id));
     }
+    // models/helpers do not carry an id namespace marker of their own; a
+    // model/helper is namespaced (project-owned) exactly when it is not
+    // found among the utopia_ui-root files, so try the library root first,
+    // falling back to the project root when unresolved there - this mirrors
+    // how the merge itself has no other way to tag provenance per entry.
     for (final m in models) {
-      check('models', m);
+      _checkEitherRoot('models', m, findings);
     }
     for (final h in helpers) {
-      check('helpers', h);
+      _checkEitherRoot('helpers', h, findings);
     }
     return findings;
+  }
+
+  void _checkEitherRoot(String section, Map<String, dynamic> entry, List<Finding> findings) {
+    final file = entry['file'];
+    if (file is! String) return;
+    final libRoot = utopiaUiRoot;
+    final projRoot = projectRoot;
+    final existsInLib = libRoot != null && File(p.join(libRoot.path, file)).existsSync();
+    if (existsInLib) return;
+    final existsInProject = projRoot != null && File(p.join(projRoot.path, file)).existsSync();
+    if (existsInProject) return;
+    if (libRoot == null && projRoot == null) return;
+    final key = entry['name'] ?? '?';
+    final roots = [if (libRoot != null) libRoot.path, if (projRoot != null) projRoot.path].join(' or ');
+    findings.add(Finding.error('$section[$key].file', 'source file "$file" does not exist under $roots'));
   }
 
   String _dottedPath(String instancePath) {
@@ -114,7 +209,7 @@ class ManifestValidator {
   }
 
   // ---------------------------------------------------------------------
-  // Gate 2: packageVersion drift.
+  // Gate 2: packageVersion drift (library manifest only).
   // ---------------------------------------------------------------------
 
   List<Finding> _checkPackageVersion(Map<String, dynamic> rawJson) {
@@ -154,6 +249,13 @@ class ManifestValidator {
       }
       seenIds[id] = name;
 
+      // Namespaced (project) ids are exempt from strict kebab-derivation
+      // equality: SPEC 3.3 lets a project overlay's `class:` key override the
+      // local part, so a namespaced id legitimately need not equal
+      // kebabCase(name). Namespace correctness itself is checked separately
+      // (SPEC 3.8 gate, _checkNamespaces).
+      if (_isNamespaced(id)) continue;
+
       final expected = kebabId(name);
       if (id != expected) {
         findings.add(Finding.error(path, 'id "$id" does not match the kebab-case derivation of "$name" ("$expected")'));
@@ -163,35 +265,244 @@ class ManifestValidator {
   }
 
   // ---------------------------------------------------------------------
+  // SPEC 3.8 gate: namespace enforcement.
+  // ---------------------------------------------------------------------
+
+  List<Finding> _checkNamespaces(
+    List<Map<String, dynamic>> components, {
+    required ManifestFlavor flavor,
+    required String? package,
+  }) {
+    final findings = <Finding>[];
+    for (final component in components) {
+      final id = component['id'] as String?;
+      if (id == null) continue;
+      final colonIndex = id.indexOf(':');
+      final namespace = colonIndex == -1 ? null : id.substring(0, colonIndex);
+
+      switch (flavor) {
+        case ManifestFlavor.library:
+          if (namespace != null) {
+            findings.add(
+              Finding.error('components[$id]', 'bare-id document (library manifest) contains namespaced id "$id"'),
+            );
+          }
+        case ManifestFlavor.project:
+          if (namespace == null) {
+            findings.add(
+              Finding.error(
+                'components[$id]',
+                'project manifest contains bare id "$id" (project component ids must be namespaced '
+                    '"<package>:<local-part>", SPEC 3.3)',
+              ),
+            );
+          } else if (package != null && namespace != package) {
+            findings.add(
+              Finding.error(
+                'components[$id]',
+                'component id "$id" carries namespace "$namespace", which does not match this document\'s '
+                    'package "$package"',
+              ),
+            );
+          }
+        case ManifestFlavor.merged:
+          if (namespace != null && package != null && namespace != package) {
+            findings.add(
+              Finding.error(
+                'components[$id]',
+                'component id "$id" carries namespace "$namespace", which does not match this document\'s '
+                    'package "$package" (merged view: every namespaced id must carry the document package)',
+              ),
+            );
+          }
+      }
+    }
+    return findings;
+  }
+
+  // ---------------------------------------------------------------------
+  // SPEC 3.8 gate: utopiaUiVersion presence.
+  // ---------------------------------------------------------------------
+
+  List<Finding> _checkUtopiaUiVersionPresence(Map<String, dynamic> rawJson, {required ManifestFlavor flavor}) {
+    final hasVersion = rawJson['utopiaUiVersion'] is String;
+    switch (flavor) {
+      case ManifestFlavor.library:
+        if (hasVersion) {
+          return [const Finding.error('utopiaUiVersion', 'utopiaUiVersion must be absent on the library manifest')];
+        }
+      case ManifestFlavor.project:
+      case ManifestFlavor.merged:
+        if (!hasVersion) {
+          return [
+            const Finding.error(
+              'utopiaUiVersion',
+              'utopiaUiVersion is required on project and merged manifests (SPEC 3.8 freshness gate)',
+            ),
+          ];
+        }
+    }
+    return const [];
+  }
+
+  // ---------------------------------------------------------------------
+  // SPEC 3.8 gate: merged freshness.
+  // ---------------------------------------------------------------------
+
+  List<Finding> _checkMergedFreshness(Map<String, dynamic> rawJson) {
+    final findings = <Finding>[];
+    final root = utopiaUiRoot;
+
+    if (root != null) {
+      final resolvedVersion = readPackageVersion(File(p.join(root.path, 'pubspec.yaml')));
+      final recordedVersion = rawJson['utopiaUiVersion'];
+      if (resolvedVersion != null && recordedVersion is String && recordedVersion != resolvedVersion) {
+        findings.add(
+          Finding.error(
+            'utopiaUiVersion',
+            'merged manifest utopiaUiVersion "$recordedVersion" does not match the resolved utopia_ui '
+                'version "$resolvedVersion" (stale merged view - regenerate)',
+          ),
+        );
+      }
+
+      final libraryManifestFile = File(p.join(root.path, 'manifest', 'utopia.manifest.json'));
+      if (libraryManifestFile.existsSync()) {
+        Map<String, dynamic>? shippedLibrary;
+        try {
+          shippedLibrary = jsonDecode(libraryManifestFile.readAsStringSync()) as Map<String, dynamic>;
+        } on FormatException {
+          shippedLibrary = null;
+        }
+        if (shippedLibrary != null) {
+          findings.addAll(_checkEmbeddedLibraryMatchesShipped(rawJson, shippedLibrary));
+        }
+      }
+    }
+
+    return findings;
+  }
+
+  /// Deep-equality check: every bare-id component/model/helper in the merged
+  /// document must equal its counterpart in the shipped library manifest
+  /// (entry-for-entry; extra/missing bare entries also flag a stale view).
+  List<Finding> _checkEmbeddedLibraryMatchesShipped(Map<String, dynamic> merged, Map<String, dynamic> shipped) {
+    bool deepEquals(dynamic a, dynamic b) => const DeepCollectionEquality().equals(a, b);
+
+    final mergedComponents = (merged['components'] as List? ?? const [])
+        .whereType<Map<String, dynamic>>()
+        .where((c) => !(c['id'] as String? ?? '').contains(':'))
+        .toList();
+    final shippedComponents = (shipped['components'] as List? ?? const []).whereType<Map<String, dynamic>>().toList();
+
+    if (!deepEquals(mergedComponents, shippedComponents)) {
+      return [
+        const Finding.error(
+          'components',
+          'stale merged view - regenerate (embedded library components do not match the shipped '
+              'manifest/utopia.manifest.json)',
+        ),
+      ];
+    }
+
+    final mergedModels = (merged['models'] as List? ?? const []).whereType<Map<String, dynamic>>().toList();
+    final shippedModels = (shipped['models'] as List? ?? const []).whereType<Map<String, dynamic>>().toList();
+    final shippedModelNames = shippedModels.map((m) => m['name'] as String?).whereType<String>().toSet();
+    final mergedLibraryModels = mergedModels.where((m) => shippedModelNames.contains(m['name'])).toList();
+    if (!deepEquals(mergedLibraryModels, shippedModels)) {
+      return [
+        const Finding.error(
+          'models',
+          'stale merged view - regenerate (embedded library models do not match the shipped '
+              'manifest/utopia.manifest.json)',
+        ),
+      ];
+    }
+
+    final mergedHelpers = (merged['helpers'] as List? ?? const []).whereType<Map<String, dynamic>>().toList();
+    final shippedHelpers = (shipped['helpers'] as List? ?? const []).whereType<Map<String, dynamic>>().toList();
+    final shippedHelperNames = shippedHelpers.map((h) => h['name'] as String?).whereType<String>().toSet();
+    final mergedLibraryHelpers = mergedHelpers.where((h) => shippedHelperNames.contains(h['name'])).toList();
+    if (!deepEquals(mergedLibraryHelpers, shippedHelpers)) {
+      return [
+        const Finding.error(
+          'helpers',
+          'stale merged view - regenerate (embedded library helpers do not match the shipped '
+              'manifest/utopia.manifest.json)',
+        ),
+      ];
+    }
+
+    return const [];
+  }
+
+  // ---------------------------------------------------------------------
+  // SPEC 3.8 gate: model flat-uniqueness on merged docs.
+  // ---------------------------------------------------------------------
+
+  List<Finding> _checkModelFlatUniqueness(List<Map<String, dynamic>> models) {
+    final findings = <Finding>[];
+    final seen = <String>{};
+    for (final model in models) {
+      final name = model['name'] as String?;
+      if (name == null) continue;
+      if (!seen.add(name)) {
+        findings.add(
+          Finding.error(
+            'models[$name]',
+            'duplicate model name "$name" across the merge (flat model namespace, SPEC 3.8)',
+          ),
+        );
+      }
+    }
+    return findings;
+  }
+
+  // ---------------------------------------------------------------------
   // Gate 4: referential integrity (modelName, composes, twin).
   // ---------------------------------------------------------------------
 
-  List<Finding> _checkReferentialIntegrity(List<Map<String, dynamic>> components, List<Map<String, dynamic>> models) {
+  ///
+  /// modelName/composes resolution is enforced for the library and merged
+  /// flavors only (SPEC 3.8: "custom components' composes and prop modelName
+  /// references MAY point at library ids/models; validate_manifest enforces
+  /// resolution on the merged view") - a standalone project document
+  /// legitimately contains references into the (unembedded) library half, so
+  /// checking them against this document's own components/models alone would
+  /// misreport every such reference as dangling.
+  List<Finding> _checkReferentialIntegrity(
+    List<Map<String, dynamic>> components,
+    List<Map<String, dynamic>> models, {
+    required ManifestFlavor flavor,
+  }) {
     final findings = <Finding>[];
     final modelNames = models.map((m) => m['name'] as String?).whereType<String>().toSet();
     final componentIds = components.map((c) => c['id'] as String?).whereType<String>().toSet();
+    final checkCrossReferences = flavor != ManifestFlavor.project;
     var reportedMissingTwinDir = false;
 
     for (final component in components) {
       final id = component['id'] as String? ?? '?';
-      for (final ctor in (component['constructors'] as List? ?? const []).whereType<Map<String, dynamic>>()) {
-        for (final prop in (ctor['props'] as List? ?? const []).whereType<Map<String, dynamic>>()) {
-          final modelName = prop['modelName'];
-          if (modelName is String && !modelNames.contains(modelName)) {
-            findings.add(
-              Finding.error(
-                'components[$id].modelName',
-                'prop "${prop['name']}" references modelName "$modelName", which has no entry in "models"',
-              ),
-            );
+      if (checkCrossReferences) {
+        for (final ctor in (component['constructors'] as List? ?? const []).whereType<Map<String, dynamic>>()) {
+          for (final prop in (ctor['props'] as List? ?? const []).whereType<Map<String, dynamic>>()) {
+            final modelName = prop['modelName'];
+            if (modelName is String && !modelNames.contains(modelName)) {
+              findings.add(
+                Finding.error(
+                  'components[$id].modelName',
+                  'prop "${prop['name']}" references modelName "$modelName", which has no entry in "models"',
+                ),
+              );
+            }
           }
         }
-      }
-      for (final composesId in (component['composes'] as List? ?? const []).whereType<String>()) {
-        if (!componentIds.contains(composesId)) {
-          findings.add(
-            Finding.error('components[$id].composes', 'composes references unknown component id "$composesId"'),
-          );
+        for (final composesId in (component['composes'] as List? ?? const []).whereType<String>()) {
+          if (!componentIds.contains(composesId)) {
+            findings.add(
+              Finding.error('components[$id].composes', 'composes references unknown component id "$composesId"'),
+            );
+          }
         }
       }
 
@@ -237,24 +548,40 @@ class ManifestValidator {
   // ---------------------------------------------------------------------
 
   List<Finding> _checkBindings(List<Map<String, dynamic>> components) {
-    final root = utopiaUiRoot;
-    if (root == null) return const [];
-    final SourceModel model;
-    try {
-      model = SourceModel.parse(root);
-    } catch (_) {
-      return const [];
+    final findings = <Finding>[];
+
+    SourceModel? libraryModel;
+    if (utopiaUiRoot != null) {
+      try {
+        libraryModel = SourceModel.parse(utopiaUiRoot!);
+      } catch (_) {
+        libraryModel = null;
+      }
     }
 
-    final findings = <Finding>[];
+    SourceModel? projectModel;
+    if (projectRoot != null) {
+      try {
+        projectModel = SourceModel.parseProjectLib(projectRoot!);
+      } catch (_) {
+        projectModel = null;
+      }
+    }
+
     for (final component in components) {
       final id = component['id'] as String? ?? '?';
       final name = component['name'] as String?;
       if (name == null) continue;
+
+      final namespaced = _isNamespaced(id);
+      final model = namespaced ? projectModel : libraryModel;
+      if (model == null) continue;
+
       final file = model.fileDeclaring(name);
       if (file == null) {
+        final sourceKind = namespaced ? 'project' : 'utopia_ui';
         findings.add(
-          Finding.error('components[$id]', 'class "$name" not found in the utopia_ui sources (stale manifest)'),
+          Finding.error('components[$id]', 'class "$name" not found in the $sourceKind sources (stale manifest)'),
         );
         continue;
       }
@@ -284,5 +611,37 @@ class ManifestValidator {
       }
     }
     return findings;
+  }
+}
+
+/// Minimal structural deep-equality for decoded JSON values (`Map`, `List`,
+/// and primitives), used by the merged-freshness gate to compare embedded
+/// library entries against the shipped manifest without depending on a
+/// third-party collection-equality package.
+class DeepCollectionEquality {
+  /// Creates a deep-equality comparator.
+  const DeepCollectionEquality();
+
+  /// Whether [a] and [b] are structurally equal: recursively for `Map`s
+  /// (same keys, equal values) and `List`s (same length, equal elements in
+  /// order), `==` otherwise.
+  bool equals(dynamic a, dynamic b) {
+    if (identical(a, b)) return true;
+    if (a is Map && b is Map) {
+      if (a.length != b.length) return false;
+      for (final key in a.keys) {
+        if (!b.containsKey(key)) return false;
+        if (!equals(a[key], b[key])) return false;
+      }
+      return true;
+    }
+    if (a is List && b is List) {
+      if (a.length != b.length) return false;
+      for (var i = 0; i < a.length; i++) {
+        if (!equals(a[i], b[i])) return false;
+      }
+      return true;
+    }
+    return a == b;
   }
 }

@@ -25,6 +25,27 @@ class RepoLocator {
     }
   }
 
+  /// Walks upward from [start] (default: the current working directory)
+  /// looking for the nearest `pubspec.yaml` whose `name:` field is NOT
+  /// `utopia_ui` - the consumer project root for `generate_manifest
+  /// --project` (SPEC 3.8). Returns `null` if none is found before reaching
+  /// the filesystem root (every pubspec.yaml found along the way names
+  /// `utopia_ui`, or none exists at all).
+  static Directory? findConsumerProjectRoot({Directory? start}) {
+    var dir = start ?? Directory.current;
+    while (true) {
+      final pubspec = File(p.join(dir.path, 'pubspec.yaml'));
+      if (pubspec.existsSync() && !_pubspecNameIs(pubspec, 'utopia_ui')) {
+        return dir;
+      }
+      final parent = dir.parent;
+      if (p.equals(parent.path, dir.path)) {
+        return null;
+      }
+      dir = parent;
+    }
+  }
+
   /// Walks upward from [start] looking for a `.dart_tool/package_config.json`
   /// and resolves the `utopia_ui` package's `rootUri` from it. This is how a
   /// tool run from inside a consumer project (or this repo's tool package)

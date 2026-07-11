@@ -28,6 +28,17 @@ String? readPackageVersion(File pubspecFile) {
   return null;
 }
 
+/// Reads the `name:` field from a `pubspec.yaml` file. Returns `null` if the
+/// file does not exist or has no top-level `name:` line.
+String? readPackageName(File pubspecFile) {
+  if (!pubspecFile.existsSync()) return null;
+  for (final line in const LineSplitter().convert(pubspecFile.readAsStringSync())) {
+    final match = RegExp(r'^name:\s*(\S+)\s*$').firstMatch(line);
+    if (match != null) return match.group(1);
+  }
+  return null;
+}
+
 /// The result of a generation run: either the assembled manifest (as an
 /// ordered `Map`, ready to encode) plus its packageVersion, or a non-empty
 /// list of fatal, actionable errors (extraction failures or overlay drift)
@@ -101,7 +112,7 @@ GenerationResult generateManifest({
     'package': 'utopia_ui',
     'packageVersion': packageVersion,
     if (withTimestamp) 'generatedAt': DateTime.now().toUtc().toIso8601String(),
-    'components': extraction.components.map((c) => _componentJson(c, overlays[c.id])).toList(),
+    'components': extraction.components.map((c) => componentJson(c, overlays[c.id])).toList(),
     'models': extraction.models.map((m) => m.toJson()).toList(),
     'helpers': extraction.helpers.map((h) => h.toJson()).toList(),
   };
@@ -109,7 +120,12 @@ GenerationResult generateManifest({
   return GenerationResult.ok(manifest);
 }
 
-Map<String, dynamic> _componentJson(ExtractedComponent component, ComponentOverlay? overlay) {
+/// Renders a single extracted component plus its (optional) overlay to the
+/// manifest JSON `component` shape: merges `tokenBindingsAdd` into
+/// `tokenBindings` and layers on the overlay's `states`/`examples`/`notes`.
+/// Shared by both the library generator (`generateManifest`) and project
+/// extraction (`generate_manifest --project`, SPEC 3.8).
+Map<String, dynamic> componentJson(ExtractedComponent component, ComponentOverlay? overlay) {
   final tokenBindings = {...component.tokenBindings, ...?overlay?.tokenBindingsAdd}.toList()..sort();
   return {
     'id': component.id,

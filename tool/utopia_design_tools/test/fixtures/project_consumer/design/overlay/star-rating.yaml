@@ -1,0 +1,6 @@
+class: DemoRatingStars
+notes: >-
+  A 5-star rating row. Exercises the SPEC 3.3 class-override mechanism: this
+  file's local part ("star-rating") differs from DemoRatingStars's derived
+  kebab-case ("demo-rating-stars"), so the overlay binds explicitly via the
+  class key.

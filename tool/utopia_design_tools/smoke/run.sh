@@ -9,6 +9,11 @@
 #      color.primary/accent to a new hue), generate_theme, wire it, build,
 #      screenshot the rebrand (and the silent-fallback trap without wiring)
 #   4. twin-vs-flutter hero screenshots (default + rebranded twin)
+#   custom: the A11 custom-component loop - generate_manifest --project against
+#      a scratch copy of the fixture consumer, validate_manifest on the merged
+#      view, a doctored-utopiaUiVersion freshness-gate negative, and a
+#      determinism rerun (deferred from this harness's original checklist
+#      item 4 until generate_manifest --project existed)
 #   5. writes ledger/checkpoints/A7.md with every command/exit code/artifact
 #
 # bash 3.2 compatible (macOS default /bin/bash). Idempotent: safe to rerun.
@@ -197,6 +202,7 @@ STEP1_STATUS="PENDING"
 STEP2_STATUS="PENDING"
 STEP3_STATUS="PENDING"
 STEP4_STATUS="PENDING"
+STEP_CUSTOM_STATUS="PENDING"
 
 log "A7 smoke harness starting. REPO_ROOT=$REPO_ROOT"
 log "Artifacts will be retained under $ARTIFACTS_DIR"
@@ -925,6 +931,80 @@ if $step4_ok; then STEP4_STATUS="PASS"; else STEP4_STATUS="FAIL"; fi
 log "STEP 4 overall: $STEP4_STATUS"
 
 # ===========================================================================
+# STEP CUSTOM: custom-component loop (A11, deferred from A7 checklist item 4)
+# ===========================================================================
+banner "STEP CUSTOM: custom-component loop (generate_manifest --project + merged freshness gate)"
+
+step_custom_ok=true
+
+# Work on a throwaway copy of the fixture consumer project, not the repo
+# checkout: this harness only writes into scratch/artifacts.
+FIXTURE_SRC="$TOOL_DIR/test/fixtures/project_consumer"
+FIXTURE_SMOKE_DIR="$WORK_DIR/project_consumer_smoke"
+rm -rf "$FIXTURE_SMOKE_DIR"
+mkdir -p "$FIXTURE_SMOKE_DIR"
+cp -R "$FIXTURE_SRC/." "$FIXTURE_SMOKE_DIR/"
+rm -rf "$FIXTURE_SMOKE_DIR/design/project.manifest.json" "$FIXTURE_SMOKE_DIR/design/merged.manifest.json"
+
+banner "CUSTOMa generate_manifest --project against the fixture consumer -> exit 0, both files written"
+run_dart generate_manifest.dart --project --project-dir "$FIXTURE_SMOKE_DIR"
+if assert_exit 0 "$LAST_EXIT" "generate_manifest --project on fixture consumer" \
+  && [ -f "$FIXTURE_SMOKE_DIR/design/project.manifest.json" ] \
+  && [ -f "$FIXTURE_SMOKE_DIR/design/merged.manifest.json" ]; then
+  record_result "4" "generate_manifest --project on the fixture consumer writes both manifests" "PASS" "$LAST_STDOUT"
+else
+  record_result "4" "generate_manifest --project on the fixture consumer writes both manifests" "FAIL" "exit=$LAST_EXIT out=$LAST_STDOUT stderr=$LAST_STDERR"
+  step_custom_ok=false
+fi
+
+banner "CUSTOMb validate_manifest on the merged view -> exit 0"
+run_dart validate_manifest.dart "$FIXTURE_SMOKE_DIR/design/merged.manifest.json" --sources "$REPO_ROOT" --project-dir "$FIXTURE_SMOKE_DIR"
+if assert_exit 0 "$LAST_EXIT" "validate_manifest clean on merged fixture view"; then
+  record_result "4" "validate_manifest exit 0 on the fixture's merged.manifest.json" "PASS" "0 error(s)"
+else
+  record_result "4" "validate_manifest exit 0 on the fixture's merged.manifest.json" "FAIL" "exit=$LAST_EXIT out=$LAST_STDOUT"
+  step_custom_ok=false
+fi
+
+banner "CUSTOMc doctor utopiaUiVersion in the merged view -> validate_manifest exit 1 (freshness gate fires)"
+DOCTORED_MERGED="$WORK_DIR/doctored-merged.json"
+python3 - "$FIXTURE_SMOKE_DIR/design/merged.manifest.json" "$DOCTORED_MERGED" <<'PY'
+import json, sys
+src, dst = sys.argv[1], sys.argv[2]
+d = json.load(open(src))
+d["utopiaUiVersion"] = "0.0.1-doctored"  # SPEC 3.8 freshness gate: must equal the resolved utopia_ui version
+json.dump(d, open(dst, "w"), indent=2)
+PY
+run_dart validate_manifest.dart "$DOCTORED_MERGED" --sources "$REPO_ROOT" --project-dir "$FIXTURE_SMOKE_DIR"
+if assert_exit 1 "$LAST_EXIT" "validate_manifest doctored utopiaUiVersion" && printf '%s' "$LAST_STDOUT" | grep -qi "stale merged view"; then
+  record_result "4" "validate_manifest exit 1 on doctored utopiaUiVersion (freshness gate)" "PASS" "$(printf '%s' "$LAST_STDOUT" | grep -i 'stale merged view' | head -1)"
+else
+  record_result "4" "validate_manifest exit 1 on doctored utopiaUiVersion (freshness gate)" "FAIL" "exit=$LAST_EXIT out=$LAST_STDOUT"
+  step_custom_ok=false
+fi
+
+banner "CUSTOMd determinism: generate_manifest --project rerun is byte-identical"
+CUSTOM_PROJECT_RUN1="$FIXTURE_SMOKE_DIR/design/project.manifest.json"
+CUSTOM_MERGED_RUN1="$WORK_DIR/custom_merged_run1.json"
+CUSTOM_MERGED_RUN2="$WORK_DIR/custom_merged_run2.json"
+cp "$FIXTURE_SMOKE_DIR/design/merged.manifest.json" "$CUSTOM_MERGED_RUN1"
+cp "$CUSTOM_PROJECT_RUN1" "$WORK_DIR/custom_project_run1.json"
+run_dart generate_manifest.dart --project --project-dir "$FIXTURE_SMOKE_DIR"
+RERUN_EXIT=$LAST_EXIT
+cp "$FIXTURE_SMOKE_DIR/design/merged.manifest.json" "$CUSTOM_MERGED_RUN2"
+if assert_exit 0 "$RERUN_EXIT" "generate_manifest --project rerun" \
+  && diff -q "$WORK_DIR/custom_project_run1.json" "$FIXTURE_SMOKE_DIR/design/project.manifest.json" >/dev/null 2>&1 \
+  && diff -q "$CUSTOM_MERGED_RUN1" "$CUSTOM_MERGED_RUN2" >/dev/null 2>&1; then
+  record_result "4" "generate_manifest --project two runs are byte-identical (determinism)" "PASS" "project.manifest.json and merged.manifest.json unchanged across reruns"
+else
+  record_result "4" "generate_manifest --project two runs are byte-identical (determinism)" "FAIL" "rerun_exit=$RERUN_EXIT, diff found"
+  step_custom_ok=false
+fi
+
+if $step_custom_ok; then STEP_CUSTOM_STATUS="PASS"; else STEP_CUSTOM_STATUS="FAIL"; fi
+log "STEP CUSTOM overall: $STEP_CUSTOM_STATUS"
+
+# ===========================================================================
 # STEP 5: write ledger/checkpoints/A7.md (checklist item 8)
 # ===========================================================================
 banner "STEP 5: writing ledger/checkpoints/A7.md"
@@ -934,17 +1014,19 @@ python3 "$TOOL_DIR/smoke/render_report.py" \
   --results "$RESULTS_TSV" \
   --findings "$FINDINGS_LOG" \
   --step1 "$STEP1_STATUS" --step2 "$STEP2_STATUS" --step3 "$STEP3_STATUS" --step4 "$STEP4_STATUS" \
+  --step-custom "$STEP_CUSTOM_STATUS" \
   --artifacts-dir "$ARTIFACTS_DIR" \
   --out "$A7_MD"
 
 log "wrote $A7_MD"
-log "A7 smoke harness finished. step1=$STEP1_STATUS step2=$STEP2_STATUS step3=$STEP3_STATUS step4=$STEP4_STATUS"
+log "A7 smoke harness finished. step1=$STEP1_STATUS step2=$STEP2_STATUS step3=$STEP3_STATUS step4=$STEP4_STATUS step_custom=$STEP_CUSTOM_STATUS"
 
 overall_ok=true
 [ "$STEP1_STATUS" = "PASS" ] || overall_ok=false
 [ "$STEP2_STATUS" = "PASS" ] || overall_ok=false
 [ "$STEP3_STATUS" = "PASS" ] || overall_ok=false
 [ "$STEP4_STATUS" = "PASS" ] || overall_ok=false
+[ "$STEP_CUSTOM_STATUS" = "PASS" ] || overall_ok=false
 
 if $overall_ok; then
   log "ALL STEPS PASS"

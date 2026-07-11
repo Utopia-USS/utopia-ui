@@ -83,4 +83,31 @@ void main() {
       });
     }
   });
+
+  group('SPEC 3.8 flavor gates: invalid fixtures each trip their gate', () {
+    final projectRoot = Directory(p.join(Directory.current.path, 'test', 'fixtures', 'project_consumer'));
+    final cases = <String, String>{
+      'invalid/bare-id-in-project.manifest.json': 'bare id',
+      'invalid/namespaced-id-in-library.manifest.json': 'contains namespaced id',
+      'invalid/missing-utopia-ui-version.manifest.json': 'utopiaUiVersion is required',
+      'invalid/utopia-ui-version-on-library.manifest.json': 'utopiaUiVersion must be absent',
+      'invalid/stale-merged-library-entry.manifest.json': 'stale merged view',
+      'invalid/model-collision-merged.manifest.json': 'duplicate model name',
+      'invalid/merged-package-utopia-ui.manifest.json': 'must carry the consumer project package name',
+    };
+
+    for (final entry in cases.entries) {
+      test('${entry.key} produces an error containing "${entry.value}"', () {
+        final validator = ManifestValidator(schema, utopiaUiRoot: repoRoot, projectRoot: projectRoot);
+        final doc = loadFixture(entry.key);
+        final errors = errorsOnly(validator.validate(doc));
+        expect(errors, isNotEmpty, reason: 'expected at least one error for ${entry.key}');
+        expect(
+          errors.any((f) => f.message.contains(entry.value)),
+          isTrue,
+          reason: 'none of ${errors.map((f) => f.toLine()).join('; ')} contained "${entry.value}"',
+        );
+      });
+    }
+  });
 }

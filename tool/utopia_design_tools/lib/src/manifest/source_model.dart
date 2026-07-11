@@ -113,7 +113,54 @@ class SourceModel {
     );
   }
 
-  /// The `utopia_ui` package root this model was parsed from.
+  /// Parses every `.dart` file under `<projectRoot>/lib/` (recursive,
+  /// depth-first, sorted for determinism), regardless of barrel exports.
+  ///
+  /// Used for `generate_manifest --project` (SPEC 3.8): a consumer project's
+  /// custom components need not be barrel-exported, so extraction scans the
+  /// whole `lib/` tree instead of following `export` directives from a
+  /// package barrel.
+  factory SourceModel.parseProjectLib(Directory projectRoot) {
+    final normalizedRoot = p.normalize(projectRoot.absolute.path);
+    final libDir = Directory(p.join(normalizedRoot, 'lib'));
+    if (!libDir.existsSync()) {
+      throw StateError('project lib/ not found: ${libDir.path}');
+    }
+
+    final dartFiles = libDir
+        .listSync(recursive: true)
+        .whereType<File>()
+        .where((f) => f.path.endsWith('.dart'))
+        .toList()
+      ..sort((a, b) => a.path.compareTo(b.path));
+
+    final files = <ParsedFile>[
+      for (final file in dartFiles)
+        _parseOneFile(p.normalize(file.absolute.path), _toForwardSlash(p.relative(file.path, from: normalizedRoot))),
+    ];
+
+    final classesByName = <String, ClassDeclaration>{};
+    final enumsByName = <String, EnumDeclaration>{};
+    for (final file in files) {
+      for (final cls in file.classes) {
+        classesByName[cls.name.lexeme] = cls;
+      }
+      for (final enumDecl in file.enums) {
+        enumsByName[enumDecl.name.lexeme] = enumDecl;
+      }
+    }
+
+    return SourceModel._(
+      utopiaUiRoot: Directory(normalizedRoot),
+      files: files,
+      classesByName: classesByName,
+      enumsByName: enumsByName,
+    );
+  }
+
+  /// The package root this model was parsed from (the `utopia_ui` checkout
+  /// for [SourceModel.parse], or the consumer project root for
+  /// [SourceModel.parseProjectLib]).
   final Directory utopiaUiRoot;
 
   /// Every exported file, in barrel export order.

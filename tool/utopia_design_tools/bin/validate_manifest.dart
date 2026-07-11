@@ -20,6 +20,11 @@ Future<void> main(List<String> arguments) async {
   final parser = ArgParser()
     ..addFlag('json', help: 'Emit machine-readable JSON output instead of text.', negatable: false)
     ..addOption('sources', help: 'Path to a utopia_ui checkout to validate bindings/version against.')
+    ..addOption(
+      'project-dir',
+      help: 'Path to the consumer project root, for project/merged manifests (SPEC 3.8). Defaults to the '
+          'walk-up rule (nearest non-utopia_ui pubspec.yaml above the target file).',
+    )
     ..addOption('schema', help: 'Path to manifest.schema.json (overrides auto-discovery).')
     ..addFlag('help', abbr: 'h', help: 'Show usage.', negatable: false);
 
@@ -34,7 +39,10 @@ Future<void> main(List<String> arguments) async {
   }
 
   if (args['help'] as bool) {
-    stdout.writeln('Usage: dart run utopia_design_tools:validate_manifest [<file>] [--json] [--sources <dir>]');
+    stdout.writeln(
+      'Usage: dart run utopia_design_tools:validate_manifest [<file>] [--json] [--sources <dir>] '
+      '[--project-dir <dir>]',
+    );
     stdout.writeln(parser.usage);
     exitCode = 0;
     return;
@@ -42,6 +50,7 @@ Future<void> main(List<String> arguments) async {
 
   final asJson = args['json'] as bool;
   final sourcesOption = args['sources'] as String?;
+  final projectDirOption = args['project-dir'] as String?;
   final schemaOverride = args['schema'] as String?;
   final positional = args.rest;
 
@@ -93,7 +102,10 @@ Future<void> main(List<String> arguments) async {
   }
 
   final sourcesRoot = sourcesOption != null ? Directory(sourcesOption) : _resolveDefaultSourcesRoot(targetFile);
-  final validator = ManifestValidator(schema, utopiaUiRoot: sourcesRoot);
+  final projectRoot = projectDirOption != null
+      ? Directory(projectDirOption)
+      : _resolveDefaultProjectRoot(targetFile, rawJson);
+  final validator = ManifestValidator(schema, utopiaUiRoot: sourcesRoot, projectRoot: projectRoot);
   final findings = validator.validate(rawJson);
   final report = FindingReport(findings);
 
@@ -151,4 +163,17 @@ File? _findManifestSchema(Directory? sourcesRoot) {
 Directory? _resolveDefaultSourcesRoot(File targetFile) {
   final start = targetFile.absolute.parent;
   return RepoLocator.findUtopiaUiRepoRoot(start: start) ?? RepoLocator.resolveUtopiaUiPackageRoot(start: start);
+}
+
+/// Resolves the default `--project-dir` root when not explicitly passed:
+/// only attempted for project/merged documents (SPEC 3.8 - a bare library
+/// manifest has no project root to speak of), via the same walk-up rule
+/// `generate_manifest --project` uses (nearest non-utopia_ui pubspec.yaml
+/// above [targetFile]).
+Directory? _resolveDefaultProjectRoot(File targetFile, Map<String, dynamic> rawJson) {
+  final isMerged = rawJson['merged'] == true;
+  final package = rawJson['package'];
+  final isProjectFlavor = isMerged || (package is String && package != 'utopia_ui');
+  if (!isProjectFlavor) return null;
+  return RepoLocator.findConsumerProjectRoot(start: targetFile.absolute.parent);
 }

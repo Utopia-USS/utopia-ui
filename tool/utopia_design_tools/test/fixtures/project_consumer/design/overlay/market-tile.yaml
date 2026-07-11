@@ -1,0 +1,5 @@
+states: [hover]
+notes: >-
+  A stock/instrument quote tile: composes UtopiaCard + UtopiaChip, reads
+  colors/spacing from the theme, and colours its chip from a project-local
+  gain/loss constant (the legal "values on the side" pattern, SPEC 3.8).

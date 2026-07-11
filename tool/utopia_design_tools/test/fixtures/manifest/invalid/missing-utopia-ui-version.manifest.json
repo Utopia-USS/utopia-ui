@@ -1,0 +1,22 @@
+{
+  "schemaVersion": "0.2.0",
+  "package": "demo_consumer",
+  "packageVersion": "0.1.0",
+  "components": [
+    {
+      "id": "demo_consumer:market-tile",
+      "name": "MarketTile",
+      "description": "A stock/instrument quote tile.",
+      "file": "lib/market_tile.dart",
+      "constructors": [
+        {
+          "name": "",
+          "props": []
+        }
+      ],
+      "tokenBindings": []
+    }
+  ],
+  "models": [],
+  "helpers": []
+}

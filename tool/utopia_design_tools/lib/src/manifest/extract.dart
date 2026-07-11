@@ -253,9 +253,17 @@ const Set<String> _excludedClassNames = {'UtopiaTheme', 'UtopiaBreakpoints'};
 String kebabId(String className) {
   const prefix = 'Utopia';
   final stripped = className.startsWith(prefix) ? className.substring(prefix.length) : className;
+  return kebabCase(stripped);
+}
+
+/// Splits [name] on uppercase boundaries and lowercases/joins with `-`
+/// (`RemoveIconButton` -> `remove-icon-button`). The shared primitive behind
+/// both [kebabId] (library ids, `Utopia`-prefix stripped) and project id
+/// derivation (SPEC 3.3 local part, no prefix stripped).
+String kebabCase(String name) {
   final buffer = StringBuffer();
-  for (var i = 0; i < stripped.length; i++) {
-    final char = stripped[i];
+  for (var i = 0; i < name.length; i++) {
+    final char = name[i];
     final isUpper = char.toUpperCase() == char && char.toLowerCase() != char;
     if (isUpper && i > 0) {
       buffer.write('-');
@@ -265,11 +273,48 @@ String kebabId(String className) {
   return buffer.toString();
 }
 
+/// Strategy controlling how [extractAll] classifies a concrete
+/// `StatelessWidget`/`StatefulWidget`/`HookWidget` subclass as a manifest
+/// component. The library extraction (`generate_manifest`, no
+/// `--project`) requires the `Utopia` prefix and derives bare ids; project
+/// extraction (`generate_manifest --project`, SPEC 3.8) is opt-in per
+/// overlay and derives namespaced ids (SPEC 3.3).
+abstract class ComponentIdStrategy {
+  /// Returns the manifest id to assign to [cls] (declared in [file]), or
+  /// `null` when [cls] should be skipped entirely (out of scope for this
+  /// document - e.g. no matching overlay in project mode). Implementations
+  /// may append a fatal, actionable message to [errors] instead of returning
+  /// an id (e.g. the library's missing-`Utopia`-prefix gate); a non-empty
+  /// [errors] list after classification aborts extraction.
+  String? idFor(ClassDeclaration cls, ParsedFile file, List<String> errors);
+}
+
+/// The default (library) classification strategy: every concrete widget
+/// subclass is a component, the `Utopia` prefix is required, and ids are
+/// bare kebab-case (SPEC 3.3).
+class LibraryComponentIdStrategy implements ComponentIdStrategy {
+  /// Creates the library id strategy.
+  const LibraryComponentIdStrategy();
+
+  @override
+  String? idFor(ClassDeclaration cls, ParsedFile file, List<String> errors) {
+    final className = cls.name.lexeme;
+    if (!className.startsWith('Utopia')) {
+      errors.add('component class "$className" in ${file.repoRelativePath} is missing the required "Utopia" prefix');
+      return null;
+    }
+    return kebabId(className);
+  }
+}
+
 /// Runs the full extraction pipeline over [model]: classification, kebab-id
 /// derivation, prop/type mapping, model closure and helper collection.
 /// `composes` is left empty here; call [resolveComposes] afterward once the
-/// full component id set is fixed.
-ExtractionResult extractAll(SourceModel model) {
+/// full component id set is fixed. [idStrategy] controls which widget
+/// classes become components and how their ids are derived (defaults to the
+/// library strategy); pass a project strategy for `generate_manifest
+/// --project` (SPEC 3.8).
+ExtractionResult extractAll(SourceModel model, {ComponentIdStrategy idStrategy = const LibraryComponentIdStrategy()}) {
   final errors = <String>[];
   final componentClasses = <String, ClassDeclaration>{};
   final componentFiles = <String, ParsedFile>{};
@@ -284,13 +329,8 @@ ExtractionResult extractAll(SourceModel model) {
       if (!isPublicName(className)) continue;
       final superName = cls.extendsClause?.superclass.name.lexeme;
       if (superName != null && _widgetSuperclasses.contains(superName)) {
-        if (!className.startsWith('Utopia')) {
-          errors.add(
-            'component class "$className" in ${file.repoRelativePath} is missing the required "Utopia" prefix',
-          );
-          continue;
-        }
-        final id = kebabId(className);
+        final id = idStrategy.idFor(cls, file, errors);
+        if (id == null) continue;
         final existing = usedIds[id];
         if (existing != null) {
           errors.add('component id "$id" collides between "$existing" and "$className"');
@@ -348,9 +388,21 @@ ExtractionResult extractAll(SourceModel model) {
 /// for constructor-invocation expressions naming another component's class,
 /// deduped and self-excluded. A separate pass because a component's file may
 /// construct a component declared in a different file - the full id set
-/// must be known first.
-void resolveComposes(SourceModel model, List<ExtractedComponent> components) {
-  final idByClassName = {for (final c in components) c.name: c.id};
+/// must be known first. [extraIdByClassName] optionally widens resolution to
+/// a second id space (SPEC 3.8: project components' `composes` may resolve
+/// against the shipped library manifest's bare ids); entries in [components]
+/// take precedence on a class-name collision.
+/// CAVEAT (parse-only resolution): matching is by bare class NAME. When a
+/// project class shadows a library component class name, the project entry
+/// wins via [extraIdByClassName]'s precedence order and every constructor
+/// call of that name resolves to the project id - callers surface this as a
+/// generation warning (see project_generator.dart).
+void resolveComposes(
+  SourceModel model,
+  List<ExtractedComponent> components, {
+  Map<String, String> extraIdByClassName = const {},
+}) {
+  final idByClassName = {...extraIdByClassName, for (final c in components) c.name: c.id};
   for (final component in components) {
     final file = model.fileDeclaring(component.name);
     if (file == null) continue;
