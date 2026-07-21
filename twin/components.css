@@ -128,13 +128,16 @@
 
 /* The field chrome: UtopiaFieldWrapper's fieldDecoration (borderRadius +
    colors.field fill) plus an always-present 1px border (hairline when valid,
-   error-colored otherwise) so toggling error never resizes the field. */
+   error-colored otherwise) so toggling error never resizes the field.
+   fieldMinHeight floors the CONTENT AREA inside padding and border (the
+   UtopiaFieldWrapper ConstrainedBox), so the border-box minimum adds the
+   vertical padding and both borders back on top. */
 .utopia-text-field__chrome {
   box-sizing: border-box;
   display: flex;
   align-items: center;
   gap: var(--utopia-spacing-sm);
-  min-height: var(--utopia-theme-field-min-height);
+  min-height: calc(var(--utopia-theme-field-min-height) + var(--utopia-theme-field-content-padding-top) + var(--utopia-theme-field-content-padding-bottom) + 2 * var(--utopia-border-hairline));
   padding: var(--utopia-theme-field-content-padding-top) var(--utopia-theme-field-content-padding-right) var(--utopia-theme-field-content-padding-bottom) var(--utopia-theme-field-content-padding-left);
   border-radius: var(--utopia-theme-border-radius);
   background-color: var(--utopia-color-field);
@@ -207,14 +210,15 @@
   border-color: var(--utopia-color-error);
 }
 
-/* Dense: no vertical content padding (top/bottom -> 0), and the inner
+/* Dense: no vertical content padding (top/bottom -> 0), and the content
    min-height floors at x*10 minus the two hairline borders the wrapper adds
-   back (40 - 2*1 = 38), matching a dense button's outer 40px extent. No
-   floating label in dense chrome - hint only. */
+   back, so the border-box extent is exactly x*10 = 40px - matching a dense
+   button's outer extent whatever the hairline width. No floating label in
+   dense chrome - hint only. */
 .utopia-text-field--dense .utopia-text-field__chrome {
   padding-top: 0;
   padding-bottom: 0;
-  min-height: 38px; /* utopia-literal-ok: mirrors Dart constant UtopiaFieldWrapper dense minHeight = x*10 - 2*border.hairline */
+  min-height: 40px; /* utopia-literal-ok: mirrors Dart invariant UtopiaFieldWrapper dense outer extent = x*10 (content floor x*10 - 2*border.hairline, borders added back) */
 }
 
 /* Disabled / read-only: UtopiaTextField keeps the field's NORMAL styling
@@ -411,11 +415,14 @@
   margin-top: var(--utopia-spacing-xl);
 }
 
-/* The quiet cancelling action: label-styled text, dense-button resting
-   height (x*10 = 40px), soft hover fill, no border. */
+/* .utopia-ghost-button - lib/src/widget/button/utopia_ghost_button.dart
+   The quiet secondary action: label-styled text, dense-button resting
+   height (x*10 = 40px), soft hover fill, no border. The confirm dialog's
+   cancelling action is one of these, so both class names share the rules. */
+.utopia-ghost-button,
 .utopia-confirm-dialog__ghost {
   box-sizing: border-box;
-  min-height: 40px; /* utopia-literal-ok: mirrors Dart constant UtopiaConfirmDialog._GhostButton BoxConstraints minHeight = tokens.x*10 */
+  min-height: 40px; /* utopia-literal-ok: mirrors Dart constant UtopiaGhostButton BoxConstraints minHeight = tokens.x*10 */
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -432,6 +439,7 @@
   transition: background-color var(--utopia-duration-xs) ease;
 }
 
+.utopia-ghost-button:hover,
 .utopia-confirm-dialog__ghost:hover {
   background-color: var(--utopia-color-hover);
 }
@@ -679,7 +687,8 @@
   align-items: center;
   gap: var(--utopia-spacing-sm);
   width: 100%;
-  min-height: var(--utopia-theme-field-min-height);
+  /* Content-area floor + padding + borders, as on .utopia-text-field__chrome. */
+  min-height: calc(var(--utopia-theme-field-min-height) + var(--utopia-theme-field-content-padding-top) + var(--utopia-theme-field-content-padding-bottom) + 2 * var(--utopia-border-hairline));
   padding: var(--utopia-theme-field-content-padding-top) var(--utopia-theme-field-content-padding-right) var(--utopia-theme-field-content-padding-bottom) var(--utopia-theme-field-content-padding-left);
   border-radius: var(--utopia-theme-border-radius);
   background-color: var(--utopia-color-field);
@@ -689,7 +698,7 @@
 .utopia-search-field--dense {
   padding-top: 0;
   padding-bottom: 0;
-  min-height: 38px; /* utopia-literal-ok: mirrors Dart constant UtopiaFieldWrapper dense minHeight = x*10 - 2*border.hairline */
+  min-height: 40px; /* utopia-literal-ok: mirrors Dart invariant UtopiaFieldWrapper dense outer extent = x*10 (content floor x*10 - 2*border.hairline, borders added back) */
 }
 
 .utopia-search-field__icon {
@@ -967,9 +976,9 @@
   box-sizing: border-box;
   display: inline-flex;
   align-items: center;
-  width: 40px; /* utopia-literal-ok: mirrors Dart constant Material Switch default track width (framework default, not a theme token) */
-  height: 24px; /* utopia-literal-ok: mirrors Dart constant Material Switch default track height (framework default, not a theme token) */
-  padding: 2px; /* utopia-literal-ok: mirrors Dart constant Material Switch thumb inset within its track (framework default, not a theme token) */
+  width: 40px; /* utopia-literal-ok: mirrors Dart constant UtopiaSwitch._trackWidth */
+  height: 24px; /* utopia-literal-ok: mirrors Dart constant UtopiaSwitch._trackHeight */
+  padding: 2px; /* utopia-literal-ok: mirrors Dart constant UtopiaSwitch._thumbInset */
   border: 0;
   border-radius: var(--utopia-radius-full);
   background-color: var(--utopia-color-disabled);
@@ -987,8 +996,8 @@
 }
 
 .utopia-switch__thumb {
-  width: 20px; /* utopia-literal-ok: mirrors Dart constant Material Switch default thumb diameter (framework default, not a theme token) */
-  height: 20px; /* utopia-literal-ok: mirrors Dart constant Material Switch default thumb diameter (framework default, not a theme token) */
+  width: 20px; /* utopia-literal-ok: mirrors Dart constant UtopiaSwitch thumb size = _trackHeight - 2 * _thumbInset */
+  height: 20px; /* utopia-literal-ok: mirrors Dart constant UtopiaSwitch thumb size = _trackHeight - 2 * _thumbInset */
   border-radius: var(--utopia-radius-full);
   background-color: var(--utopia-text-style-button-color);
   transition: transform var(--utopia-duration-sm) ease;
@@ -1006,7 +1015,8 @@
   justify-content: space-between;
   gap: var(--utopia-spacing-sm);
   width: 100%;
-  min-height: var(--utopia-theme-field-min-height);
+  /* Content-area floor + padding + borders, as on .utopia-text-field__chrome. */
+  min-height: calc(var(--utopia-theme-field-min-height) + var(--utopia-theme-field-content-padding-top) + var(--utopia-theme-field-content-padding-bottom) + 2 * var(--utopia-border-hairline));
   padding: var(--utopia-theme-field-content-padding-top) var(--utopia-theme-field-content-padding-right) var(--utopia-theme-field-content-padding-bottom) var(--utopia-theme-field-content-padding-left);
   border-radius: var(--utopia-theme-border-radius);
   background-color: var(--utopia-color-field);
@@ -1217,6 +1227,19 @@
 
 .utopia-three-bounce__dot:nth-child(3) {
   animation-delay: -400ms; /* utopia-literal-ok: mirrors Dart constant UtopiaThreeBounce per-dot phase (index*0.2 of 1400ms cycle) */
+}
+
+/* ---------------------------------------------------------------------- */
+/* .utopia-header - lib/src/widget/text/utopia_header.dart                 */
+/* ---------------------------------------------------------------------- */
+
+.utopia-header {
+  margin: 0;
+  font-family: var(--utopia-text-style-header-font-family), sans-serif;
+  font-size: var(--utopia-text-style-header-font-size);
+  font-weight: var(--utopia-text-style-header-font-weight);
+  letter-spacing: var(--utopia-text-style-header-letter-spacing);
+  color: var(--utopia-text-style-header-color);
 }
 
 /* ---------------------------------------------------------------------- */

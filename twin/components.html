@@ -8,10 +8,11 @@
   PHASE 2 (A5a completion): every manifest component now has either a styled
   specimen or a "no visual twin" note entry here, so id coverage is 100% both
   directions (H4 contract, ledger/A.md). Styled: button, card, check-row,
-  chip, chip-list, confirm-dialog, dialog, divider, labeled-field, loader,
-  mock-loading-box, remove-icon-button, search-field, sidebar, switch,
-  switch-field, table (+ table-empty, table-search-panel composed into it),
-  text-field, three-bounce, title. Note entries (no visual twin): collapsible,
+  chip, chip-list, confirm-dialog, dialog, divider, ghost-button, header,
+  labeled-field, loader, mock-loading-box, remove-icon-button, search-field,
+  sidebar, switch, switch-field, table (+ table-empty, table-search-panel
+  composed into it), text-field, three-bounce, title. Note entries (no visual
+  twin): collapsible,
   copyable-text, date-picker, dropdown-field, field-wrapper, form-layout,
   gradient-background, multi-widget, overlay-anchor, page-wrapper - see
   ledger/checkpoints/A5-spec.md for the per-component rationale.
@@ -380,7 +381,22 @@
       </p>
     </section>
 
-    <!-- data-utopia-id="gradient-background" - manifest index 14 (no visual twin) -->
+    <!-- data-utopia-id="ghost-button" - manifest index 14 -->
+    <section class="twin-section" data-utopia-id="ghost-button">
+      <h2 class="twin-section__name">Ghost button</h2>
+      <p class="twin-section__description">
+        The quiet secondary action: label-styled text with a soft hover fill and the
+        same resting height as a dense button, so it baseline-aligns in action rows.
+      </p>
+      <div class="twin-specimens">
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Default</span>
+          <button class="utopia-ghost-button" data-utopia-id="ghost-button" type="button">Cancel</button>
+        </div>
+      </div>
+    </section>
+
+    <!-- data-utopia-id="gradient-background" - manifest index 15 (no visual twin) -->
     <section class="twin-section" data-utopia-id="gradient-background">
       <h2 class="twin-section__name">Gradient background</h2>
       <p class="twin-note" data-utopia-id="gradient-background">
@@ -388,7 +404,21 @@
       </p>
     </section>
 
-    <!-- data-utopia-id="labeled-field" - manifest index 15 -->
+    <!-- data-utopia-id="header" - manifest index 16 -->
+    <section class="twin-section" data-utopia-id="header">
+      <h2 class="twin-section__name">Header</h2>
+      <p class="twin-section__description">
+        A page-level heading, styled with UtopiaThemeTextStyles.header.
+      </p>
+      <div class="twin-specimens">
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Default</span>
+          <p class="utopia-header" data-utopia-id="header">Page header</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- data-utopia-id="labeled-field" - manifest index 17 -->
     <section class="twin-section" data-utopia-id="labeled-field">
       <h2 class="twin-section__name">Labeled field</h2>
       <p class="twin-section__description">
@@ -427,7 +457,7 @@
       </div>
     </section>
 
-    <!-- data-utopia-id="loader" - manifest index 16 -->
+    <!-- data-utopia-id="loader" - manifest index 18 -->
     <section class="twin-section" data-utopia-id="loader">
       <h2 class="twin-section__name">Loader</h2>
       <p class="twin-section__description">
@@ -445,7 +475,7 @@
       </div>
     </section>
 
-    <!-- data-utopia-id="mock-loading-box" - manifest index 17 -->
+    <!-- data-utopia-id="mock-loading-box" - manifest index 19 -->
     <section class="twin-section" data-utopia-id="mock-loading-box">
       <h2 class="twin-section__name">Mock loading box</h2>
       <p class="twin-section__description">
@@ -463,7 +493,7 @@
       </div>
     </section>
 
-    <!-- data-utopia-id="multi-widget" - manifest index 18 (no visual twin) -->
+    <!-- data-utopia-id="multi-widget" - manifest index 20 (no visual twin) -->
     <section class="twin-section" data-utopia-id="multi-widget">
       <h2 class="twin-section__name">Multi widget</h2>
       <p class="twin-note" data-utopia-id="multi-widget">
@@ -471,7 +501,7 @@
       </p>
     </section>
 
-    <!-- data-utopia-id="overlay-anchor" - manifest index 19 (no visual twin) -->
+    <!-- data-utopia-id="overlay-anchor" - manifest index 21 (no visual twin) -->
     <section class="twin-section" data-utopia-id="overlay-anchor">
       <h2 class="twin-section__name">Overlay anchor</h2>
       <p class="twin-note" data-utopia-id="overlay-anchor">
@@ -479,7 +509,7 @@
       </p>
     </section>
 
-    <!-- data-utopia-id="page-wrapper" - manifest index 20 (no visual twin) -->
+    <!-- data-utopia-id="page-wrapper" - manifest index 22 (no visual twin) -->
     <section class="twin-section" data-utopia-id="page-wrapper">
       <h2 class="twin-section__name">Page wrapper</h2>
       <p class="twin-note" data-utopia-id="page-wrapper">
@@ -487,7 +517,7 @@
       </p>
     </section>
 
-    <!-- data-utopia-id="remove-icon-button" - manifest index 21 -->
+    <!-- data-utopia-id="remove-icon-button" - manifest index 23 -->
     <section class="twin-section" data-utopia-id="remove-icon-button">
       <h2 class="twin-section__name">Remove icon button</h2>
       <p class="twin-section__description">
@@ -503,7 +533,7 @@
       </div>
     </section>
 
-    <!-- data-utopia-id="search-field" - manifest index 22 -->
+    <!-- data-utopia-id="search-field" - manifest index 24 -->
     <section class="twin-section" data-utopia-id="search-field">
       <h2 class="twin-section__name">Search field</h2>
       <p class="twin-section__description">
@@ -540,7 +570,7 @@
       </div>
     </section>
 
-    <!-- data-utopia-id="sidebar" - manifest index 23 -->
+    <!-- data-utopia-id="sidebar" - manifest index 25 -->
     <section class="twin-section" data-utopia-id="sidebar">
       <h2 class="twin-section__name">Sidebar</h2>
       <p class="twin-section__description">
@@ -658,7 +688,7 @@
       </div>
     </section>
 
-    <!-- data-utopia-id="switch" - manifest index 24 -->
+    <!-- data-utopia-id="switch" - manifest index 26 -->
     <section class="twin-section" data-utopia-id="switch">
       <h2 class="twin-section__name">Switch</h2>
       <p class="twin-section__description">
@@ -680,7 +710,7 @@
       </div>
     </section>
 
-    <!-- data-utopia-id="switch-field" - manifest index 25 -->
+    <!-- data-utopia-id="switch-field" - manifest index 27 -->
     <section class="twin-section" data-utopia-id="switch-field">
       <h2 class="twin-section__name">Switch field</h2>
       <p class="twin-section__description">
@@ -704,9 +734,9 @@
       </div>
     </section>
 
-    <!-- data-utopia-id="table" - manifest index 26 -->
-    <!-- data-utopia-id="table-empty" - manifest index 27 (composed: empty state within this section) -->
-    <!-- data-utopia-id="table-search-panel" - manifest index 28 (composed: search panel within this section) -->
+    <!-- data-utopia-id="table" - manifest index 28 -->
+    <!-- data-utopia-id="table-empty" - manifest index 29 (composed: empty state within this section) -->
+    <!-- data-utopia-id="table-search-panel" - manifest index 30 (composed: search panel within this section) -->
     <section class="twin-section" data-utopia-id="table">
       <h2 class="twin-section__name">Table</h2>
       <p class="twin-section__description">
@@ -810,7 +840,7 @@
       </div>
     </section>
 
-    <!-- data-utopia-id="text-field" - manifest index 29 -->
+    <!-- data-utopia-id="text-field" - manifest index 31 -->
     <section class="twin-section" data-utopia-id="text-field">
       <h2 class="twin-section__name">Text field</h2>
       <p class="twin-section__description">
@@ -873,7 +903,7 @@
       </div>
     </section>
 
-    <!-- data-utopia-id="three-bounce" - manifest index 30 -->
+    <!-- data-utopia-id="three-bounce" - manifest index 32 -->
     <section class="twin-section" data-utopia-id="three-bounce">
       <h2 class="twin-section__name">Three bounce</h2>
       <p class="twin-section__description">
@@ -899,7 +929,7 @@
       </div>
     </section>
 
-    <!-- data-utopia-id="title" - manifest index 31 -->
+    <!-- data-utopia-id="title" - manifest index 33 -->
     <section class="twin-section" data-utopia-id="title">
       <h2 class="twin-section__name">Title</h2>
       <p class="twin-section__description">

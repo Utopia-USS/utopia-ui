@@ -146,6 +146,14 @@ ProjectGenerationResult generateProjectManifest({
   // shadows a library component class name wins the lookup, so constructor
   // calls of the LIBRARY widget would resolve to the project id. Legal but
   // ambiguous - surface it loudly as a warning.
+  //
+  // Scope: this check covers OPTED-IN classes only. extraction.components
+  // holds exactly the overlay-registered classes (ProjectComponentIdStrategy
+  // returns null for everything else - SPEC 3.8 opt-in), so a project class
+  // that shadows a library class WITHOUT having an overlay never enters
+  // extraction and produces no warning. That is a consequence of the opt-in
+  // boundary, not a whole-project namespace scan - the shadow only becomes
+  // observable (and warned about) once the class is registered.
   String shadowWarning(ExtractedComponent component) =>
       'project class "${component.name}" shadows the utopia_ui component class of the same name: composes '
       'references to "${component.name}" anywhere in this project resolve to "${component.id}", not '

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:utopia_ui/src/theme/utopia_theme.dart';
 import 'package:utopia_ui/src/util/utopia_context_extensions.dart';
 import 'package:utopia_ui/src/widget/button/utopia_button.dart';
+import 'package:utopia_ui/src/widget/button/utopia_ghost_button.dart';
 
 /// A themed confirm/cancel prompt drawn with the utopia card chrome - the
 /// same surface, border, shadow and radius as every other card - rather than
@@ -82,7 +83,8 @@ class UtopiaConfirmDialog extends StatelessWidget {
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,
                     children: [
-                      if (hasCancel) _GhostButton(label: cancelLabel, onTap: () => Navigator.of(context).pop(false)),
+                      if (hasCancel)
+                        UtopiaGhostButton(label: cancelLabel, onTap: () => Navigator.of(context).pop(false)),
                       if (hasCancel && hasConfirm) SizedBox(width: spacing.md),
                       if (hasConfirm)
                         IntrinsicWidth(
@@ -134,37 +136,6 @@ class UtopiaConfirmDialog extends StatelessWidget {
           hasConfirm: hasConfirm,
           hasCancel: hasCancel,
           danger: danger,
-        ),
-      ),
-    );
-  }
-}
-
-/// The quiet cancelling action: label-styled text with a soft hover fill and
-/// the same resting height as a dense [UtopiaButton], so the action row
-/// baseline-aligns.
-class _GhostButton extends StatelessWidget {
-  final String label;
-  final VoidCallback onTap;
-
-  const _GhostButton({required this.label, required this.onTap});
-
-  @override
-  Widget build(BuildContext context) {
-    final tokens = context.tokens;
-    return Material(
-      color: Colors.transparent,
-      borderRadius: context.theme.borderRadius,
-      clipBehavior: Clip.antiAlias,
-      child: InkWell(
-        onTap: onTap,
-        hoverColor: context.colors.hover,
-        child: ConstrainedBox(
-          constraints: BoxConstraints(minHeight: tokens.x * 10),
-          child: Padding(
-            padding: EdgeInsets.symmetric(horizontal: context.spacing.xl),
-            child: Center(widthFactor: 1, child: Text(label, style: context.textStyles.label)),
-          ),
         ),
       ),
     );

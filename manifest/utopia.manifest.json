@@ -477,19 +477,16 @@
       ],
       "tokenBindings": [
         "colors.error",
-        "colors.hover",
         "textStyles.header",
-        "textStyles.label",
         "textStyles.text",
-        "theme.borderRadius",
         "theme.cardBorderDecoration",
         "theme.cardDecoration",
         "tokens.spacing.md",
-        "tokens.spacing.xl",
-        "tokens.x"
+        "tokens.spacing.xl"
       ],
       "composes": [
-        "button"
+        "button",
+        "ghost-button"
       ],
       "examples": [
         "example/lib/sections/dialogs_section.dart"
@@ -945,6 +942,41 @@
       "tokenBindings": []
     },
     {
+      "id": "ghost-button",
+      "name": "UtopiaGhostButton",
+      "description": "The quiet secondary action: label-styled text with a soft hover fill and the same resting height as a dense `UtopiaButton`, so it baseline-aligns when placed next to one in an action row (e.g. Cancel beside Save).",
+      "file": "lib/src/widget/button/utopia_ghost_button.dart",
+      "constructors": [
+        {
+          "name": "",
+          "description": "Creates a quiet, text-only action button.",
+          "props": [
+            {
+              "name": "label",
+              "type": "string",
+              "dartType": "String",
+              "required": true,
+              "description": "The button's text."
+            },
+            {
+              "name": "onTap",
+              "type": "callback",
+              "dartType": "VoidCallback",
+              "required": true,
+              "description": "Called when the button is tapped."
+            }
+          ]
+        }
+      ],
+      "tokenBindings": [
+        "colors.hover",
+        "textStyles.label",
+        "theme.borderRadius",
+        "tokens.spacing.xl",
+        "tokens.x"
+      ]
+    },
+    {
       "id": "gradient-background",
       "name": "UtopiaGradientBackground",
       "description": "An animated bottom-left-to-top-right gradient fill - the backing surface of `UtopiaButton`, dimming to `UtopiaThemeColors.disabled` when isEnabled is `false`.",
@@ -1000,6 +1032,30 @@
         "colors.disabled",
         "colors.primary",
         "tokens.durations.xl"
+      ]
+    },
+    {
+      "id": "header",
+      "name": "UtopiaHeader",
+      "description": "A page-level heading, styled with `UtopiaThemeTextStyles.header`.",
+      "file": "lib/src/widget/text/utopia_header.dart",
+      "constructors": [
+        {
+          "name": "",
+          "description": "Creates a page-level heading.",
+          "props": [
+            {
+              "name": "title",
+              "type": "string",
+              "dartType": "String",
+              "required": true,
+              "description": "The heading text."
+            }
+          ]
+        }
+      ],
+      "tokenBindings": [
+        "textStyles.header"
       ]
     },
     {
@@ -1433,7 +1489,7 @@
     {
       "id": "switch",
       "name": "UtopiaSwitch",
-      "description": "A themed on/off switch, styled from `UtopiaThemeColors` instead of the ambient `MaterialApp` theme.",
+      "description": "A themed on/off switch, drawn entirely from `UtopiaThemeData` - no Material `Switch` underneath, so the track and thumb corners follow `radius.full` (a stadium in round themes, square when the theme flattens radii to zero) instead of Material's hard-coded pill.",
       "file": "lib/src/widget/switch/utopia_switch.dart",
       "constructors": [
         {
@@ -1460,7 +1516,7 @@
               "dartType": "bool",
               "required": false,
               "default": "false",
-              "description": "When `true`, blocks interaction while keeping the full-color styling (instead of Flutter's faded disabled look)."
+              "description": "When `true`, blocks interaction while keeping the full-color styling (instead of a faded disabled look)."
             }
           ]
         }
@@ -1468,7 +1524,9 @@
       "tokenBindings": [
         "colors.disabled",
         "colors.primary",
-        "textStyles.button"
+        "textStyles.button",
+        "tokens.durations.sm",
+        "tokens.radius.fullAll"
       ],
       "states": [
         "readOnly"

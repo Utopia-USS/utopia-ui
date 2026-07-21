@@ -270,6 +270,16 @@
       "required": ["value", "unit"],
       "additionalProperties": false
     },
+    "nonNegativeDimensionValue": {
+      "description": "Dimension value for standalone dimension tokens (spacing, radius, border, breakpoint, theme.*), where a negative length is meaningless. Signed dimension values (shadow offsets/spread, letterSpacing) use dimensionValue directly.",
+      "type": "object",
+      "properties": {
+        "value": { "type": "number", "minimum": 0 },
+        "unit": { "const": "px" }
+      },
+      "required": ["value", "unit"],
+      "additionalProperties": false
+    },
     "dimensionToken": {
       "allOf": [
         { "$ref": "#/definitions/tokenCommon" },
@@ -278,7 +288,7 @@
             "$type": { "const": "dimension" },
             "$value": {
               "oneOf": [
-                { "$ref": "#/definitions/dimensionValue" },
+                { "$ref": "#/definitions/nonNegativeDimensionValue" },
                 { "$ref": "#/definitions/alias" }
               ]
             },

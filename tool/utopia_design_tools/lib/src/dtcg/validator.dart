@@ -190,7 +190,7 @@ class TokenValidator {
     }
     switch (type) {
       case 'dimension':
-        return _diagnoseDimensionValue(path, value);
+        return _diagnoseDimensionValue(path, value, nonNegative: true);
       case 'duration':
         return _diagnoseDurationValue(path, value);
       case 'color':
@@ -207,7 +207,10 @@ class TokenValidator {
     return null;
   }
 
-  String? _diagnoseDimensionValue(String path, dynamic value) {
+  /// [nonNegative] holds for standalone dimension tokens (spacing, radius,
+  /// border, breakpoint, theme.*); signed dimension values (shadow
+  /// offsets/spread, letterSpacing) pass false.
+  String? _diagnoseDimensionValue(String path, dynamic value, {bool nonNegative = false}) {
     if (value is String) {
       // Alias form; malformed aliases are caught by the alias pattern check.
       if (aliasPathOf(value) == null) {
@@ -225,6 +228,9 @@ class TokenValidator {
     final rawValue = value['value'];
     if (rawValue is! num) {
       return '$path: dimension "value" must be a number (got "$rawValue")';
+    }
+    if (nonNegative && rawValue < 0) {
+      return '$path: dimension "value" must be >= 0 (got $rawValue)';
     }
     return null;
   }

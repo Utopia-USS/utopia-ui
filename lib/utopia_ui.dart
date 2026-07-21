@@ -21,6 +21,7 @@ export 'src/util/utopia_context_extensions.dart';
 
 // widgets
 export 'src/widget/button/utopia_button.dart';
+export 'src/widget/button/utopia_ghost_button.dart';
 export 'src/widget/button/utopia_remove_icon_button.dart';
 export 'src/widget/chip/utopia_chip.dart';
 export 'src/widget/chip/utopia_chip_list.dart';
@@ -51,6 +52,7 @@ export 'src/widget/table/utopia_table_entry.dart';
 export 'src/widget/table/utopia_table_search_panel.dart';
 export 'src/widget/table/utopia_table_state.dart';
 export 'src/widget/text/utopia_copyable_text.dart';
+export 'src/widget/text/utopia_header.dart';
 export 'src/widget/text/utopia_title.dart';
 export 'src/widget/text_field/utopia_search_field.dart';
 export 'src/widget/text_field/utopia_text_field.dart';
