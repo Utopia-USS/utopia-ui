@@ -8,6 +8,8 @@
 /// foreign-vendor) are preserved untouched (protocol SPEC 2.1, 2.6).
 library;
 
+import 'package:utopia_design_tools/src/dtcg/token_document.dart' show derivationTolerance;
+
 /// Which repair class produced a [TokenFix], so text-mode rendering can
 /// phrase each one appropriately (protocol SPEC 2.5, 2.7 gate 4).
 enum TokenFixKind {
@@ -164,6 +166,13 @@ class TokenFixer {
     double xValue,
     List<TokenFix> fixes,
   ) {
+    // radius.full is deliberately not base-derived (the effectively-infinite
+    // pill sentinel); the validator rejects a derivation on it outright. Never
+    // re-derive it here - doing so would overwrite the sentinel with x*<m> and
+    // still leave the validator's "must not carry a derivation" error standing.
+    if (path == 'radius.full') {
+      return;
+    }
     final match = RegExp(r'^x\*([0-9]+(?:\.[0-9]+)?)$').firstMatch(derivation);
     if (match == null) {
       return;
@@ -225,10 +234,11 @@ class TokenFixer {
     return '#${channels.map((c) => c.toRadixString(16).padLeft(2, '0')).join()}';
   }
 
-  /// Whether [a] and [b] are the same number for fixing purposes: exact
-  /// equality (covers both int and double representations of the same
-  /// value, e.g. `12` vs `12.0`).
-  static bool _numEquals(double a, double b) => a == b;
+  /// Whether [a] and [b] are the same number for fixing purposes: equal
+  /// within [derivationTolerance], matching the validator's derivation gate
+  /// so a value the validator calls clean is never needlessly rewritten with
+  /// float noise (which would report a spurious `FIXED`).
+  static bool _numEquals(double a, double b) => (a - b).abs() <= derivationTolerance;
 
   /// Converts a [double] to the JSON-friendly numeric representation: an
   /// [int] when the value is whole (`12` not `12.0`), otherwise the [double]

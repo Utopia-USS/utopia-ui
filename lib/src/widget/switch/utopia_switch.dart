@@ -17,13 +17,6 @@ class UtopiaSwitch extends StatelessWidget {
   /// (instead of a faded disabled look).
   final bool readOnly;
 
-  /// Track extent; the twin mirrors these as literals in `components.css`.
-  static const double _trackWidth = 40;
-  static const double _trackHeight = 24;
-
-  /// Thumb inset within the track on every side.
-  static const double _thumbInset = 2;
-
   /// Creates a themed on/off switch.
   const UtopiaSwitch({super.key, required this.value, this.onChanged, this.readOnly = false});
 
@@ -32,12 +25,19 @@ class UtopiaSwitch extends StatelessWidget {
     final colors = context.colors;
     final tokens = context.tokens;
     final interactive = !readOnly && onChanged != null;
+    // Track/thumb extents are derived from the base unit so the switch scales
+    // with a rebrand like every other control (a dense UtopiaButton/field is
+    // x*10 tall). At the default x=4 these are 40x24 with a 2px inset and a
+    // 20px thumb; the twin mirrors the same multiples in `components.css`.
+    final trackWidth = tokens.x * 10;
+    final trackHeight = tokens.x * 6;
+    final thumbInset = tokens.x * 0.5;
+    final thumbSize = trackHeight - 2 * thumbInset;
     // The thumb sits on a primary (active) or disabled (inactive) fill - the
     // same grounds a UtopiaButton's content sits on - so it follows the
     // button text colour instead of hard-coding white, and adapts to themes
     // whose on-primary content is dark.
     final thumbColor = context.textStyles.button.color ?? const Color(0xFFFFFFFF);
-    const thumbSize = _trackHeight - 2 * _thumbInset;
 
     return Semantics(
       toggled: value,
@@ -50,9 +50,9 @@ class UtopiaSwitch extends StatelessWidget {
           child: AnimatedContainer(
             duration: tokens.durations.sm,
             curve: Curves.ease,
-            width: _trackWidth,
-            height: _trackHeight,
-            padding: const EdgeInsets.all(_thumbInset),
+            width: trackWidth,
+            height: trackHeight,
+            padding: EdgeInsets.all(thumbInset),
             decoration: BoxDecoration(
               color: value ? colors.primary : colors.disabled,
               borderRadius: tokens.radius.fullAll,

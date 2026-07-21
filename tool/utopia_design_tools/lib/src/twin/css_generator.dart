@@ -296,7 +296,18 @@ List<CssDeclaration> _serializeTypographyToken(
   final basePrefix = cssVarName('textStyle.$role');
   final declarations = <CssDeclaration>[];
 
-  final fontFamilyRaw = value['fontFamily'];
+  // Each typography sub-value may itself be an alias (the schema permits it and
+  // the validator accepts it); resolve to the terminal value before consuming,
+  // as the shadow layers above already do.
+  dynamic resolveSub(dynamic raw) {
+    if (raw is String) {
+      final aliasPath = aliasPathOf(raw);
+      if (aliasPath != null) return resolveAlias(document, aliasPath).terminal!.value;
+    }
+    return raw;
+  }
+
+  final fontFamilyRaw = resolveSub(value['fontFamily']);
   final String fontFamilyCss;
   if (fontFamilyRaw is List) {
     fontFamilyCss = fontFamilyRaw.map((f) => _quoteFontFamily(f as String)).join(', ');
@@ -305,13 +316,13 @@ List<CssDeclaration> _serializeTypographyToken(
   }
   declarations.add(CssDeclaration('$basePrefix-font-family', fontFamilyCss));
 
-  final fontSize = ((value['fontSize'] as Map)['value'] as num).toDouble();
+  final fontSize = ((resolveSub(value['fontSize']) as Map)['value'] as num).toDouble();
   declarations.add(CssDeclaration('$basePrefix-font-size', serializeDimensionValue(fontSize)));
 
-  final fontWeight = value['fontWeight'] as num;
+  final fontWeight = resolveSub(value['fontWeight']) as num;
   declarations.add(CssDeclaration('$basePrefix-font-weight', serializeUnitlessNumber(fontWeight)));
 
-  final letterSpacing = ((value['letterSpacing'] as Map)['value'] as num).toDouble();
+  final letterSpacing = ((resolveSub(value['letterSpacing']) as Map)['value'] as num).toDouble();
   declarations.add(CssDeclaration('$basePrefix-letter-spacing', serializeDimensionValue(letterSpacing)));
 
   // Folded sibling color: textStyle-colors.<role> -> --utopia-text-style-<role>-color,

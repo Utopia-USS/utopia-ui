@@ -126,7 +126,11 @@ List<TailwindLine> buildTailwindLines(TokenDocument document) {
       final node = entry.value;
       final aliasPath = aliasPathOf(node.value);
       final value = aliasPath != null ? resolveAlias(document, aliasPath).terminal!.value as Map : node.value as Map;
-      final fontFamilyRaw = value['fontFamily'];
+      // fontFamily may itself be an alias (schema-permitted, validator-accepted);
+      // resolve it before quoting, else the alias string is emitted as a literal.
+      final rawFamily = value['fontFamily'];
+      final familyAlias = rawFamily is String ? aliasPathOf(rawFamily) : null;
+      final fontFamilyRaw = familyAlias != null ? resolveAlias(document, familyAlias).terminal!.value : rawFamily;
       final fontFamilyCss = fontFamilyRaw is List
           ? fontFamilyRaw.map((f) => _quoteFamily(f as String)).join(', ')
           : _quoteFamily(fontFamilyRaw as String);

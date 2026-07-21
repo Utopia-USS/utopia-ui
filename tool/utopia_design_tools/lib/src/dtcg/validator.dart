@@ -589,7 +589,7 @@ class TokenValidator {
         continue;
       }
       final target = document.tokensByPath[colorToken];
-      if (target == null) {
+      if (target == null || target.type != 'color') {
         findings.add(Finding.error(path, 'colorToken "$colorToken" does not resolve to an existing color token'));
         continue;
       }

@@ -211,12 +211,12 @@ String _emitTextStyles(ResolvedThemeTextStyles textStyles) {
 }
 
 String _textStyle(ResolvedTextStyle style) {
-  final args = <String>["fontFamily: '${style.fontFamily}'"];
+  final args = <String>['fontFamily: ${_dartString(style.fontFamily)}'];
   if (style.fontPackage != null) {
-    args.add("package: '${style.fontPackage}'");
+    args.add('package: ${_dartString(style.fontPackage!)}');
   }
   if (style.fontFamilyFallback.isNotEmpty) {
-    final items = style.fontFamilyFallback.map((f) => "'$f'").join(', ');
+    final items = style.fontFamilyFallback.map(_dartString).join(', ');
     args.add('fontFamilyFallback: [$items]');
   }
   args.add('fontSize: ${_num(style.fontSize)}');
@@ -224,6 +224,20 @@ String _textStyle(ResolvedTextStyle style) {
   args.add('letterSpacing: ${_num(style.letterSpacing)}');
   args.add('color: ${_color(style.color)}');
   return 'TextStyle(${args.join(', ')})';
+}
+
+/// Renders [value] as a single-quoted Dart string literal, escaping the
+/// characters that would otherwise break or mis-parse it (`\`, `'`, `$`, and
+/// newlines/tabs) - font family/package names are otherwise arbitrary strings.
+String _dartString(String value) {
+  final escaped = value
+      .replaceAll(r'\', r'\\')
+      .replaceAll(r'$', r'\$')
+      .replaceAll("'", r"\'")
+      .replaceAll('\n', r'\n')
+      .replaceAll('\r', r'\r')
+      .replaceAll('\t', r'\t');
+  return "'$escaped'";
 }
 
 String _fontWeight(int weight) => 'FontWeight.w$weight';

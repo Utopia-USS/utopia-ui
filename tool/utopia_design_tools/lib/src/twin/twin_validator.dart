@@ -105,12 +105,44 @@ class TwinValidator {
       ..sort((a, b) => a.path.compareTo(b.path));
   }
 
+  // CSS units, function names and property names are case-insensitive, so the
+  // literal detectors must be too (otherwise `16PX`, `RGB(`, `Font-Family:`
+  // all drift through). The value regexes also stop at `;`, `}` or end-of-line
+  // rather than requiring a trailing `;`, so the last declaration in a block
+  // (which often omits it) is still checked.
   static final RegExp _hexColor = RegExp(r'#[0-9a-fA-F]{3,8}\b');
-  static final RegExp _rgbHslColor = RegExp(r'\b(rgb|rgba|hsl|hsla)\s*\(');
-  static final RegExp _pxValue = RegExp(r'(-?\d+(?:\.\d+)?)px');
-  static final RegExp _msValue = RegExp(r'(-?\d+(?:\.\d+)?)ms');
-  static final RegExp _fontFamilyDecl = RegExp(r'font-family\s*:\s*([^;]+);');
-  static final RegExp _fontWeightDecl = RegExp(r'font-weight\s*:\s*([^;]+);');
+  static final RegExp _rgbHslColor = RegExp(r'\b(rgb|rgba|hsl|hsla)\s*\(', caseSensitive: false);
+  static final RegExp _pxValue = RegExp(r'(-?\d+(?:\.\d+)?)px', caseSensitive: false);
+  static final RegExp _msValue = RegExp(r'(-?\d+(?:\.\d+)?)ms', caseSensitive: false);
+  static final RegExp _fontFamilyDecl = RegExp(r'font-family\s*:\s*([^;}]+)', caseSensitive: false);
+  static final RegExp _fontWeightDecl = RegExp(r'font-weight\s*:\s*([^;}]+)', caseSensitive: false);
+
+  /// CSS generic font keywords: legal, non-drift fallbacks that may sit
+  /// alongside a `var(--utopia-...)` token reference in a `font-family` value.
+  static const Set<String> _genericFontKeywords = {
+    'sans-serif', 'serif', 'monospace', 'cursive', 'fantasy', 'system-ui',
+    'ui-sans-serif', 'ui-serif', 'ui-monospace', 'ui-rounded', 'math', 'emoji', 'fangsong',
+    'inherit', 'initial', 'unset', 'revert',
+  };
+
+  /// Whether a `font-family` value is fully tokenized: it references at least
+  /// one `var(--utopia-...)` and every other comma part is a generic keyword.
+  /// A specific family literal (e.g. `Arial`) makes it `false`, even when a
+  /// token var is also present.
+  static bool _fontFamilyIsTokenized(String value) {
+    var hasToken = false;
+    for (final part in value.split(',')) {
+      final normalized = part.trim().toLowerCase();
+      if (normalized.isEmpty) continue;
+      if (normalized.startsWith('var(--utopia-')) {
+        hasToken = true;
+        continue;
+      }
+      if (_genericFontKeywords.contains(normalized)) continue;
+      return false;
+    }
+    return hasToken;
+  }
   static final RegExp _literalOkAnnotation = RegExp(r'utopia-literal-ok\s*:');
 
   List<File> _twinHtmlFiles() {
@@ -141,6 +173,8 @@ class TwinValidator {
       if (insideStyleBlock) {
         if (line.contains('</style>')) {
           insideStyleBlock = false;
+          // Lint any CSS that sits before </style> on this same line.
+          blockLines.add(line.substring(0, line.indexOf('</style>')));
           findings.addAll(_lintLines(blockLines, relPath, currentTokenPx, firstLineNo: blockFirstLineNo));
           blockLines.clear();
         } else {
@@ -156,7 +190,14 @@ class TwinValidator {
           findings.addAll(
             _lintLines([line.substring(openEnd + 1, closeStart)], relPath, currentTokenPx, firstLineNo: lineNo),
           );
+        } else if (openEnd != -1) {
+          insideStyleBlock = true;
+          // Capture any CSS after <style> on the opener line as the first block
+          // line, keeping line numbers aligned (firstLineNo == this line).
+          blockLines.add(line.substring(openEnd + 1));
+          blockFirstLineNo = lineNo;
         } else {
+          // `<style` with its `>` on a later line: the block body starts next.
           insideStyleBlock = true;
           blockFirstLineNo = lineNo + 1;
         }
@@ -173,11 +214,11 @@ class TwinValidator {
         if (_hexColor.hasMatch(value) || _rgbHslColor.hasMatch(value)) {
           findings.add(Finding.error(path, 'raw color literal in a style attribute - use var(--utopia-color-*)'));
         }
-        final fontFamilyMatch = _fontFamilyDecl.firstMatch('$value;');
-        if (fontFamilyMatch != null && !fontFamilyMatch.group(1)!.contains('var(--utopia-')) {
+        final fontFamilyMatch = _fontFamilyDecl.firstMatch(value);
+        if (fontFamilyMatch != null && !_fontFamilyIsTokenized(fontFamilyMatch.group(1)!)) {
           findings.add(Finding.error(path, 'raw font-family literal in a style attribute - use var(--utopia-text-style-*-font-family)'));
         }
-        final fontWeightMatch = _fontWeightDecl.firstMatch('$value;');
+        final fontWeightMatch = _fontWeightDecl.firstMatch(value);
         if (fontWeightMatch != null && !fontWeightMatch.group(1)!.contains('var(--utopia-')) {
           findings.add(Finding.error(path, 'raw font-weight literal in a style attribute - use var(--utopia-font-weight-*)'));
         }
@@ -232,7 +273,7 @@ class TwinValidator {
       // Hard-fail: raw font-family / font-weight literals (a var() reference
       // on the declaration is fine; a bare literal value is not).
       final fontFamilyMatch = _fontFamilyDecl.firstMatch(line);
-      if (fontFamilyMatch != null && !fontFamilyMatch.group(1)!.contains('var(--utopia-')) {
+      if (fontFamilyMatch != null && !_fontFamilyIsTokenized(fontFamilyMatch.group(1)!)) {
         findings.add(Finding.error(path, 'raw font-family literal - use var(--utopia-text-style-*-font-family)'));
       }
       final fontWeightMatch = _fontWeightDecl.firstMatch(line);
@@ -312,7 +353,7 @@ class TwinValidator {
   /// do not introduce a new literal value).
   static Set<double> _extractSpacingRadiusBorderPx(String tokensCss) {
     final values = <double>{};
-    final declRegExp = RegExp(r'--utopia-(spacing|radius|border)-[a-z-]+:\s*([^;]+);');
+    final declRegExp = RegExp(r'--utopia-(spacing|radius|border)-[a-z0-9-]+:\s*([^;]+);');
     for (final match in declRegExp.allMatches(tokensCss)) {
       final value = match.group(2)!.trim();
       if (value.startsWith('var(')) continue;

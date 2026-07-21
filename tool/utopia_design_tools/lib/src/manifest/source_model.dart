@@ -25,6 +25,7 @@ class ParsedFile {
     required this.enums,
     required this.functions,
     required this.typedefs,
+    required this.extensions,
   });
 
   /// Repo-relative path (e.g. `lib/src/widget/button/utopia_button.dart`),
@@ -48,6 +49,9 @@ class ParsedFile {
   /// Every top-level typedef (`GenericTypeAlias`/`FunctionTypeAlias`) in this
   /// file.
   final List<NamedCompilationUnitMember> typedefs;
+
+  /// Every top-level extension declaration in this file.
+  final List<ExtensionDeclaration> extensions;
 }
 
 /// The full parsed picture of `utopia_ui`'s public surface: every file
@@ -196,6 +200,7 @@ class SourceModel {
     final enums = <EnumDeclaration>[];
     final functions = <FunctionDeclaration>[];
     final typedefs = <NamedCompilationUnitMember>[];
+    final extensions = <ExtensionDeclaration>[];
     for (final declaration in unit.declarations) {
       if (declaration is ClassDeclaration) {
         classes.add(declaration);
@@ -205,6 +210,8 @@ class SourceModel {
         functions.add(declaration);
       } else if (declaration is FunctionTypeAlias || declaration is GenericTypeAlias) {
         typedefs.add(declaration as NamedCompilationUnitMember);
+      } else if (declaration is ExtensionDeclaration) {
+        extensions.add(declaration);
       }
     }
     return ParsedFile(
@@ -214,6 +221,7 @@ class SourceModel {
       enums: enums,
       functions: functions,
       typedefs: typedefs,
+      extensions: extensions,
     );
   }
 

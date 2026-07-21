@@ -853,6 +853,24 @@ List<ExtractedHelper> _extractHelpers(SourceModel model) {
         ),
       );
     }
+    for (final ext in file.extensions) {
+      // Unnamed extensions expose no referenceable API name - skip them.
+      final nameToken = ext.name;
+      if (nameToken == null) continue;
+      final name = nameToken.lexeme;
+      if (!isPublicName(name)) continue;
+      final onType = ext.onClause?.extendedType.toSource();
+      final typeParams = ext.typeParameters?.toSource() ?? '';
+      helpers.add(
+        ExtractedHelper(
+          name: name,
+          kind: 'extension',
+          description: cleanDescription(rawDocComment(ext.documentationComment)) ?? '',
+          file: file.repoRelativePath,
+          signature: onType != null ? 'extension $name$typeParams on $onType' : 'extension $name$typeParams',
+        ),
+      );
+    }
   }
   helpers.sort((a, b) => a.name.compareTo(b.name));
   return helpers;

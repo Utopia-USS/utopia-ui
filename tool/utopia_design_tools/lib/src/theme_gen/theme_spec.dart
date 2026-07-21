@@ -503,6 +503,22 @@ class ThemeSpec {
     throw StateError('generate_theme: expected a dimension object, got "$value"');
   }
 
+  /// Resolves a value that may be an alias string (`{group.token}`) to its
+  /// terminal token `$value`, passing non-alias values (dimension maps, plain
+  /// numbers, literal font-family strings) through unchanged. The schema lets
+  /// each typography sub-value be an alias, and the validator accepts them, so
+  /// generation must resolve them rather than consume the alias string raw.
+  static dynamic _resolveMaybeAlias(TokenDocument document, String path, dynamic raw) {
+    if (raw is! String) return raw;
+    final aliasPath = aliasPathOf(raw);
+    if (aliasPath == null) return raw;
+    final resolution = resolveAlias(document, aliasPath);
+    if (!resolution.isResolved) {
+      throw StateError('generate_theme: "$path": ${resolution.error}');
+    }
+    return resolution.terminal!.value;
+  }
+
   static ResolvedTextStyle _resolveTextStyle(TokenDocument document, String role) {
     final path = 'textStyle.$role';
     final node = _terminalNode(document, path);
@@ -511,7 +527,7 @@ class ThemeSpec {
       throw StateError('generate_theme: "$path" did not resolve to a typography value');
     }
 
-    final fontFamilyRaw = value['fontFamily'];
+    final fontFamilyRaw = _resolveMaybeAlias(document, '$path.fontFamily', value['fontFamily']);
     final List<String> families;
     if (fontFamilyRaw is String) {
       families = [fontFamilyRaw];
@@ -524,12 +540,12 @@ class ThemeSpec {
       throw StateError('generate_theme: "$path.fontFamily" must not be empty');
     }
 
-    final fontSize = _dimensionOf(value['fontSize']);
-    final fontWeightRaw = value['fontWeight'];
+    final fontSize = _dimensionOf(_resolveMaybeAlias(document, '$path.fontSize', value['fontSize']));
+    final fontWeightRaw = _resolveMaybeAlias(document, '$path.fontWeight', value['fontWeight']);
     final fontWeight = fontWeightRaw is num
         ? fontWeightRaw.round()
         : throw StateError('generate_theme: "$path.fontWeight" did not resolve to a number');
-    final letterSpacing = _dimensionOf(value['letterSpacing']);
+    final letterSpacing = _dimensionOf(_resolveMaybeAlias(document, '$path.letterSpacing', value['letterSpacing']));
 
     // The typography token's own $extensions live on the node reached after
     // alias resolution: a typography token is never itself an alias to

@@ -16,6 +16,7 @@ import '../cli/output.dart';
 import 'bindings.dart';
 import 'extract.dart';
 import 'generator.dart';
+import 'overlay.dart';
 import 'source_model.dart';
 
 /// Which of the three SPEC 3.8 document flavors a manifest is, detected from
@@ -82,7 +83,12 @@ class ManifestValidator {
       return findings;
     }
     final componentsRaw = (rawJson['components'] as List).whereType<Map<String, dynamic>>().toList();
-    final modelsRaw = (rawJson['models'] as List? ?? const []).whereType<Map<String, dynamic>>().toList();
+    // `models`/`helpers` may be wrong-typed (e.g. `{}`); the schema gate above
+    // already recorded that, so degrade to empty here rather than letting an
+    // `as List?` cast throw and mask the clean finding.
+    final modelsRaw = (rawJson['models'] is List ? rawJson['models'] as List : const <dynamic>[])
+        .whereType<Map<String, dynamic>>()
+        .toList();
     final flavor = _detectFlavor(rawJson);
     final package = rawJson['package'] as String?;
 
@@ -136,7 +142,9 @@ class ManifestValidator {
     // Gate 4: referential integrity (modelName, composes, twin) + source file
     // existence for every entry that declares one.
     findings.addAll(_checkReferentialIntegrity(componentsRaw, modelsRaw, flavor: flavor));
-    final helpersRaw = (rawJson['helpers'] as List? ?? const []).whereType<Map<String, dynamic>>().toList();
+    final helpersRaw = (rawJson['helpers'] is List ? rawJson['helpers'] as List : const <dynamic>[])
+        .whereType<Map<String, dynamic>>()
+        .toList();
     findings.addAll(_checkFilesExist(componentsRaw, modelsRaw, helpersRaw));
 
     // Gate 5: bindings re-extraction against source (skipped silently when
@@ -613,6 +621,16 @@ class ManifestValidator {
       }
     }
 
+    // The overlay layer merges `tokenBindingsAdd` escape-hatch entries into a
+    // component's `tokenBindings` at generation time (generator.componentJson);
+    // load the same overlays here so those entries are never reported stale.
+    final libraryOverlays = utopiaUiRoot != null
+        ? _loadOverlaysSafe(Directory(p.join(utopiaUiRoot!.path, 'tool', 'utopia_design_tools', 'overlay')))
+        : const <String, ComponentOverlay>{};
+    final projectOverlays = projectRoot != null
+        ? _loadOverlaysSafe(Directory(p.join(projectRoot!.path, 'design', 'overlay')))
+        : const <String, ComponentOverlay>{};
+
     for (final component in components) {
       final id = component['id'] as String? ?? '?';
       final name = component['name'] as String?;
@@ -643,10 +661,21 @@ class ManifestValidator {
 
       final sourceBindings = extractTokenBindings(file.unit).toSet();
       final manifestBindings = (component['tokenBindings'] as List? ?? const []).whereType<String>().toSet();
+      final overlayAdds = _overlayTokenBindingsAdd(
+        id,
+        name,
+        namespaced: namespaced,
+        libraryOverlays: libraryOverlays,
+        projectOverlays: projectOverlays,
+      );
+      final knownBindings = sourceBindings.union(overlayAdds);
 
-      for (final binding in manifestBindings.difference(sourceBindings)) {
+      for (final binding in manifestBindings.difference(knownBindings)) {
         findings.add(
-          Finding.error('components[$id].tokenBindings', 'stale binding "$binding": not found in source'),
+          Finding.error(
+            'components[$id].tokenBindings',
+            'stale binding "$binding": not found in source or overlay tokenBindingsAdd',
+          ),
         );
       }
       for (final binding in sourceBindings.difference(manifestBindings)) {
@@ -656,6 +685,45 @@ class ManifestValidator {
       }
     }
     return findings;
+  }
+
+  /// Loads overlays from [dir], degrading to an empty map on any error
+  /// (missing dir, malformed YAML) - the bindings gate must never crash the
+  /// whole validation over an unreadable overlay.
+  Map<String, ComponentOverlay> _loadOverlaysSafe(Directory dir) {
+    try {
+      return loadOverlays(dir);
+    } catch (_) {
+      return const {};
+    }
+  }
+
+  /// The `tokenBindingsAdd` escape-hatch entries the overlay layer merges into
+  /// a component's `tokenBindings` at generation time, resolved the same way
+  /// `generator`/`project_generator` do: a bare-id (library) component matches
+  /// its overlay by id; a namespaced (project) component matches by class name,
+  /// mirroring `ProjectComponentIdStrategy.idFor` (derived local part first,
+  /// then an explicit `class:` binding).
+  Set<String> _overlayTokenBindingsAdd(
+    String id,
+    String name, {
+    required bool namespaced,
+    required Map<String, ComponentOverlay> libraryOverlays,
+    required Map<String, ComponentOverlay> projectOverlays,
+  }) {
+    if (!namespaced) {
+      return libraryOverlays[id]?.tokenBindingsAdd.toSet() ?? const {};
+    }
+    final derived = projectOverlays[kebabCase(name)];
+    if (derived != null && (derived.className == null || derived.className == name)) {
+      return derived.tokenBindingsAdd.toSet();
+    }
+    for (final overlay in projectOverlays.values) {
+      if (overlay.className == name) {
+        return overlay.tokenBindingsAdd.toSet();
+      }
+    }
+    return const {};
   }
 }
 

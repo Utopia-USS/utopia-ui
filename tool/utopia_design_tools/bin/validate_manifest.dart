@@ -85,7 +85,16 @@ Future<void> main(List<String> arguments) async {
 
   final Map<String, dynamic> rawJson;
   try {
-    rawJson = jsonDecode(targetFile.readAsStringSync()) as Map<String, dynamic>;
+    final decoded = jsonDecode(targetFile.readAsStringSync());
+    if (decoded is! Map<String, dynamic>) {
+      exitCode = 2;
+      stderr.writeln(
+        'validate_manifest: ${targetFile.path} is not a manifest object '
+        '(expected a top-level JSON object).',
+      );
+      return;
+    }
+    rawJson = decoded;
   } on FormatException catch (e) {
     exitCode = 2;
     stderr.writeln('validate_manifest: ${targetFile.path} is not valid JSON: ${e.message}');

@@ -1526,7 +1526,8 @@
         "colors.primary",
         "textStyles.button",
         "tokens.durations.sm",
-        "tokens.radius.fullAll"
+        "tokens.radius.fullAll",
+        "tokens.x"
       ],
       "states": [
         "readOnly"
@@ -2367,6 +2368,27 @@
   ],
   "helpers": [
     {
+      "name": "UtopiaDateTimeExtension",
+      "kind": "extension",
+      "description": "`DateTime` convenience helpers shared by the date-backed widgets: calendar-field arithmetic and the display formats used by the date picker.",
+      "file": "lib/src/util/date_time_extension.dart",
+      "signature": "extension UtopiaDateTimeExtension on DateTime"
+    },
+    {
+      "name": "UtopiaPageTypeContextX",
+      "kind": "extension",
+      "description": "",
+      "file": "lib/src/widget/layout/utopia_page_wrapper.dart",
+      "signature": "extension UtopiaPageTypeContextX on BuildContext"
+    },
+    {
+      "name": "UtopiaPageTypeX",
+      "kind": "extension",
+      "description": "",
+      "file": "lib/src/widget/layout/utopia_page_wrapper.dart",
+      "signature": "extension UtopiaPageTypeX on UtopiaPageType"
+    },
+    {
       "name": "UtopiaSidebarHeaderBuilder",
       "kind": "typedef",
       "description": "Builds the sidebar header (logo / branding), pinned above the items.",
@@ -2379,6 +2401,13 @@
       "description": "Sort state of a `UtopiaTable`: which column (by UtopiaTableEntry.effectiveId) and which direction.",
       "file": "lib/src/widget/table/utopia_table_entry.dart",
       "signature": "typedef UtopiaTableSort = ({String columnId, bool descending});"
+    },
+    {
+      "name": "UtopiaThemeContextExtensions",
+      "kind": "extension",
+      "description": "Shorthand theme lookups: `context.theme`, `context.colors`, `context.textStyles`, `context.tokens`, `context.spacing`, `context.radius`, `context.fieldDecoration`.",
+      "file": "lib/src/util/utopia_context_extensions.dart",
+      "signature": "extension UtopiaThemeContextExtensions on BuildContext"
     },
     {
       "name": "useUtopiaTableState",
