@@ -22,7 +22,7 @@ typography:
   header:
     fontFamily: "Sora"
     fontSize: "24px"
-    fontWeight: 600
+    fontWeight: 700
   label:
     fontFamily: "Sora"
     fontSize: "12px"
@@ -30,7 +30,7 @@ typography:
   text:
     fontFamily: "Sora"
     fontSize: "12px"
-    fontWeight: 600
+    fontWeight: 500
   title:
     fontFamily: "Sora"
     fontSize: "16px"
@@ -38,7 +38,7 @@ typography:
   caption:
     fontFamily: "Sora"
     fontSize: "10px"
-    fontWeight: 600
+    fontWeight: 500
   button:
     fontFamily: "Sora"
     fontSize: "12px"
@@ -85,10 +85,17 @@ reserved for `UtopiaChip`.
 Every text role (`header`, `title`, `text`, `label`, `caption`, `button`) is a complete, fixed
 `fontFamily` + `fontSize` + `fontWeight` + `letterSpacing` bundle plus its own paired color - there
 is no separate color override per usage site. Roles are chosen by what the text *is*, not by what
-it looks like: `header` names a page or section, `title` names a card or list item, `text` is body
-copy, `label` and `caption` are secondary/microcopy, and `button` is reserved for interactive
-labels. The whole scale ships in one weight family (Sora) so a rebrand only ever needs to swap the
-family name, not re-balance six independent styles.
+it looks like: `header` names a page or section (24px, 700), `title` names a card or list item
+(16px, 600), `text` is body copy (12px, 500), `label` (12px, 600) and `caption` (10px, 500) are
+secondary/microcopy, and `button` (12px, 600) is reserved for interactive labels. The whole scale
+ships in one type family (Sora) so a rebrand only ever needs to swap the family name, not
+re-balance six independent styles.
+
+Tracking is a function of type size, not of role: it falls monotonically as the size grows, from 0
+at `caption` (10px) to -0.5px at `header` (24px). Roles that share a `fontSize` share a
+`letterSpacing` and separate on weight and color instead - hierarchy comes from weight, not from
+spacing the letters out. The values are calibrated for Sora, which carries roughly 0.06 em more
+built-in sidebearing than SF Pro or Inter, which is why no role tracks positive.
 
 ## Layout
 

@@ -190,8 +190,8 @@
   justify-content: center;
 }
 
-/* Floating label: textStyles.label (semi-bold, small, letter-spaced caption
-   size) shown above the value once the field has content or focus. */
+/* Floating label: textStyles.label (semi-bold, small, slightly tightened
+   caption size) shown above the value once the field has content or focus. */
 .utopia-text-field__label {
   font-family: var(--utopia-text-style-label-font-family), sans-serif;
   font-size: var(--utopia-text-style-label-font-size);

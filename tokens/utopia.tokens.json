@@ -609,9 +609,9 @@
           "value": 24,
           "unit": "px"
         },
-        "fontWeight": 600,
+        "fontWeight": 700,
         "letterSpacing": {
-          "value": 1,
+          "value": -0.5,
           "unit": "px"
         }
       },
@@ -632,7 +632,7 @@
         },
         "fontWeight": 600,
         "letterSpacing": {
-          "value": 1,
+          "value": -0.1,
           "unit": "px"
         }
       },
@@ -651,9 +651,9 @@
           "value": 12,
           "unit": "px"
         },
-        "fontWeight": 600,
+        "fontWeight": 500,
         "letterSpacing": {
-          "value": 1,
+          "value": -0.1,
           "unit": "px"
         }
       },
@@ -674,7 +674,7 @@
         },
         "fontWeight": 600,
         "letterSpacing": {
-          "value": 1,
+          "value": -0.3,
           "unit": "px"
         }
       },
@@ -693,9 +693,9 @@
           "value": 10,
           "unit": "px"
         },
-        "fontWeight": 600,
+        "fontWeight": 500,
         "letterSpacing": {
-          "value": 1,
+          "value": 0,
           "unit": "px"
         }
       },
@@ -716,7 +716,7 @@
         },
         "fontWeight": 600,
         "letterSpacing": {
-          "value": 1,
+          "value": -0.1,
           "unit": "px"
         }
       },

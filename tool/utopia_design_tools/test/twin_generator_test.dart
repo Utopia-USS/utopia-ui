@@ -69,8 +69,8 @@ void main() {
       final css = generateCss(canonicalDocument(), inputPath: 'tokens/utopia.tokens.json', profileVersion: '0.2.0');
       expect(css, contains('  --utopia-text-style-header-font-family: Sora;'));
       expect(css, contains('  --utopia-text-style-header-font-size: 24px;'));
-      expect(css, contains('  --utopia-text-style-header-font-weight: 600;'));
-      expect(css, contains('  --utopia-text-style-header-letter-spacing: 1px;'));
+      expect(css, contains('  --utopia-text-style-header-font-weight: 700;'));
+      expect(css, contains('  --utopia-text-style-header-letter-spacing: -0.5px;'));
       // The fold rule: textStyle-colors.header -> ...-header-color, NOT
       // ...-text-style-colors-header.
       expect(css, contains('  --utopia-text-style-header-color: rgb(0 0 0 / 0.8667);'));

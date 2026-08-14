@@ -20,10 +20,10 @@ abstract class UtopiaThemeTextStyles with _$UtopiaThemeTextStyles {
     header: TextStyle(
       fontFamily: "Sora",
       package: "utopia_ui",
-      fontWeight: FontWeight.w600,
+      fontWeight: FontWeight.w700,
       fontSize: 24,
       color: Colors.black87,
-      letterSpacing: 1,
+      letterSpacing: -0.5,
     ),
     label: TextStyle(
       fontFamily: "Sora",
@@ -31,23 +31,23 @@ abstract class UtopiaThemeTextStyles with _$UtopiaThemeTextStyles {
       fontWeight: FontWeight.w600,
       fontSize: 12,
       color: Colors.black87,
-      letterSpacing: 1,
+      letterSpacing: -0.1,
     ),
     caption: TextStyle(
       fontFamily: "Sora",
       package: "utopia_ui",
-      fontWeight: FontWeight.w600,
+      fontWeight: FontWeight.w500,
       fontSize: 10,
       color: Colors.black87,
-      letterSpacing: 1,
+      letterSpacing: 0,
     ),
     text: TextStyle(
       fontFamily: "Sora",
       package: "utopia_ui",
-      fontWeight: FontWeight.w600,
+      fontWeight: FontWeight.w500,
       fontSize: 12,
       color: Colors.black87,
-      letterSpacing: 1,
+      letterSpacing: -0.1,
     ),
     title: TextStyle(
       fontFamily: "Sora",
@@ -55,7 +55,7 @@ abstract class UtopiaThemeTextStyles with _$UtopiaThemeTextStyles {
       fontWeight: FontWeight.w600,
       fontSize: 16,
       color: Colors.black87,
-      letterSpacing: 1,
+      letterSpacing: -0.3,
     ),
     button: TextStyle(
       fontFamily: "Sora",
@@ -63,7 +63,7 @@ abstract class UtopiaThemeTextStyles with _$UtopiaThemeTextStyles {
       fontWeight: FontWeight.w600,
       fontSize: 12,
       color: Colors.white,
-      letterSpacing: 1,
+      letterSpacing: -0.1,
     ),
   );
 }
