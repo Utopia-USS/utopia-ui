@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "0.2.0",
+  "schemaVersion": "0.3.0",
   "package": "utopia_ui",
   "packageVersion": "0.1.0",
   "components": [
@@ -79,12 +79,30 @@
         }
       ],
       "tokenBindings": [
-        "colors.accent",
-        "colors.onColoredHover",
-        "colors.primary",
-        "textStyles.button",
-        "theme.borderRadius",
-        "tokens.x"
+        {
+          "path": "colors.accent",
+          "origin": "source"
+        },
+        {
+          "path": "colors.onColoredHover",
+          "origin": "source"
+        },
+        {
+          "path": "colors.primary",
+          "origin": "source"
+        },
+        {
+          "path": "textStyles.button",
+          "origin": "source"
+        },
+        {
+          "path": "theme.borderRadius",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.x",
+          "origin": "source"
+        }
       ],
       "states": [
         "disabled",
@@ -95,6 +113,10 @@
         "gradient-background",
         "three-bounce"
       ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"button\"]"
+      },
       "examples": [
         "example/lib/sections/buttons_section.dart",
         "example/lib/sections/dialogs_section.dart"
@@ -122,14 +144,39 @@
         }
       ],
       "tokenBindings": [
-        "colors.border",
-        "colors.surface",
-        "theme.cardBorderDecoration",
-        "theme.cardBorderWidth",
-        "theme.cardDecoration",
-        "theme.cardRadius",
-        "theme.cardShadow"
+        {
+          "path": "colors.border",
+          "origin": "source"
+        },
+        {
+          "path": "colors.surface",
+          "origin": "source"
+        },
+        {
+          "path": "theme.cardBorderDecoration",
+          "origin": "source"
+        },
+        {
+          "path": "theme.cardBorderWidth",
+          "origin": "source"
+        },
+        {
+          "path": "theme.cardDecoration",
+          "origin": "source"
+        },
+        {
+          "path": "theme.cardRadius",
+          "origin": "source"
+        },
+        {
+          "path": "theme.cardShadow",
+          "origin": "source"
+        }
       ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"card\"]"
+      },
       "examples": [
         "example/lib/sections/surfaces_section.dart",
         "example/lib/sections/typography_section.dart"
@@ -171,19 +218,47 @@
         }
       ],
       "tokenBindings": [
-        "colors.accent",
-        "colors.disabled",
-        "colors.hover",
-        "textStyles.text",
-        "tokens.borders.thin",
-        "tokens.durations.xs",
-        "tokens.radius.smAll",
-        "tokens.spacing.md"
+        {
+          "path": "colors.accent",
+          "origin": "source"
+        },
+        {
+          "path": "colors.disabled",
+          "origin": "source"
+        },
+        {
+          "path": "colors.hover",
+          "origin": "source"
+        },
+        {
+          "path": "textStyles.text",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.borders.thin",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.durations.xs",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.radius.smAll",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.md",
+          "origin": "source"
+        }
       ],
       "states": [
         "hover",
         "selected"
       ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"check-row\"]"
+      },
       "examples": [
         "example/lib/sections/selection_section.dart"
       ],
@@ -231,13 +306,35 @@
         }
       ],
       "tokenBindings": [
-        "colors.chipBackground",
-        "colors.chipForeground",
-        "textStyles.caption",
-        "theme.chipRadius",
-        "tokens.spacing.md",
-        "tokens.spacing.xs"
+        {
+          "path": "colors.chipBackground",
+          "origin": "source"
+        },
+        {
+          "path": "colors.chipForeground",
+          "origin": "source"
+        },
+        {
+          "path": "textStyles.caption",
+          "origin": "source"
+        },
+        {
+          "path": "theme.chipRadius",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.md",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.xs",
+          "origin": "source"
+        }
       ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"chip\"]"
+      },
       "examples": [
         "example/lib/sections/chips_text_section.dart",
         "example/lib/sections/table_section.dart"
@@ -274,14 +371,30 @@
         }
       ],
       "tokenBindings": [
-        "colors.hint",
-        "textStyles.text",
-        "tokens.spacing.sm",
-        "tokens.spacing.xs"
+        {
+          "path": "colors.hint",
+          "origin": "source"
+        },
+        {
+          "path": "textStyles.text",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.sm",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.xs",
+          "origin": "source"
+        }
       ],
       "composes": [
         "chip"
       ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"chip-list\"]"
+      },
       "examples": [
         "example/lib/sections/chips_text_section.dart"
       ],
@@ -406,7 +519,11 @@
           ]
         }
       ],
-      "tokenBindings": []
+      "tokenBindings": [],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"collapsible\"]"
+      }
     },
     {
       "id": "confirm-dialog",
@@ -476,18 +593,43 @@
         }
       ],
       "tokenBindings": [
-        "colors.error",
-        "textStyles.header",
-        "textStyles.text",
-        "theme.cardBorderDecoration",
-        "theme.cardDecoration",
-        "tokens.spacing.md",
-        "tokens.spacing.xl"
+        {
+          "path": "colors.error",
+          "origin": "source"
+        },
+        {
+          "path": "textStyles.header",
+          "origin": "source"
+        },
+        {
+          "path": "textStyles.text",
+          "origin": "source"
+        },
+        {
+          "path": "theme.cardBorderDecoration",
+          "origin": "source"
+        },
+        {
+          "path": "theme.cardDecoration",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.md",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.xl",
+          "origin": "source"
+        }
       ],
       "composes": [
         "button",
         "ghost-button"
       ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"confirm-dialog\"]"
+      },
       "examples": [
         "example/lib/sections/dialogs_section.dart"
       ],
@@ -514,17 +656,42 @@
         }
       ],
       "tokenBindings": [
-        "colors.accent",
-        "textStyles.button",
-        "textStyles.text",
-        "tokens.durations.xs",
-        "tokens.spacing.md",
-        "tokens.spacing.xl",
-        "tokens.spacing.xxl"
+        {
+          "path": "colors.accent",
+          "origin": "source"
+        },
+        {
+          "path": "textStyles.button",
+          "origin": "source"
+        },
+        {
+          "path": "textStyles.text",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.durations.xs",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.md",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.xl",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.xxl",
+          "origin": "source"
+        }
       ],
       "composes": [
         "multi-widget"
-      ]
+      ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"copyable-text\"]"
+      }
     },
     {
       "id": "date-picker",
@@ -583,6 +750,10 @@
         "remove-icon-button",
         "text-field"
       ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"date-picker\"]"
+      },
       "examples": [
         "example/lib/sections/fields_section.dart",
         "example/lib/sections/dialogs_section.dart"
@@ -674,27 +845,79 @@
         }
       ],
       "tokenBindings": [
-        "colors.border",
-        "colors.surface",
-        "colors.text",
-        "textStyles.header",
-        "textStyles.title",
-        "theme.cardBorderDecoration",
-        "theme.cardDecoration",
-        "tokens.durations.sm",
-        "tokens.radius.fullAll",
-        "tokens.radius.xl",
-        "tokens.spacing.lg",
-        "tokens.spacing.md",
-        "tokens.spacing.sm",
-        "tokens.spacing.xl",
-        "tokens.spacing.xxxl",
-        "tokens.x"
+        {
+          "path": "colors.border",
+          "origin": "source"
+        },
+        {
+          "path": "colors.surface",
+          "origin": "source"
+        },
+        {
+          "path": "colors.text",
+          "origin": "source"
+        },
+        {
+          "path": "textStyles.header",
+          "origin": "source"
+        },
+        {
+          "path": "textStyles.title",
+          "origin": "source"
+        },
+        {
+          "path": "theme.cardBorderDecoration",
+          "origin": "source"
+        },
+        {
+          "path": "theme.cardDecoration",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.durations.sm",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.radius.fullAll",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.radius.xl",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.lg",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.md",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.sm",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.xl",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.xxxl",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.x",
+          "origin": "source"
+        }
       ],
       "composes": [
         "form-layout",
         "page-wrapper"
       ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"dialog\"]"
+      },
       "examples": [
         "example/lib/sections/dialogs_section.dart"
       ],
@@ -713,11 +936,27 @@
         }
       ],
       "tokenBindings": [
-        "colors.divider",
-        "colors.surface",
-        "colors.text",
-        "theme.dividerThickness"
+        {
+          "path": "colors.divider",
+          "origin": "source"
+        },
+        {
+          "path": "colors.surface",
+          "origin": "source"
+        },
+        {
+          "path": "colors.text",
+          "origin": "source"
+        },
+        {
+          "path": "theme.dividerThickness",
+          "origin": "source"
+        }
       ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"divider\"]"
+      },
       "examples": [
         "example/lib/sections/surfaces_section.dart",
         "example/lib/sections/typography_section.dart"
@@ -776,11 +1015,26 @@
         }
       ],
       "tokenBindings": [
-        "colors.accent",
-        "colors.hover",
-        "textStyles.text",
-        "tokens.spacing.lg",
-        "tokens.spacing.md"
+        {
+          "path": "colors.accent",
+          "origin": "source"
+        },
+        {
+          "path": "colors.hover",
+          "origin": "source"
+        },
+        {
+          "path": "textStyles.text",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.lg",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.md",
+          "origin": "source"
+        }
       ],
       "states": [
         "focus",
@@ -790,6 +1044,10 @@
         "labeled-field",
         "overlay-anchor"
       ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"dropdown-field\"]"
+      },
       "examples": [
         "example/lib/sections/fields_section.dart",
         "example/lib/sections/dialogs_section.dart"
@@ -833,19 +1091,59 @@
         }
       ],
       "tokenBindings": [
-        "colors.border",
-        "colors.error",
-        "colors.hint",
-        "textStyles.label",
-        "textStyles.text",
-        "theme.fieldContentPadding",
-        "theme.fieldDecoration",
-        "theme.fieldMinHeight",
-        "tokens.borders.hairline",
-        "tokens.durations.sm",
-        "tokens.fontWeights.regular",
-        "tokens.x"
-      ]
+        {
+          "path": "colors.border",
+          "origin": "source"
+        },
+        {
+          "path": "colors.error",
+          "origin": "source"
+        },
+        {
+          "path": "colors.hint",
+          "origin": "source"
+        },
+        {
+          "path": "textStyles.label",
+          "origin": "source"
+        },
+        {
+          "path": "textStyles.text",
+          "origin": "source"
+        },
+        {
+          "path": "theme.fieldContentPadding",
+          "origin": "source"
+        },
+        {
+          "path": "theme.fieldDecoration",
+          "origin": "source"
+        },
+        {
+          "path": "theme.fieldMinHeight",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.borders.hairline",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.durations.sm",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.fontWeights.regular",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.x",
+          "origin": "source"
+        }
+      ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"field-wrapper\"]"
+      }
     },
     {
       "id": "form-layout",
@@ -939,7 +1237,11 @@
           ]
         }
       ],
-      "tokenBindings": []
+      "tokenBindings": [],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"form-layout\"]"
+      }
     },
     {
       "id": "ghost-button",
@@ -969,12 +1271,31 @@
         }
       ],
       "tokenBindings": [
-        "colors.hover",
-        "textStyles.label",
-        "theme.borderRadius",
-        "tokens.spacing.xl",
-        "tokens.x"
-      ]
+        {
+          "path": "colors.hover",
+          "origin": "source"
+        },
+        {
+          "path": "textStyles.label",
+          "origin": "source"
+        },
+        {
+          "path": "theme.borderRadius",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.xl",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.x",
+          "origin": "source"
+        }
+      ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"ghost-button\"]"
+      }
     },
     {
       "id": "gradient-background",
@@ -1028,11 +1349,27 @@
         }
       ],
       "tokenBindings": [
-        "colors.accent",
-        "colors.disabled",
-        "colors.primary",
-        "tokens.durations.xl"
-      ]
+        {
+          "path": "colors.accent",
+          "origin": "source"
+        },
+        {
+          "path": "colors.disabled",
+          "origin": "source"
+        },
+        {
+          "path": "colors.primary",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.durations.xl",
+          "origin": "source"
+        }
+      ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"gradient-background\"]"
+      }
     },
     {
       "id": "header",
@@ -1055,8 +1392,15 @@
         }
       ],
       "tokenBindings": [
-        "textStyles.header"
-      ]
+        {
+          "path": "textStyles.header",
+          "origin": "source"
+        }
+      ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"header\"]"
+      }
     },
     {
       "id": "labeled-field",
@@ -1093,11 +1437,18 @@
         }
       ],
       "tokenBindings": [
-        "textStyles.text"
+        {
+          "path": "textStyles.text",
+          "origin": "source"
+        }
       ],
       "composes": [
         "field-wrapper"
-      ]
+      ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"labeled-field\"]"
+      }
     },
     {
       "id": "loader",
@@ -1128,11 +1479,18 @@
         }
       ],
       "tokenBindings": [
-        "textStyles.label"
+        {
+          "path": "textStyles.label",
+          "origin": "source"
+        }
       ],
       "states": [
         "loading"
       ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"loader\"]"
+      },
       "examples": [
         "example/lib/sections/loading_section.dart"
       ],
@@ -1175,9 +1533,19 @@
         }
       ],
       "tokenBindings": [
-        "colors.canvas",
-        "colors.field"
-      ]
+        {
+          "path": "colors.canvas",
+          "origin": "source"
+        },
+        {
+          "path": "colors.field",
+          "origin": "source"
+        }
+      ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"mock-loading-box\"]"
+      }
     },
     {
       "id": "multi-widget",
@@ -1215,7 +1583,11 @@
           ]
         }
       ],
-      "tokenBindings": []
+      "tokenBindings": [],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"multi-widget\"]"
+      }
     },
     {
       "id": "overlay-anchor",
@@ -1261,10 +1633,23 @@
         }
       ],
       "tokenBindings": [
-        "theme.cardBorderDecoration",
-        "theme.cardDecoration",
-        "tokens.spacing.sm"
-      ]
+        {
+          "path": "theme.cardBorderDecoration",
+          "origin": "source"
+        },
+        {
+          "path": "theme.cardDecoration",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.sm",
+          "origin": "source"
+        }
+      ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"overlay-anchor\"]"
+      }
     },
     {
       "id": "page-wrapper",
@@ -1294,7 +1679,11 @@
           ]
         }
       ],
-      "tokenBindings": []
+      "tokenBindings": [],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"page-wrapper\"]"
+      }
     },
     {
       "id": "remove-icon-button",
@@ -1317,10 +1706,23 @@
         }
       ],
       "tokenBindings": [
-        "colors.error",
-        "colors.text",
-        "tokens.durations.xs"
-      ]
+        {
+          "path": "colors.error",
+          "origin": "source"
+        },
+        {
+          "path": "colors.text",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.durations.xs",
+          "origin": "source"
+        }
+      ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"remove-icon-button\"]"
+      }
     },
     {
       "id": "search-field",
@@ -1374,10 +1776,22 @@
         }
       ],
       "tokenBindings": [
-        "colors.hint",
-        "colors.primary",
-        "textStyles.text",
-        "tokens.spacing.sm"
+        {
+          "path": "colors.hint",
+          "origin": "source"
+        },
+        {
+          "path": "colors.primary",
+          "origin": "source"
+        },
+        {
+          "path": "textStyles.text",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.sm",
+          "origin": "source"
+        }
       ],
       "states": [
         "disabled",
@@ -1386,6 +1800,10 @@
       "composes": [
         "field-wrapper"
       ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"search-field\"]"
+      },
       "examples": [
         "example/lib/sections/fields_section.dart",
         "example/lib/sections/table_section.dart"
@@ -1452,26 +1870,86 @@
         }
       ],
       "tokenBindings": [
-        "colors.border",
-        "colors.hint",
-        "colors.hover",
-        "colors.onColoredContent",
-        "colors.onColoredHover",
-        "colors.surface",
-        "textStyles.button",
-        "theme.cardBorderWidth",
-        "theme.cardRadius",
-        "theme.cardShadow",
-        "theme.menuShadow",
-        "theme.pageTopPadding",
-        "tokens.durations.lg",
-        "tokens.durations.md",
-        "tokens.radius.mdAll",
-        "tokens.spacing.lg",
-        "tokens.spacing.md",
-        "tokens.spacing.sm",
-        "tokens.spacing.xs",
-        "tokens.spacing.xxs"
+        {
+          "path": "colors.border",
+          "origin": "source"
+        },
+        {
+          "path": "colors.hint",
+          "origin": "source"
+        },
+        {
+          "path": "colors.hover",
+          "origin": "source"
+        },
+        {
+          "path": "colors.onColoredContent",
+          "origin": "source"
+        },
+        {
+          "path": "colors.onColoredHover",
+          "origin": "source"
+        },
+        {
+          "path": "colors.surface",
+          "origin": "source"
+        },
+        {
+          "path": "textStyles.button",
+          "origin": "source"
+        },
+        {
+          "path": "theme.cardBorderWidth",
+          "origin": "source"
+        },
+        {
+          "path": "theme.cardRadius",
+          "origin": "source"
+        },
+        {
+          "path": "theme.cardShadow",
+          "origin": "source"
+        },
+        {
+          "path": "theme.menuShadow",
+          "origin": "source"
+        },
+        {
+          "path": "theme.pageTopPadding",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.durations.lg",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.durations.md",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.radius.mdAll",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.lg",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.md",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.sm",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.xs",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.xxs",
+          "origin": "source"
+        }
       ],
       "states": [
         "expanded",
@@ -1481,6 +1959,10 @@
       "composes": [
         "gradient-background"
       ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"sidebar\"]"
+      },
       "examples": [
         "example/lib/sections/sidebar_section.dart"
       ],
@@ -1522,17 +2004,39 @@
         }
       ],
       "tokenBindings": [
-        "colors.disabled",
-        "colors.primary",
-        "textStyles.button",
-        "tokens.durations.sm",
-        "tokens.radius.fullAll",
-        "tokens.x"
+        {
+          "path": "colors.disabled",
+          "origin": "source"
+        },
+        {
+          "path": "colors.primary",
+          "origin": "source"
+        },
+        {
+          "path": "textStyles.button",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.durations.sm",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.radius.fullAll",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.x",
+          "origin": "source"
+        }
       ],
       "states": [
         "disabled",
         "readOnly"
       ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"switch\"]"
+      },
       "examples": [
         "example/lib/sections/selection_section.dart"
       ],
@@ -1581,7 +2085,10 @@
         }
       ],
       "tokenBindings": [
-        "textStyles.text"
+        {
+          "path": "textStyles.text",
+          "origin": "source"
+        }
       ],
       "states": [
         "disabled",
@@ -1591,6 +2098,10 @@
         "field-wrapper",
         "switch"
       ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"switch-field\"]"
+      },
       "examples": [
         "example/lib/sections/selection_section.dart",
         "example/lib/sections/dialogs_section.dart"
@@ -1694,8 +2205,14 @@
         }
       ],
       "tokenBindings": [
-        "colors.surface",
-        "theme.cardRadius"
+        {
+          "path": "colors.surface",
+          "origin": "source"
+        },
+        {
+          "path": "theme.cardRadius",
+          "origin": "source"
+        }
       ],
       "states": [
         "empty",
@@ -1707,6 +2224,10 @@
         "mock-loading-box",
         "table-empty"
       ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"table\"]"
+      },
       "examples": [
         "example/lib/sections/table_section.dart"
       ],
@@ -1756,16 +2277,47 @@
         }
       ],
       "tokenBindings": [
-        "colors.hint",
-        "textStyles.caption",
-        "textStyles.text",
-        "tokens.spacing.lg",
-        "tokens.spacing.md",
-        "tokens.spacing.sm",
-        "tokens.spacing.xl",
-        "tokens.spacing.xs",
-        "tokens.spacing.xxxl"
-      ]
+        {
+          "path": "colors.hint",
+          "origin": "source"
+        },
+        {
+          "path": "textStyles.caption",
+          "origin": "source"
+        },
+        {
+          "path": "textStyles.text",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.lg",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.md",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.sm",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.xl",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.xs",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.xxxl",
+          "origin": "source"
+        }
+      ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"table-empty\"]"
+      }
     },
     {
       "id": "table-search-panel",
@@ -1807,10 +2359,23 @@
         }
       ],
       "tokenBindings": [
-        "tokens.breakpoints.webMin",
-        "tokens.spacing.lg",
-        "tokens.spacing.md"
-      ]
+        {
+          "path": "tokens.breakpoints.webMin",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.lg",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.md",
+          "origin": "source"
+        }
+      ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"table-search-panel\"]"
+      }
     },
     {
       "id": "text-field",
@@ -1944,12 +2509,30 @@
         }
       ],
       "tokenBindings": [
-        "colors.error",
-        "colors.primary",
-        "textStyles.caption",
-        "textStyles.text",
-        "tokens.spacing.xs",
-        "tokens.x"
+        {
+          "path": "colors.error",
+          "origin": "source"
+        },
+        {
+          "path": "colors.primary",
+          "origin": "source"
+        },
+        {
+          "path": "textStyles.caption",
+          "origin": "source"
+        },
+        {
+          "path": "textStyles.text",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.xs",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.x",
+          "origin": "source"
+        }
       ],
       "states": [
         "disabled",
@@ -1960,6 +2543,10 @@
       "composes": [
         "field-wrapper"
       ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"text-field\"]"
+      },
       "examples": [
         "example/lib/sections/fields_section.dart",
         "example/lib/sections/dialogs_section.dart"
@@ -1994,7 +2581,11 @@
           ]
         }
       ],
-      "tokenBindings": []
+      "tokenBindings": [],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"three-bounce\"]"
+      }
     },
     {
       "id": "title",
@@ -2017,8 +2608,15 @@
         }
       ],
       "tokenBindings": [
-        "textStyles.title"
-      ]
+        {
+          "path": "textStyles.title",
+          "origin": "source"
+        }
+      ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"title\"]"
+      }
     }
   ],
   "models": [

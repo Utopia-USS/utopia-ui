@@ -163,6 +163,8 @@ One line per tier-1 component; anchors point at `data-utopia-id` on the componen
 `components.html` (added by A5's HTML twin build-out).
 
 - Button - `data-utopia-id="button"`
+- Ghost button - `data-utopia-id="ghost-button"`
+- Remove icon button - `data-utopia-id="remove-icon-button"`
 - Card - `data-utopia-id="card"`
 - Chip - `data-utopia-id="chip"`
 - Chip list - `data-utopia-id="chip-list"`
@@ -180,6 +182,7 @@ One line per tier-1 component; anchors point at `data-utopia-id` on the componen
 - Mock loading box - `data-utopia-id="mock-loading-box"`
 - Divider - `data-utopia-id="divider"`
 - Card gradient background - `data-utopia-id="gradient-background"`
+- Header - `data-utopia-id="header"`
 - Title - `data-utopia-id="title"`
 - Copyable text - `data-utopia-id="copyable-text"`
 - Dialog - `data-utopia-id="dialog"`
@@ -188,6 +191,16 @@ One line per tier-1 component; anchors point at `data-utopia-id` on the componen
 - Table empty state - `data-utopia-id="table-empty"`
 - Table search panel - `data-utopia-id="table-search-panel"`
 - Sidebar - `data-utopia-id="sidebar"`
+
+The manifest ids missing from that list are deliberate, not an oversight: each is a
+pure-behavior widget with no visual contract of its own, carried in `components.html` as a
+"no visual twin" note entry (SPEC 4.4) and recorded here with its reason.
+
+<!-- utopia-twin-omit: collapsible -- pure animation behavior; renders whatever child it is given -->
+<!-- utopia-twin-omit: form-layout -- scroll-plus-pinned-bottom layout shell; its rendered shape is the dialog's -->
+<!-- utopia-twin-omit: multi-widget -- pure composition helper, nothing rendered -->
+<!-- utopia-twin-omit: overlay-anchor -- anchoring/positioning behavior; the popup chrome it anchors is the card recipe -->
+<!-- utopia-twin-omit: page-wrapper -- pure layout-resolution behavior, nothing rendered -->
 
 ## Do's and Don'ts
 

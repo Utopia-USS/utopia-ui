@@ -89,21 +89,31 @@ void main() {
       expect((densityProp['values'] as List).cast<String>(), ['compact', 'regular']);
     });
 
-    test("overlay tokenBindingsAdd is merged into the component's tokenBindings", () {
+    test("overlay tokenBindingsAdd is merged into the component's tokenBindings, stamped origin \"overlay\"", () {
       final components = (generate().projectManifest!['components'] as List).cast<Map<String, dynamic>>();
 
       // Bindings extraction is whole-file, so both classes in market_tile.dart
       // share the file's five source bindings; only the overlay's addition
       // differs per component.
       const sourceBindings = ['colors.border', 'colors.primary', 'colors.text', 'tokens.spacing.md', 'tokens.spacing.sm'];
+      List<Map<String, String>> expected(String overlayBinding) => [
+        for (final path in sourceBindings.take(3)) {'path': path, 'origin': 'source'},
+        {'path': overlayBinding, 'origin': 'overlay'},
+        for (final path in sourceBindings.skip(3)) {'path': path, 'origin': 'source'},
+      ];
 
       final marketTile = components.firstWhere((c) => c['name'] == 'MarketTile');
-      expect(marketTile['tokenBindings'], [...sourceBindings.take(3), 'theme.cardShadow', ...sourceBindings.skip(3)]);
+      expect(marketTile['tokenBindings'], expected('theme.cardShadow'));
 
       // The class-override case: the overlay is resolved by the id's local
       // part ("star-rating"), not by the class's derived kebab-case.
       final rating = components.firstWhere((c) => c['name'] == 'DemoRatingStars');
-      expect(rating['tokenBindings'], [...sourceBindings.take(3), 'theme.tileHeight', ...sourceBindings.skip(3)]);
+      expect(rating['tokenBindings'], expected('theme.tileHeight'));
+    });
+
+    test('project components carry no twin binding (the twin bundle ships with utopia_ui, SPEC 4.1)', () {
+      final components = (generate().projectManifest!['components'] as List).cast<Map<String, dynamic>>();
+      expect(components.where((c) => c.containsKey('twin')), isEmpty);
     });
 
     test('project document carries the flavor markers (package, utopiaUiVersion, no merged)', () {

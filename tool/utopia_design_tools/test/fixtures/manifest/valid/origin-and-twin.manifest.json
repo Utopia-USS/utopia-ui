@@ -1,0 +1,29 @@
+{
+  "schemaVersion": "0.3.0",
+  "package": "utopia_ui",
+  "packageVersion": "0.1.0",
+  "components": [
+    {
+      "id": "button",
+      "name": "UtopiaButton",
+      "description": "The primary call-to-action button.",
+      "file": "lib/src/widget/button/utopia_button.dart",
+      "constructors": [
+        {
+          "name": "",
+          "props": []
+        }
+      ],
+      "tokenBindings": [
+        { "path": "colors.primary", "origin": "source" },
+        { "path": "theme.cardDecoration", "origin": "overlay" }
+      ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"button\"]"
+      }
+    }
+  ],
+  "models": [],
+  "helpers": []
+}

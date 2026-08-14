@@ -1,9 +1,11 @@
 /// The `validate_twin` gates (protocol SPEC section 4.5 and
 /// `ledger/checkpoints/A5-spec.md`): a literals linter over the twin's
 /// hand-authored CSS, id coverage between the manifest and the twin HTML
-/// (both directions), and a freshness check on the generated stylesheets
-/// (`tokens.css`, plus `tokens.tailwind.css` when the twin carries one)
-/// against the resolved token document.
+/// (both directions), a freshness check on the generated stylesheets
+/// (`tokens.css`, plus `tokens.tailwind.css` when the twin carries one) and on
+/// `DESIGN.md`'s GENERATED front matter (SPEC 4.6) against the resolved token
+/// document, plus the two warning-only drift reports in
+/// [TwinCoverageGates] (gallery/tier-1 coverage and manifest-state parity).
 library;
 
 import 'dart:convert';
@@ -14,7 +16,9 @@ import 'package:path/path.dart' as p;
 import '../cli/output.dart';
 import '../dtcg/token_document.dart';
 import '../twin/css_generator.dart';
+import '../twin/design_md_generator.dart';
 import '../twin/tailwind_generator.dart';
+import '../twin/twin_coverage.dart';
 
 /// Runs every `validate_twin` gate, reporting every [Finding] (no fail-fast),
 /// mirroring `ManifestValidator`/`TokenValidator`'s style.
@@ -25,8 +29,9 @@ import '../twin/tailwind_generator.dart';
 /// spacing/radius/border hard-fail set is read directly from the twin's own
 /// `tokens.css` (see `_extractSpacingRadiusBorderPx`) so the linter and the
 /// freshness gate never disagree on what "current" means.
-/// [tokenDocument]/[tokensInputPath]/[profileVersion] back gate 3's
-/// regenerate-and-byte-compare check.
+/// [tokenDocument]/[tokensInputPath]/[profileVersion] back gate 3's and gate
+/// 4's regenerate-and-byte-compare checks. [manifestComponentStates] backs
+/// gate 6 and may be left empty, which skips it.
 class TwinValidator {
   /// Creates a validator bound to the given twin directory and token
   /// document context.
@@ -36,6 +41,7 @@ class TwinValidator {
     required this.tokenDocument,
     required this.tokensInputPath,
     required this.profileVersion,
+    this.manifestComponentStates = const {},
   });
 
   /// The `twin/` directory being validated.
@@ -43,6 +49,11 @@ class TwinValidator {
 
   /// Every component id declared in the resolved manifest.
   final Set<String> manifestComponentIds;
+
+  /// The manifest's `states[]` per component id, backing gate 6's parity
+  /// check. Components declaring no states may be omitted; an empty map skips
+  /// the gate entirely.
+  final Map<String, List<String>> manifestComponentStates;
 
   /// The parsed token document backing gate 3's regeneration.
   final TokenDocument tokenDocument;
@@ -55,7 +66,7 @@ class TwinValidator {
   /// The token document's `profileVersion`, recorded the same way.
   final String profileVersion;
 
-  /// Runs gates 1-3 and returns every finding.
+  /// Runs gates 1-6 and returns every finding.
   List<Finding> validate() {
     final findings = <Finding>[];
 
@@ -93,6 +104,22 @@ class TwinValidator {
     // for tokens.css and - when present - its Tailwind variant.
     findings.addAll(_checkTokensCssFreshness(tokensCssFile));
     findings.addAll(_checkTailwindCssFreshness(File(p.join(twinDir.path, 'tokens.tailwind.css'))));
+
+    // Gate 4: the same regenerate-and-byte-compare for DESIGN.md's GENERATED
+    // front matter (SPEC 4.6).
+    findings.addAll(_checkDesignMdFrontMatterFreshness(File(p.join(twinDir.path, 'DESIGN.md'))));
+
+    // Gates 5-6: warning-only drift reports (gallery/tier-1 coverage and
+    // manifest-state parity) - see TwinCoverageGates. They never change the
+    // exit code: the twin lagging the manifest on a SHOULD surface is a
+    // report, not a build break.
+    final coverage = TwinCoverageGates(
+      twinDir: twinDir,
+      manifestComponentIds: manifestComponentIds,
+      manifestComponentStates: manifestComponentStates,
+    );
+    findings.addAll(coverage.checkForwardCoverage());
+    findings.addAll(coverage.checkStateParity());
 
     return findings;
   }
@@ -656,5 +683,41 @@ class TwinValidator {
       return const [Finding.error('tokens.tailwind.css', 'stale - run generate_twin')];
     }
     return const [];
+  }
+
+  // --- Gate 4: DESIGN.md front matter freshness ---
+
+  /// The `tokens.css` freshness gate's twin for `DESIGN.md` (SPEC 4.6): the
+  /// YAML front matter is GENERATED from the token document, so it must be
+  /// byte-identical to what `generate_twin` writes today.
+  ///
+  /// Regenerates through the generator's own [buildFrontMatterBody] +
+  /// [spliceDesignMd] - the same pair `generate_twin` calls - so the gate can
+  /// never disagree with the generator about what "current" means, and
+  /// byte-compares the result against the file on disk. Because
+  /// [spliceDesignMd] preserves the body byte-for-byte, any difference is
+  /// necessarily in the front matter block (or in the block's markers).
+  ///
+  /// Like `tokens.tailwind.css`, an absent `DESIGN.md` is not a finding:
+  /// `generate_twin --skip-design-md` makes it an opt-out artifact, and a
+  /// generated-only twin (RFC-B5 auto-partial mode) legitimately carries none.
+  List<Finding> _checkDesignMdFrontMatterFreshness(File designMdFile) {
+    if (!designMdFile.existsSync()) {
+      return const [];
+    }
+    final onDisk = designMdFile.readAsStringSync();
+    final splice = spliceDesignMd(onDisk, buildFrontMatterBody(tokenDocument));
+    if (splice.content == onDisk) {
+      return const [];
+    }
+    if (splice.warning != null) {
+      // The splice had to fall back (no front matter block, or no closing
+      // marker): report the structural problem rather than "stale", since
+      // regenerating will restructure the file rather than only refresh values.
+      return const [
+        Finding.error('DESIGN.md', 'front matter block is missing or malformed - regenerate via generate_twin'),
+      ];
+    }
+    return const [Finding.error('DESIGN.md', 'front matter stale - regenerate via generate_twin')];
   }
 }

@@ -9,6 +9,7 @@ import 'package:path/path.dart' as p;
 import 'package:utopia_design_tools/src/cli/output.dart';
 import 'package:utopia_design_tools/src/dtcg/validator.dart';
 import 'package:utopia_design_tools/src/manifest/generator.dart';
+import 'package:utopia_design_tools/src/manifest/twin_sections.dart';
 import 'package:utopia_design_tools/src/manifest/validator.dart';
 
 void main() {
@@ -47,17 +48,110 @@ void main() {
       final errors = errorsOnly(validator.validate(doc));
       expect(errors, isEmpty, reason: errors.map((f) => f.toLine()).join('; '));
     });
+
+    test('origin-and-twin.manifest.json (protocol 0.3.0 shapes: object tokenBindings + a twin binding)', () {
+      final validator = ManifestValidator(schema);
+      final doc = loadFixture('valid/origin-and-twin.manifest.json');
+      final errors = errorsOnly(validator.validate(doc));
+      expect(errors, isEmpty, reason: errors.map((f) => f.toLine()).join('; '));
+    });
+  });
+
+  group('protocol version compatibility (VERSIONING.md)', () {
+    // The manifest fixtures were written for protocol 0.1/0.2, and the
+    // generator now stamps 0.3.0: an older minor stays valid, which is the
+    // whole point of an additive bump.
+    test('a 0.2 document (bare-string tokenBindings, no origin) still validates cleanly', () {
+      final validator = ManifestValidator(schema, utopiaUiRoot: repoRoot);
+      final doc = loadFixture('valid/mini.manifest.json');
+      doc['packageVersion'] = readPackageVersion(File(p.join(repoRoot.path, 'pubspec.yaml')));
+      doc['schemaVersion'] = '0.2.0';
+
+      final findings = validator.validate(doc);
+      expect(errorsOnly(findings), isEmpty, reason: findings.map((f) => f.toLine()).join('; '));
+      expect(findings.where((f) => f.path == 'schemaVersion'), isEmpty);
+    });
+
+    test('a newer minor warns instead of failing', () {
+      final validator = ManifestValidator(schema, utopiaUiRoot: repoRoot);
+      final doc = loadFixture('valid/mini.manifest.json');
+      doc['packageVersion'] = readPackageVersion(File(p.join(repoRoot.path, 'pubspec.yaml')));
+      doc['schemaVersion'] = '0.99.0';
+
+      final findings = validator.validate(doc);
+      expect(errorsOnly(findings), isEmpty, reason: findings.map((f) => f.toLine()).join('; '));
+      expect(
+        findings.where((f) => f.severity == FindingSeverity.warning).map((f) => f.message).single,
+        'schemaVersion "0.99.0" is newer than this tool understands (protocol $manifestSchemaVersion)',
+      );
+    });
+
+    test('a major mismatch fails', () {
+      final validator = ManifestValidator(schema, utopiaUiRoot: repoRoot);
+      final doc = loadFixture('valid/mini.manifest.json');
+      doc['packageVersion'] = readPackageVersion(File(p.join(repoRoot.path, 'pubspec.yaml')));
+      doc['schemaVersion'] = '1.0.0';
+
+      final errors = errorsOnly(validator.validate(doc));
+      expect(
+        errors.map((f) => f.message),
+        contains('schemaVersion "1.0.0" has a major version incompatible with this tool '
+            '(protocol $manifestSchemaVersion)'),
+      );
+    });
   });
 
   group('the real generated manifest passes every gate', () {
-    test('generate then validate the whole repo end to end', () {
-      final overlayDir = Directory(p.join(Directory.current.path, 'overlay'));
+    final overlayDir = Directory(p.join(Directory.current.path, 'overlay'));
+
+    Map<String, dynamic> generated() {
       final result = generateManifest(utopiaUiRoot: repoRoot, overlayDir: overlayDir);
       expect(result.isOk, isTrue, reason: result.errors.join('; '));
+      return result.manifest!;
+    }
 
+    List<Map<String, dynamic>> componentsOf(Map<String, dynamic> manifest) =>
+        (manifest['components'] as List).cast<Map<String, dynamic>>();
+
+    test('generate then validate the whole repo end to end', () {
       final validator = ManifestValidator(schema, utopiaUiRoot: repoRoot);
-      final errors = errorsOnly(validator.validate(result.manifest!));
+      final errors = errorsOnly(validator.validate(generated()));
       expect(errors, isEmpty, reason: errors.map((f) => f.toLine()).join('; '));
+    });
+
+    test('it declares the protocol version this tool implements', () {
+      expect(generated()['schemaVersion'], manifestSchemaVersion);
+    });
+
+    test('every tokenBindings entry is an object carrying a known origin', () {
+      final entries = componentsOf(generated()).expand((c) => c['tokenBindings'] as List).toList();
+      expect(entries, isNotEmpty);
+      expect(
+        entries.whereType<Map<String, dynamic>>().where((b) => b['path'] is String).length,
+        entries.length,
+        reason: 'every entry must carry a string path',
+      );
+      expect(
+        entries.cast<Map<String, dynamic>>().map((b) => b['origin']).toSet(),
+        everyElement(isIn(const ['source', 'overlay'])),
+      );
+    });
+
+    test('the twin field is emitted exactly for the ids twin/components.html renders', () {
+      // Derived from the twin bundle itself rather than a hardcoded id list,
+      // so this stays true as the twin gains or loses sections.
+      final twinIds = readTwinSectionIdsFor(repoRoot);
+      final components = componentsOf(generated());
+      final withTwin = components.where((c) => c.containsKey('twin')).map((c) => c['id'] as String).toSet();
+      final allIds = components.map((c) => c['id'] as String).toSet();
+
+      expect(withTwin, allIds.intersection(twinIds));
+      for (final component in components.where((c) => c.containsKey('twin'))) {
+        expect(component['twin'], {
+          'file': 'components.html',
+          'selector': '[data-utopia-id="${component['id']}"]',
+        });
+      }
     });
   });
 
@@ -73,6 +167,10 @@ void main() {
       // refinement layer; match on the value instead of a custom message.
       'invalid/unknown-state.manifest.json': 'glowing',
       'invalid/stale-binding.manifest.json': 'stale binding',
+      // An unknown origin value is a schema-level (oneOf) violation, so the
+      // message comes from json_schema rather than this package's refinement
+      // layer - match the failing definition instead of a custom message.
+      'invalid/bad-binding-origin.manifest.json': 'definitions/tokenBinding/oneOf',
     };
 
     for (final entry in cases.entries) {

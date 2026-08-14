@@ -18,6 +18,7 @@ import 'extract.dart';
 import 'generator.dart';
 import 'overlay.dart';
 import 'source_model.dart';
+import 'twin_sections.dart';
 
 /// Which of the three SPEC 3.8 document flavors a manifest is, detected from
 /// the document itself (never from how it was invoked): `merged: true` marks
@@ -116,6 +117,11 @@ class ManifestValidator {
     // every finding, it never fails fast).
     final packageRaw = rawJson['package'];
     final package = packageRaw is String ? packageRaw : null;
+
+    // Gate 1b: declared protocol version vs the one this tool implements
+    // (VERSIONING.md: same major passes, a newer minor warns, a major
+    // mismatch fails).
+    findings.addAll(_checkSchemaVersion(rawJson));
 
     // Gate 2: packageVersion drift (library manifest only - a project/merged
     // document's packageVersion describes the PROJECT, not utopia_ui).
@@ -246,6 +252,49 @@ class ManifestValidator {
   String _dottedPath(String instancePath) {
     final segments = instancePath.split('/').where((s) => s.isNotEmpty).toList();
     return segments.map(Uri.decodeComponent).join('.');
+  }
+
+  // ---------------------------------------------------------------------
+  // Gate 1b: declared protocol version compatibility.
+  // ---------------------------------------------------------------------
+
+  /// VERSIONING.md's document-version rule, the same one
+  /// `TokenValidator._checkProfileVersion` applies to a token document's
+  /// `profileVersion`: a document whose declared `schemaVersion` shares this
+  /// tool's major version is accepted, a newer minor warns (the document may
+  /// carry fields this validator does not know), and a major mismatch fails.
+  /// A missing or malformed value is left to the schema gate, which already
+  /// reports it.
+  List<Finding> _checkSchemaVersion(Map<String, dynamic> rawJson) {
+    final declared = rawJson['schemaVersion'];
+    if (declared is! String) return const [];
+    final docParts = declared.split('.');
+    final selfParts = manifestSchemaVersion.split('.');
+    final docMajor = int.tryParse(docParts.first);
+    final selfMajor = int.tryParse(selfParts.first);
+    if (docMajor == null || selfMajor == null) return const [];
+    if (docMajor != selfMajor) {
+      return [
+        Finding.error(
+          'schemaVersion',
+          'schemaVersion "$declared" has a major version incompatible with this tool '
+              '(protocol $manifestSchemaVersion)',
+        ),
+      ];
+    }
+    if (docParts.length > 1 && selfParts.length > 1) {
+      final docMinor = int.tryParse(docParts[1]);
+      final selfMinor = int.tryParse(selfParts[1]);
+      if (docMinor != null && selfMinor != null && docMinor > selfMinor) {
+        return [
+          Finding.warning(
+            'schemaVersion',
+            'schemaVersion "$declared" is newer than this tool understands (protocol $manifestSchemaVersion)',
+          ),
+        ];
+      }
+    }
+    return const [];
   }
 
   // ---------------------------------------------------------------------
@@ -562,6 +611,8 @@ class ManifestValidator {
     final componentNames = components.map((c) => c['name'] as String?).whereType<String>().toSet();
     final checkCrossReferences = flavor != ManifestFlavor.project;
     var reportedMissingTwinDir = false;
+    // One scan per twin file, not per component bound to it.
+    final twinSectionIdsByFile = <String, Set<String>>{};
 
     for (final component in components) {
       final id = component['id'] as String? ?? '?';
@@ -589,8 +640,12 @@ class ManifestValidator {
         }
       }
 
+      // `is Map` rather than `is Map<String, dynamic>`: this gate also runs
+      // over in-memory manifests (generation self-validates before writing),
+      // where the twin entry is a plainly-typed literal rather than a decoded
+      // JSON object - the stricter test silently skipped it there.
       final twin = component['twin'];
-      if (twin is Map<String, dynamic>) {
+      if (twin is Map) {
         final root = utopiaUiRoot;
         if (root == null) continue;
         final twinDir = Directory(p.join(root.path, 'twin'));
@@ -603,20 +658,34 @@ class ManifestValidator {
           }
           continue;
         }
+        // `twin.file` is twin-bundle-relative (SPEC 4.1's layout, SPEC 3.4's
+        // example), so it resolves under twin/, not under the package root.
         final twinFile = File(p.join(twinDir.path, twin['file'] as String? ?? ''));
         final selector = twin['selector'] as String?;
         if (!twinFile.existsSync()) {
           findings.add(
             Finding.error('components[$id].twin', 'twin file "${twin['file']}" does not exist under twin/'),
           );
-        } else if (selector != null) {
-          final expectedAttr = 'data-utopia-id=$id';
-          final content = twinFile.readAsStringSync();
-          if (!content.contains(expectedAttr) && !selector.contains(expectedAttr)) {
+        } else {
+          // The binding target itself: SPEC 4.4 puts `data-utopia-id="<id>"`
+          // on the component's twin root, so the bound file must carry one for
+          // this id. The lookup runs through the same scan generation derives
+          // the field from (comments stripped, quoting tolerated), so the two
+          // sides can never disagree about what the twin renders.
+          final sectionIds = twinSectionIdsByFile.putIfAbsent(twinFile.path, () => readTwinSectionIds(twinFile));
+          if (!sectionIds.contains(id)) {
             findings.add(
               Finding.error(
                 'components[$id].twin',
                 'twin file "${twin['file']}" does not contain the selector\'s data-utopia-id ("$id")',
+              ),
+            );
+          }
+          if (selector != null && selector.contains('data-utopia-id') && !_mentionsUtopiaId(selector, id)) {
+            findings.add(
+              Finding.error(
+                'components[$id].twin',
+                'twin selector "$selector" targets a different component than "$id"',
               ),
             );
           }
@@ -633,15 +702,20 @@ class ManifestValidator {
   /// Re-extracts every component's `tokenBindings` from source and diffs it
   /// against the manifest, mirroring generation on both sides: generation
   /// writes `source UNION overlay.tokenBindingsAdd` (see `componentJson` in
-  /// `generator.dart`), so the overlays' `tokenBindingsAdd` entries are
-  /// subtracted here before the stale diff - otherwise every legitimately
-  /// added binding would be reported as a stale one, which also made
-  /// `generate_manifest`'s own self-validation refuse to write.
+  /// `generator.dart`), so the overlay-provenance entries are subtracted here
+  /// before the stale diff - otherwise every legitimately added binding would
+  /// be reported as a stale one, which also made `generate_manifest`'s own
+  /// self-validation refuse to write.
   ///
-  /// Caveat: the library overlays live under `tool/`, which the `utopia_ui`
-  /// pub tarball does not ship (see `.pubignore`), so when the shipped
-  /// manifest is validated against a pub-cache package root instead of a repo
-  /// checkout there is nothing to subtract for bare ids.
+  /// Since protocol 0.3.0 each binding carries its own `origin` (SPEC 3.6), so
+  /// the subtraction reads the manifest itself: `origin: "overlay"` is the
+  /// escape-hatch marker, no overlay directory required. That closes the old
+  /// caveat - the library overlays live under `tool/`, which the `utopia_ui`
+  /// pub tarball does not ship (see `.pubignore`), so a manifest validated
+  /// against a pub-cache package root had nothing to subtract for bare ids.
+  /// Documents written for protocol 0.2 carry bare-string bindings with no
+  /// provenance; for those the overlay directory is still read and subtracted
+  /// exactly as before (backward compatibility).
   List<Finding> _checkBindings(List<Map<String, dynamic>> components) {
     final findings = <Finding>[];
 
@@ -709,21 +783,44 @@ class ManifestValidator {
       }
 
       final sourceBindings = extractTokenBindings(file.unit).toSet();
-      final manifestBindings = (component['tokenBindings'] as List? ?? const []).whereType<String>().toSet();
+      final entries = _tokenBindingEntries(component['tokenBindings']);
+      final manifestBindings = {for (final entry in entries) entry.path};
+      // The manifest's own provenance markers (0.3.0+), and the overlay
+      // directory's entries (the 0.2 fallback, and the cross-check that an
+      // overlay addition actually reached the manifest).
+      final declaredOverlayBindings = {
+        for (final entry in entries)
+          if (entry.origin == tokenBindingOriginOverlay) entry.path,
+      };
       final overlayBindings = _overlayBindingsAdd(
         overlays: namespaced ? projectOverlays : libraryOverlays,
         id: id,
         name: name,
       );
+      final allowedOverlayBindings = declaredOverlayBindings.union(overlayBindings);
 
-      for (final binding in manifestBindings.difference(sourceBindings).difference(overlayBindings)) {
+      for (final binding in _sorted(manifestBindings.difference(sourceBindings).difference(allowedOverlayBindings))) {
         findings.add(
           Finding.error('components[$id].tokenBindings', 'stale binding "$binding": not found in source'),
         );
       }
-      for (final binding in sourceBindings.difference(manifestBindings)) {
+      for (final binding in _sorted(sourceBindings.difference(manifestBindings))) {
         findings.add(
           Finding.error('components[$id].tokenBindings', 'missing binding "$binding": found in source but not in the manifest'),
+        );
+      }
+      // A binding the manifest attributes to the overlay escape hatch, yet the
+      // extractor reads straight out of source: the escape hatch is redundant
+      // and the marker is stale (generation refuses this state outright - the
+      // stale-escape-hatch drift gate in overlay.dart - so it can only mean
+      // the manifest predates a source change).
+      for (final binding in _sorted(declaredOverlayBindings.intersection(sourceBindings))) {
+        findings.add(
+          Finding.error(
+            'components[$id].tokenBindings',
+            'binding "$binding" is marked origin "overlay" but the extractor finds it in source '
+                '(stale origin marker - regenerate)',
+          ),
         );
       }
       // The other direction of the overlay union: generation writes
@@ -731,7 +828,7 @@ class ManifestValidator {
       // absent from the manifest (and from source, which the loop above
       // already covers) means the manifest predates the overlay entry. Empty
       // in the pub-cache case, where there are no overlays to read at all.
-      for (final binding in overlayBindings.difference(manifestBindings).difference(sourceBindings)) {
+      for (final binding in _sorted(overlayBindings.difference(manifestBindings).difference(sourceBindings))) {
         findings.add(
           Finding.error(
             'components[$id].tokenBindings',
@@ -775,6 +872,43 @@ class ManifestValidator {
     return overlay.tokenBindingsAdd.toSet();
   }
 }
+
+/// One decoded `tokenBindings` entry: the dotted path plus its provenance,
+/// which is `null` for the bare-string form written by protocol 0.2
+/// generators (a path of unknown origin, SPEC 3.6).
+typedef ManifestTokenBinding = ({String path, String? origin});
+
+/// Decodes a component's `tokenBindings` array into [ManifestTokenBinding]s,
+/// accepting both the 0.3.0 object form (`{"path": ..., "origin": ...}`) and
+/// the 0.2 bare-string form, and skipping anything else (the schema gate
+/// already reports a wrong-shaped entry; every later gate keeps walking
+/// instead of throwing).
+List<ManifestTokenBinding> _tokenBindingEntries(dynamic raw) {
+  if (raw is! List) return const [];
+  final entries = <ManifestTokenBinding>[];
+  for (final entry in raw) {
+    if (entry is String) {
+      entries.add((path: entry, origin: null));
+    } else if (entry is Map<String, dynamic>) {
+      final path = entry['path'];
+      final origin = entry['origin'];
+      if (path is String) entries.add((path: path, origin: origin is String ? origin : null));
+    }
+  }
+  return entries;
+}
+
+/// Whether [text] carries a `data-utopia-id` naming exactly [id]: the quoted
+/// markup form (`data-utopia-id="button"`), the single-quoted one, and the
+/// unquoted selector form (`[data-utopia-id=button]`) older documents were
+/// written with all count; a longer id sharing the prefix (`button-group`)
+/// does not.
+bool _mentionsUtopiaId(String text, String id) =>
+    RegExp('''data-utopia-id\\s*=\\s*["']?${RegExp.escape(id)}(?![\\w-])''').hasMatch(text);
+
+/// [set] as a sorted list, so a finding order derived from set arithmetic
+/// stays stable across runs.
+List<String> _sorted(Set<String> set) => set.toList()..sort();
 
 /// Every object entry of a decoded manifest section (`components`/`models`/
 /// `helpers`), tolerating an absent or wrong-typed section: `"models": {}` is
