@@ -64,6 +64,8 @@ class _TypographyRow extends StatelessWidget {
     final theme = context.theme;
     final size = style.fontSize?.toStringAsFixed(0) ?? '-';
     final weight = style.fontWeight != null ? 'w${style.fontWeight!.value}' : '-';
+    final spacing = style.letterSpacing ?? 0;
+    final tracking = spacing == spacing.roundToDouble() ? spacing.toStringAsFixed(0) : spacing.toString();
     final sample = Text('The quick brown fox 0123', style: style);
     final specimen = onGradient
         ? ClipRRect(
@@ -80,7 +82,7 @@ class _TypographyRow extends StatelessWidget {
       crossAxisAlignment: WrapCrossAlignment.center,
       children: [
         specimen,
-        Text('$name - ${size}px $weight', style: context.textStyles.caption.copyWith(color: context.colors.hint)),
+        Text('$name - ${size}px $weight / $tracking', style: context.textStyles.caption.copyWith(color: context.colors.hint)),
       ],
     );
   }
