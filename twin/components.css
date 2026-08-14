@@ -14,6 +14,43 @@
    comment names the component's Dart source under lib/src/widget/. */
 
 /* ---------------------------------------------------------------------- */
+/* Typeface - the default theme's Sora, shipped in twin/fonts/ (OFL).      */
+/* Without these faces every text-style token falls back to the system     */
+/* sans and the twin loses typographic parity with the Flutter surface     */
+/* (which loads the same family from the utopia_ui package's fonts/).      */
+/* Weights mirror the fontWeight token scale: 400/500/600/700.             */
+/* ---------------------------------------------------------------------- */
+
+@font-face {
+  font-family: 'Sora';
+  font-weight: 400;
+  font-style: normal;
+  font-display: swap;
+  src: url('fonts/Sora-Regular.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Sora';
+  font-weight: 500;
+  font-style: normal;
+  font-display: swap;
+  src: url('fonts/Sora-Medium.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Sora';
+  font-weight: 600;
+  font-style: normal;
+  font-display: swap;
+  src: url('fonts/Sora-SemiBold.ttf') format('truetype');
+}
+@font-face {
+  font-family: 'Sora';
+  font-weight: 700;
+  font-style: normal;
+  font-display: swap;
+  src: url('fonts/Sora-Bold.ttf') format('truetype');
+}
+
+/* ---------------------------------------------------------------------- */
 /* .utopia-button - lib/src/widget/button/utopia_button.dart               */
 /* ---------------------------------------------------------------------- */
 

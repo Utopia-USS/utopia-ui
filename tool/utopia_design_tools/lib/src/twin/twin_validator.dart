@@ -333,6 +333,13 @@ class TwinValidator {
     // [_isBorderRadiusProperty]).
     String? openPropertyName;
 
+    // Inside an `@font-face` block the linter stays silent: descriptors like
+    // `font-family` and `font-weight` DEFINE the face rather than style an
+    // element, and CSS forbids var() in descriptor position - the block can
+    // never be made "token-clean", so flagging it would only breed
+    // utopia-literal-ok noise.
+    var insideFontFace = false;
+
     for (var i = 0; i < lines.length; i++) {
       final rawLine = lines[i];
       final lineNo = firstLineNo + i;
@@ -352,6 +359,13 @@ class TwinValidator {
         continue;
       }
       if (line.trim().startsWith('//')) {
+        continue;
+      }
+      if (line.contains('@font-face')) {
+        insideFontFace = true;
+      }
+      if (insideFontFace) {
+        if (line.contains('}')) insideFontFace = false;
         continue;
       }
 

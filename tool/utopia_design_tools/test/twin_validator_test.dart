@@ -187,6 +187,28 @@ void main() {
       expect(errors.any((f) => f.message.contains('raw font-weight')), isTrue);
     });
 
+    test('@font-face descriptors are exempt from the literals gate', () {
+      // Descriptors DEFINE a face (var() is invalid in descriptor position),
+      // so the block can never be token-clean - the linter must stay silent
+      // inside it while still flagging the same literals outside it.
+      final twin = doctoredTwin((dir) {
+        final css = File(p.join(dir.path, 'components.css'));
+        css.writeAsStringSync(
+          '${css.readAsStringSync()}\n'
+          '@font-face {\n'
+          "  font-family: 'Doctored Face';\n"
+          '  font-weight: 800;\n'
+          "  src: url('fonts/Doctored.ttf') format('truetype');\n"
+          '}\n'
+          '.doctored-after { font-weight: 800; }\n',
+        );
+      });
+      final errors = errorsOnly(validatorFor(twin).validate());
+      expect(errors.where((f) => f.message.contains('raw font-family')), isEmpty);
+      final weightErrors = errors.where((f) => f.message.contains('raw font-weight')).toList();
+      expect(weightErrors, hasLength(1), reason: 'only the declaration after the block is flagged');
+    });
+
     test('non-token px and ms literals warn (not error)', () {
       final twin = doctoredTwin((dir) {
         final css = File(p.join(dir.path, 'components.css'));
