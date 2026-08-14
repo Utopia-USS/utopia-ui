@@ -25,6 +25,13 @@ Future<void> main(List<String> arguments) async {
       help: 'Path to the consumer project root, for project/merged manifests (SPEC 3.8). Defaults to the '
           'walk-up rule (nearest non-utopia_ui pubspec.yaml above the target file).',
     )
+    ..addOption(
+      'overlay-dir',
+      help: 'Overlay directory the manifest was generated with, when not the default '
+          '(tool/utopia_design_tools/overlay for a library manifest, design/overlay for project/merged '
+          "ones). Scoped like generate_manifest's own --overlay-dir: relative to the sources root for a "
+          'library manifest, to the project root for project/merged manifests.',
+    )
     ..addOption('schema', help: 'Path to manifest.schema.json (overrides auto-discovery).')
     ..addFlag('help', abbr: 'h', help: 'Show usage.', negatable: false);
 
@@ -41,7 +48,7 @@ Future<void> main(List<String> arguments) async {
   if (args['help'] as bool) {
     stdout.writeln(
       'Usage: dart run utopia_design_tools:validate_manifest [<file>] [--json] [--sources <dir>] '
-      '[--project-dir <dir>] [--schema <path>]',
+      '[--project-dir <dir>] [--overlay-dir <dir>] [--schema <path>]',
     );
     stdout.writeln(parser.usage);
     exitCode = 0;
@@ -51,6 +58,7 @@ Future<void> main(List<String> arguments) async {
   final asJson = args['json'] as bool;
   final sourcesOption = args['sources'] as String?;
   final projectDirOption = args['project-dir'] as String?;
+  final overlayDirOption = args['overlay-dir'] as String?;
   final schemaOverride = args['schema'] as String?;
   final positional = args.rest;
 
@@ -83,23 +91,26 @@ Future<void> main(List<String> arguments) async {
     return;
   }
 
-  final Map<String, dynamic> rawJson;
+  // Decode to dynamic first: valid JSON that is not an object (a top-level
+  // array, a bare string/number) decodes fine and would otherwise throw a
+  // CastError outside the FormatException catch.
+  final dynamic decoded;
   try {
-    final decoded = jsonDecode(targetFile.readAsStringSync());
-    if (decoded is! Map<String, dynamic>) {
-      exitCode = 2;
-      stderr.writeln(
-        'validate_manifest: ${targetFile.path} is not a manifest object '
-        '(expected a top-level JSON object).',
-      );
-      return;
-    }
-    rawJson = decoded;
+    decoded = jsonDecode(targetFile.readAsStringSync());
   } on FormatException catch (e) {
     exitCode = 2;
     stderr.writeln('validate_manifest: ${targetFile.path} is not valid JSON: ${e.message}');
     return;
   }
+  if (decoded is! Map<String, dynamic>) {
+    exitCode = 2;
+    stderr.writeln(
+      'validate_manifest: ${targetFile.path} is not a manifest object - a manifest document is a JSON '
+      'object with "schemaVersion"/"package"/"components" keys (see protocol/schemas/manifest.schema.json).',
+    );
+    return;
+  }
+  final rawJson = decoded;
 
   final JsonSchema schema;
   try {
@@ -111,10 +122,24 @@ Future<void> main(List<String> arguments) async {
   }
 
   final sourcesRoot = sourcesOption != null ? Directory(sourcesOption) : _resolveDefaultSourcesRoot(targetFile);
+  final isProjectFlavor = _isProjectFlavor(rawJson);
   final projectRoot = projectDirOption != null
       ? Directory(projectDirOption)
-      : _resolveDefaultProjectRoot(targetFile, rawJson);
-  final validator = ManifestValidator(schema, utopiaUiRoot: sourcesRoot, projectRoot: projectRoot);
+      : (isProjectFlavor ? RepoLocator.findConsumerProjectRoot(start: targetFile.absolute.parent) : null);
+  // --overlay-dir is scoped the way generate_manifest scopes its own: relative
+  // to the sources root in library mode, to the project root in --project mode
+  // (which is this document's flavor here, detected from the document itself).
+  final overlayDir = _resolveOverlayDir(
+    overlayDirOption,
+    base: isProjectFlavor ? projectRoot : sourcesRoot,
+  );
+  final validator = ManifestValidator(
+    schema,
+    utopiaUiRoot: sourcesRoot,
+    projectRoot: projectRoot,
+    libraryOverlayDir: isProjectFlavor ? null : overlayDir,
+    projectOverlayDir: isProjectFlavor ? overlayDir : null,
+  );
   final findings = validator.validate(rawJson);
   final report = FindingReport(findings);
 
@@ -174,15 +199,24 @@ Directory? _resolveDefaultSourcesRoot(File targetFile) {
   return RepoLocator.findUtopiaUiRepoRoot(start: start) ?? RepoLocator.resolveUtopiaUiPackageRoot(start: start);
 }
 
-/// Resolves the default `--project-dir` root when not explicitly passed:
-/// only attempted for project/merged documents (SPEC 3.8 - a bare library
-/// manifest has no project root to speak of), via the same walk-up rule
-/// `generate_manifest --project` uses (nearest non-utopia_ui pubspec.yaml
-/// above [targetFile]).
-Directory? _resolveDefaultProjectRoot(File targetFile, Map<String, dynamic> rawJson) {
-  final isMerged = rawJson['merged'] == true;
+/// Whether [rawJson] is a project or merged document rather than the library
+/// manifest (SPEC 3.8, detected from the document itself - mirrors
+/// `ManifestValidator`'s own flavor detection). Decides both whether a project
+/// root is resolved at all (a bare library manifest has none to speak of) and
+/// which root `--overlay-dir` is relative to.
+bool _isProjectFlavor(Map<String, dynamic> rawJson) {
+  if (rawJson['merged'] == true) return true;
   final package = rawJson['package'];
-  final isProjectFlavor = isMerged || (package is String && package != 'utopia_ui');
-  if (!isProjectFlavor) return null;
-  return RepoLocator.findConsumerProjectRoot(start: targetFile.absolute.parent);
+  return package is String && package != 'utopia_ui';
+}
+
+/// Resolves `--overlay-dir` against [base] the way `generate_manifest` does
+/// (absolute paths as given, relative ones under the root the mode is scoped
+/// to, falling back to the current directory when that root is unresolved).
+/// Returns `null` when the flag was not passed, leaving the validator on
+/// generation's default overlay directory.
+Directory? _resolveOverlayDir(String? option, {required Directory? base}) {
+  if (option == null) return null;
+  if (p.isAbsolute(option)) return Directory(option);
+  return Directory(p.join(base?.path ?? Directory.current.path, option));
 }

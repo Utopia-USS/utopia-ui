@@ -21,6 +21,17 @@ void main() {
 
   TokenDocument canonicalDocument() => TokenDocument.parse(loadCanonical());
 
+  /// The canonical document with one `textStyle.header` sub-property
+  /// replaced by [value] (each is `oneOf {value, alias}` per protocol SPEC
+  /// 2.4 / tokens.schema.json). `loadCanonical` re-reads the file, so the
+  /// canonical tree used by the other tests is never mutated.
+  TokenDocument documentWithHeaderProperty(String property, dynamic value) {
+    final raw = loadCanonical();
+    final header = (raw['textStyle'] as Map<String, dynamic>)['header'] as Map<String, dynamic>;
+    (header[r'$value'] as Map<String, dynamic>)[property] = value;
+    return TokenDocument.parse(raw);
+  }
+
   group('cssVarName', () {
     test('kebab-cases camelCase path segments and joins with -', () {
       expect(cssVarName('spacing.md'), equals('--utopia-spacing-md'));
@@ -147,6 +158,224 @@ void main() {
         profileVersion: '0.2.0',
       );
       expect(first, equals(second));
+    });
+  });
+
+  group('typography inner aliases', () {
+    test('an aliased fontSize/fontWeight/letterSpacing resolves to its target value in tokens.css', () {
+      var document = documentWithHeaderProperty('fontSize', '{spacing.xxl}');
+      var css = generateCss(document, inputPath: 'tokens/utopia.tokens.json', profileVersion: '0.2.0');
+      expect(css, contains('  --utopia-text-style-header-font-size: 32px;'));
+
+      document = documentWithHeaderProperty('fontWeight', '{fontWeight.bold}');
+      css = generateCss(document, inputPath: 'tokens/utopia.tokens.json', profileVersion: '0.2.0');
+      expect(css, contains('  --utopia-text-style-header-font-weight: 700;'));
+
+      document = documentWithHeaderProperty('letterSpacing', '{spacing.xxs}');
+      css = generateCss(document, inputPath: 'tokens/utopia.tokens.json', profileVersion: '0.2.0');
+      expect(css, contains('  --utopia-text-style-header-letter-spacing: 2px;'));
+    });
+
+    test('an inner alias on a property tailwind does not map leaves the mapped lines intact', () {
+      final tailwind = generateTailwind(
+        documentWithHeaderProperty('fontSize', '{spacing.xxl}'),
+        inputPath: 'tokens/utopia.tokens.json',
+        profileVersion: '0.2.0',
+      );
+      expect(tailwind, contains('  --font-header: Sora;'));
+    });
+
+    test('an aliased fontFamily that resolves to a non-name token fails loudly in both stylesheets', () {
+      // Before inner aliases were resolved, both generators emitted the raw
+      // "{spacing.md}" text as if it were a font family name.
+      final matcher = throwsA(
+        isA<StateError>().having(
+          (e) => e.message,
+          'message',
+          contains('"textStyle.header.fontFamily" did not resolve to a font family name'),
+        ),
+      );
+
+      expect(
+        () => generateCss(
+          documentWithHeaderProperty('fontFamily', '{spacing.md}'),
+          inputPath: 'tokens/utopia.tokens.json',
+          profileVersion: '0.2.0',
+        ),
+        matcher,
+      );
+      expect(
+        () => generateTailwind(
+          documentWithHeaderProperty('fontFamily', '{spacing.md}'),
+          inputPath: 'tokens/utopia.tokens.json',
+          profileVersion: '0.2.0',
+        ),
+        matcher,
+      );
+    });
+
+    test('an aliased fontWeight/fontSize that resolves to the wrong kind of token names the path', () {
+      // A sub-value alias is only checked for resolvability by the token
+      // gates, never for the kind of token it lands on, so these documents
+      // are schema-valid: the generator has to reject them itself, with a
+      // message naming the path, rather than failing on a raw cast.
+      expect(
+        () => generateCss(
+          documentWithHeaderProperty('fontWeight', '{spacing.md}'),
+          inputPath: 'tokens/utopia.tokens.json',
+          profileVersion: '0.2.0',
+        ),
+        throwsA(
+          isA<StateError>().having(
+            (e) => e.message,
+            'message',
+            contains('"textStyle.header.fontWeight" did not resolve to a number'),
+          ),
+        ),
+      );
+      expect(
+        () => generateCss(
+          documentWithHeaderProperty('fontSize', '{fontWeight.bold}'),
+          inputPath: 'tokens/utopia.tokens.json',
+          profileVersion: '0.2.0',
+        ),
+        throwsA(
+          isA<StateError>().having(
+            (e) => e.message,
+            'message',
+            contains('"textStyle.header.fontSize" did not resolve to a dimension'),
+          ),
+        ),
+      );
+    });
+  });
+
+  group('font family serialization', () {
+    test('a hostile family name is quoted and escaped instead of injecting into the stylesheet', () {
+      // A raw `"` closes the quoted name and a raw `;`/`}` ends the
+      // declaration and the :root block, so an unescaped name could append
+      // arbitrary rules to the generated stylesheet.
+      final document = documentWithHeaderProperty('fontFamily', <String>[
+        'Ev"il; } body { color: red',
+        r'Back\slash',
+        'Sora Sans',
+        'sans-serif',
+      ]);
+
+      const expected =
+          r'--utopia-text-style-header-font-family: "Ev\"il; } body { color: red", "Back\\slash", "Sora Sans", sans-serif;';
+      final css = generateCss(document, inputPath: 'tokens/utopia.tokens.json', profileVersion: '0.2.0');
+      expect(css, contains('  $expected'));
+      // The `}` inside the name never closes the :root block: exactly one
+      // closing brace, the generator's own.
+      expect(css.split('\n').where((line) => line == '}').length, 1);
+
+      // The Tailwind variant shares serializeFontFamily, so it is hardened
+      // by the same fix.
+      final tailwind = generateTailwind(document, inputPath: 'tokens/utopia.tokens.json', profileVersion: '0.2.0');
+      expect(
+        tailwind,
+        contains(r'--font-header: "Ev\"il; } body { color: red", "Back\\slash", "Sora Sans", sans-serif;'),
+      );
+    });
+
+    test('a plain identifier family stays bare and a generic keyword is never quoted', () {
+      final css = generateCss(
+        documentWithHeaderProperty('fontFamily', <String>['Sora', 'ui-sans-serif']),
+        inputPath: 'tokens/utopia.tokens.json',
+        profileVersion: '0.2.0',
+      );
+      expect(css, contains('  --utopia-text-style-header-font-family: Sora, ui-sans-serif;'));
+    });
+  });
+
+  group('shadow layer aliases', () {
+    /// The canonical document with `shadow.lg` doctored to [layerCount]
+    /// identical layers and `shadow.md` replaced by a single per-layer alias
+    /// to `shadow.lg` - the same fixture shape theme_gen_test uses, so both
+    /// generators are held to the same contract.
+    TokenDocument documentAliasingShadowLg({required int layerCount}) {
+      final raw = loadCanonical();
+      final shadowGroup = raw['shadow'] as Map<String, dynamic>;
+      final lg = shadowGroup['lg'] as Map<String, dynamic>;
+      final firstLayer = (lg[r'$value'] as List).first;
+      lg[r'$value'] = [for (var i = 0; i < layerCount; i++) firstLayer];
+      (shadowGroup['md'] as Map<String, dynamic>)[r'$value'] = ['{shadow.lg}'];
+      return TokenDocument.parse(raw);
+    }
+
+    /// The serialized value of custom property [name] in [css].
+    String valueOf(String css, String name) {
+      final line = const LineSplitter().convert(css).firstWhere((l) => l.trim().startsWith('$name:'));
+      return line.substring(line.indexOf(':') + 1).trim();
+    }
+
+    test('a per-layer alias to a single-layer shadow resolves that layer', () {
+      final css = generateCss(
+        documentAliasingShadowLg(layerCount: 1),
+        inputPath: 'tokens/utopia.tokens.json',
+        profileVersion: '0.2.0',
+      );
+      expect(valueOf(css, '--utopia-shadow-md'), valueOf(css, '--utopia-shadow-lg'));
+    });
+
+    test('a per-layer alias to a multi-layer shadow is a hard error in both stylesheets', () {
+      // generate_theme already refuses this; emitting only the first layer
+      // here would drop the rest of the referenced shadow and let the twin
+      // and the Dart theme disagree about the same document.
+      final matcher = throwsA(
+        isA<StateError>().having(
+          (e) => e.message,
+          'message',
+          allOf(contains('"shadow.md"'), contains('{shadow.lg}'), contains('has 2 layers')),
+        ),
+      );
+
+      expect(
+        () => generateCss(
+          documentAliasingShadowLg(layerCount: 2),
+          inputPath: 'tokens/utopia.tokens.json',
+          profileVersion: '0.2.0',
+        ),
+        matcher,
+      );
+      expect(
+        () => generateTailwind(
+          documentAliasingShadowLg(layerCount: 2),
+          inputPath: 'tokens/utopia.tokens.json',
+          profileVersion: '0.2.0',
+        ),
+        matcher,
+      );
+    });
+  });
+
+  group('CLI level: generation errors (real bin/generate_twin.dart)', () {
+    test('an incoherent-but-schema-valid document exits 1 with the message and writes nothing', () async {
+      final scratch = Directory.systemTemp.createTempSync('generate_twin_bad_alias_');
+      addTearDown(() => scratch.deleteSync(recursive: true));
+
+      final raw = loadCanonical();
+      final header = (raw['textStyle'] as Map<String, dynamic>)['header'] as Map<String, dynamic>;
+      (header[r'$value'] as Map<String, dynamic>)['fontWeight'] = '{spacing.md}';
+      final tokensFile = File(p.join(scratch.path, 'tokens.json'))
+        ..writeAsStringSync(const JsonEncoder.withIndent('  ').convert(raw));
+      final outputDir = Directory(p.join(scratch.path, 'twin'));
+
+      final result = await Process.run('dart', [
+        'run',
+        p.join(Directory.current.path, 'bin', 'generate_twin.dart'),
+        tokensFile.path,
+        '-o',
+        outputDir.path,
+      ], workingDirectory: Directory.current.path);
+
+      expect(result.exitCode, 1, reason: 'stdout: ${result.stdout}\nstderr: ${result.stderr}');
+      final errorText = result.stderr as String;
+      expect(errorText, contains('generate_twin: "textStyle.header.fontWeight" did not resolve to a number'));
+      expect(errorText, isNot(contains('Unhandled exception')));
+      expect(errorText.split('generate_twin:').length, 2, reason: 'the tool-name prefix is not doubled');
+      expect(outputDir.existsSync(), isFalse, reason: 'nothing is written when generation fails');
     });
   });
 

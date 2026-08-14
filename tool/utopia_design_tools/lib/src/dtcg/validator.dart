@@ -589,8 +589,17 @@ class TokenValidator {
         continue;
       }
       final target = document.tokensByPath[colorToken];
-      if (target == null || target.type != 'color') {
+      if (target == null) {
         findings.add(Finding.error(path, 'colorToken "$colorToken" does not resolve to an existing color token'));
+        continue;
+      }
+      if (target.type != 'color') {
+        findings.add(
+          Finding.error(
+            path,
+            'colorToken "$colorToken" resolves to a ${target.type} token, not a color token',
+          ),
+        );
         continue;
       }
       final expected = 'textStyle-colors.$role';

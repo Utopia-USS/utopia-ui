@@ -46,10 +46,23 @@ enum ManifestFlavor {
 /// namespaced components, SPEC 3.8). Either or both may be `null`; the gates
 /// that need an unavailable root are skipped silently, matching the spec's
 /// "skip silently when sources unavailable" rule.
+///
+/// [libraryOverlayDir] / [projectOverlayDir] mirror `generate_manifest`'s
+/// `--overlay-dir`: the bindings gate can only subtract an overlay's
+/// `tokenBindingsAdd` entries from a manifest that was generated with the same
+/// overlay directory, so a manifest generated with a custom one must be
+/// validated against it too (otherwise every added binding reports stale).
 class ManifestValidator {
   /// Creates a validator bound to the given [schema] and (optional)
-  /// [utopiaUiRoot] / [projectRoot] for source cross-checks.
-  const ManifestValidator(this.schema, {this.utopiaUiRoot, this.projectRoot});
+  /// [utopiaUiRoot] / [projectRoot] for source cross-checks, plus the
+  /// (optional) overlay directories generation merged `tokenBindingsAdd` from.
+  const ManifestValidator(
+    this.schema, {
+    this.utopiaUiRoot,
+    this.projectRoot,
+    this.libraryOverlayDir,
+    this.projectOverlayDir,
+  });
 
   /// The loaded manifest JSON Schema.
   final JsonSchema schema;
@@ -62,6 +75,18 @@ class ManifestValidator {
   /// The consumer project root to cross-check namespaced-id
   /// bindings/file-root against (SPEC 3.8), or `null` to skip those gates.
   final Directory? projectRoot;
+
+  /// The library overlay directory whose `tokenBindingsAdd` entries generation
+  /// merged into the bare-id components' `tokenBindings`, or `null` for
+  /// `generate_manifest`'s default (`tool/utopia_design_tools/overlay` under
+  /// [utopiaUiRoot]).
+  final Directory? libraryOverlayDir;
+
+  /// The project overlay directory whose `tokenBindingsAdd` entries generation
+  /// merged into the namespaced components' `tokenBindings` (SPEC 3.8), or
+  /// `null` for `generate_manifest --project`'s default (`design/overlay`
+  /// under [projectRoot]).
+  final Directory? projectOverlayDir;
 
   /// Validates [rawJson], returning every [Finding] from every gate.
   List<Finding> validate(Map<String, dynamic> rawJson) {
@@ -82,15 +107,15 @@ class ManifestValidator {
       // `components`.
       return findings;
     }
-    final componentsRaw = (rawJson['components'] as List).whereType<Map<String, dynamic>>().toList();
-    // `models`/`helpers` may be wrong-typed (e.g. `{}`); the schema gate above
-    // already recorded that, so degrade to empty here rather than letting an
-    // `as List?` cast throw and mask the clean finding.
-    final modelsRaw = (rawJson['models'] is List ? rawJson['models'] as List : const <dynamic>[])
-        .whereType<Map<String, dynamic>>()
-        .toList();
+    final componentsRaw = _sectionEntries(rawJson['components']);
+    final modelsRaw = _sectionEntries(rawJson['models']);
     final flavor = _detectFlavor(rawJson);
-    final package = rawJson['package'] as String?;
+    // Type-guarded like the section reads: a wrong-typed `package` is already
+    // reported by the schema gate above, and every later gate must keep
+    // walking instead of throwing a `CastError` on the way (`validate` reports
+    // every finding, it never fails fast).
+    final packageRaw = rawJson['package'];
+    final package = packageRaw is String ? packageRaw : null;
 
     // Gate 2: packageVersion drift (library manifest only - a project/merged
     // document's packageVersion describes the PROJECT, not utopia_ui).
@@ -142,9 +167,7 @@ class ManifestValidator {
     // Gate 4: referential integrity (modelName, composes, twin) + source file
     // existence for every entry that declares one.
     findings.addAll(_checkReferentialIntegrity(componentsRaw, modelsRaw, flavor: flavor));
-    final helpersRaw = (rawJson['helpers'] is List ? rawJson['helpers'] as List : const <dynamic>[])
-        .whereType<Map<String, dynamic>>()
-        .toList();
+    final helpersRaw = _sectionEntries(rawJson['helpers']);
     findings.addAll(_checkFilesExist(componentsRaw, modelsRaw, helpersRaw));
 
     // Gate 5: bindings re-extraction against source (skipped silently when
@@ -393,16 +416,19 @@ class ManifestValidator {
   }
 
   /// Loads and decodes `manifest/utopia.manifest.json` from [root], or
-  /// returns `null` when the file is missing or not valid JSON (both cases
-  /// mean the shipped-library-dependent checks are skipped silently).
+  /// returns `null` when the file is missing, not valid JSON, or not a JSON
+  /// object (each case means the shipped-library-dependent checks are skipped
+  /// silently).
   Map<String, dynamic>? _loadShippedLibraryManifest(Directory root) {
     final libraryManifestFile = File(p.join(root.path, 'manifest', 'utopia.manifest.json'));
     if (!libraryManifestFile.existsSync()) return null;
+    final dynamic decoded;
     try {
-      return jsonDecode(libraryManifestFile.readAsStringSync()) as Map<String, dynamic>;
+      decoded = jsonDecode(libraryManifestFile.readAsStringSync());
     } on FormatException {
       return null;
     }
+    return decoded is Map<String, dynamic> ? decoded : null;
   }
 
   /// SPEC 3.8: on a merged view, every bare (unnamespaced) component id must
@@ -415,8 +441,7 @@ class ManifestValidator {
     if (root == null) return const [];
     final shippedLibrary = _loadShippedLibraryManifest(root);
     if (shippedLibrary == null) return const [];
-    final shippedIds = (shippedLibrary['components'] as List? ?? const [])
-        .whereType<Map<String, dynamic>>()
+    final shippedIds = _sectionEntries(shippedLibrary['components'])
         .map((c) => c['id'] as String?)
         .whereType<String>()
         .toSet();
@@ -442,11 +467,10 @@ class ManifestValidator {
   List<Finding> _checkEmbeddedLibraryMatchesShipped(Map<String, dynamic> merged, Map<String, dynamic> shipped) {
     bool deepEquals(dynamic a, dynamic b) => const DeepCollectionEquality().equals(a, b);
 
-    final mergedComponents = (merged['components'] as List? ?? const [])
-        .whereType<Map<String, dynamic>>()
-        .where((c) => !(c['id'] as String? ?? '').contains(':'))
-        .toList();
-    final shippedComponents = (shipped['components'] as List? ?? const []).whereType<Map<String, dynamic>>().toList();
+    final mergedComponents = _sectionEntries(
+      merged['components'],
+    ).where((c) => !(c['id'] as String? ?? '').contains(':')).toList();
+    final shippedComponents = _sectionEntries(shipped['components']);
 
     if (!deepEquals(mergedComponents, shippedComponents)) {
       return [
@@ -458,8 +482,8 @@ class ManifestValidator {
       ];
     }
 
-    final mergedModels = (merged['models'] as List? ?? const []).whereType<Map<String, dynamic>>().toList();
-    final shippedModels = (shipped['models'] as List? ?? const []).whereType<Map<String, dynamic>>().toList();
+    final mergedModels = _sectionEntries(merged['models']);
+    final shippedModels = _sectionEntries(shipped['models']);
     final shippedModelNames = shippedModels.map((m) => m['name'] as String?).whereType<String>().toSet();
     final mergedLibraryModels = mergedModels.where((m) => shippedModelNames.contains(m['name'])).toList();
     if (!deepEquals(mergedLibraryModels, shippedModels)) {
@@ -472,8 +496,8 @@ class ManifestValidator {
       ];
     }
 
-    final mergedHelpers = (merged['helpers'] as List? ?? const []).whereType<Map<String, dynamic>>().toList();
-    final shippedHelpers = (shipped['helpers'] as List? ?? const []).whereType<Map<String, dynamic>>().toList();
+    final mergedHelpers = _sectionEntries(merged['helpers']);
+    final shippedHelpers = _sectionEntries(shipped['helpers']);
     final shippedHelperNames = shippedHelpers.map((h) => h['name'] as String?).whereType<String>().toSet();
     final mergedLibraryHelpers = mergedHelpers.where((h) => shippedHelperNames.contains(h['name'])).toList();
     if (!deepEquals(mergedLibraryHelpers, shippedHelpers)) {
@@ -531,6 +555,11 @@ class ManifestValidator {
     final findings = <Finding>[];
     final modelNames = models.map((m) => m['name'] as String?).whereType<String>().toSet();
     final componentIds = components.map((c) => c['id'] as String?).whereType<String>().toSet();
+    // A component class used as a declared prop type keeps `type: "model"`
+    // with `modelName` naming the class, but is published once, in
+    // `components` (extract.dart's model closure leaves it out of `models`) -
+    // so a prop modelName resolves against either section.
+    final componentNames = components.map((c) => c['name'] as String?).whereType<String>().toSet();
     final checkCrossReferences = flavor != ManifestFlavor.project;
     var reportedMissingTwinDir = false;
 
@@ -540,11 +569,12 @@ class ManifestValidator {
         for (final ctor in (component['constructors'] as List? ?? const []).whereType<Map<String, dynamic>>()) {
           for (final prop in (ctor['props'] as List? ?? const []).whereType<Map<String, dynamic>>()) {
             final modelName = prop['modelName'];
-            if (modelName is String && !modelNames.contains(modelName)) {
+            if (modelName is String && !modelNames.contains(modelName) && !componentNames.contains(modelName)) {
               findings.add(
                 Finding.error(
                   'components[$id].modelName',
-                  'prop "${prop['name']}" references modelName "$modelName", which has no entry in "models"',
+                  'prop "${prop['name']}" references modelName "$modelName", which has no entry in "models" '
+                      'or "components"',
                 ),
               );
             }
@@ -600,6 +630,18 @@ class ManifestValidator {
   // Gate 5: bindings re-extraction.
   // ---------------------------------------------------------------------
 
+  /// Re-extracts every component's `tokenBindings` from source and diffs it
+  /// against the manifest, mirroring generation on both sides: generation
+  /// writes `source UNION overlay.tokenBindingsAdd` (see `componentJson` in
+  /// `generator.dart`), so the overlays' `tokenBindingsAdd` entries are
+  /// subtracted here before the stale diff - otherwise every legitimately
+  /// added binding would be reported as a stale one, which also made
+  /// `generate_manifest`'s own self-validation refuse to write.
+  ///
+  /// Caveat: the library overlays live under `tool/`, which the `utopia_ui`
+  /// pub tarball does not ship (see `.pubignore`), so when the shipped
+  /// manifest is validated against a pub-cache package root instead of a repo
+  /// checkout there is nothing to subtract for bare ids.
   List<Finding> _checkBindings(List<Map<String, dynamic>> components) {
     final findings = <Finding>[];
 
@@ -621,15 +663,22 @@ class ManifestValidator {
       }
     }
 
-    // The overlay layer merges `tokenBindingsAdd` escape-hatch entries into a
-    // component's `tokenBindings` at generation time (generator.componentJson);
-    // load the same overlays here so those entries are never reported stale.
-    final libraryOverlays = utopiaUiRoot != null
-        ? _loadOverlaysSafe(Directory(p.join(utopiaUiRoot!.path, 'tool', 'utopia_design_tools', 'overlay')))
-        : const <String, ComponentOverlay>{};
-    final projectOverlays = projectRoot != null
-        ? _loadOverlaysSafe(Directory(p.join(projectRoot!.path, 'design', 'overlay')))
-        : const <String, ComponentOverlay>{};
+    // The overlay directories generation merged `tokenBindingsAdd` from: the
+    // explicitly threaded ones (`--overlay-dir`) when given, else
+    // `generate_manifest`'s own defaults under the respective root.
+    final libraryOverlayRoot =
+        libraryOverlayDir ??
+        (utopiaUiRoot == null
+            ? null
+            : Directory(p.join(utopiaUiRoot!.path, 'tool', 'utopia_design_tools', 'overlay')));
+    final projectOverlayRoot =
+        projectOverlayDir ?? (projectRoot == null ? null : Directory(p.join(projectRoot!.path, 'design', 'overlay')));
+    final libraryOverlays = libraryOverlayRoot == null
+        ? const <String, ComponentOverlay>{}
+        : _loadOverlaysOrEmpty(libraryOverlayRoot);
+    final projectOverlays = projectOverlayRoot == null
+        ? const <String, ComponentOverlay>{}
+        : _loadOverlaysOrEmpty(projectOverlayRoot);
 
     for (final component in components) {
       final id = component['id'] as String? ?? '?';
@@ -661,21 +710,15 @@ class ManifestValidator {
 
       final sourceBindings = extractTokenBindings(file.unit).toSet();
       final manifestBindings = (component['tokenBindings'] as List? ?? const []).whereType<String>().toSet();
-      final overlayAdds = _overlayTokenBindingsAdd(
-        id,
-        name,
-        namespaced: namespaced,
-        libraryOverlays: libraryOverlays,
-        projectOverlays: projectOverlays,
+      final overlayBindings = _overlayBindingsAdd(
+        overlays: namespaced ? projectOverlays : libraryOverlays,
+        id: id,
+        name: name,
       );
-      final knownBindings = sourceBindings.union(overlayAdds);
 
-      for (final binding in manifestBindings.difference(knownBindings)) {
+      for (final binding in manifestBindings.difference(sourceBindings).difference(overlayBindings)) {
         findings.add(
-          Finding.error(
-            'components[$id].tokenBindings',
-            'stale binding "$binding": not found in source or overlay tokenBindingsAdd',
-          ),
+          Finding.error('components[$id].tokenBindings', 'stale binding "$binding": not found in source'),
         );
       }
       for (final binding in sourceBindings.difference(manifestBindings)) {
@@ -683,14 +726,29 @@ class ManifestValidator {
           Finding.error('components[$id].tokenBindings', 'missing binding "$binding": found in source but not in the manifest'),
         );
       }
+      // The other direction of the overlay union: generation writes
+      // `source UNION overlay.tokenBindingsAdd`, so an overlay-added binding
+      // absent from the manifest (and from source, which the loop above
+      // already covers) means the manifest predates the overlay entry. Empty
+      // in the pub-cache case, where there are no overlays to read at all.
+      for (final binding in overlayBindings.difference(manifestBindings).difference(sourceBindings)) {
+        findings.add(
+          Finding.error(
+            'components[$id].tokenBindings',
+            'missing binding "$binding": declared by overlay tokenBindingsAdd but not in the manifest '
+                '(stale manifest - regenerate)',
+          ),
+        );
+      }
     }
     return findings;
   }
 
-  /// Loads overlays from [dir], degrading to an empty map on any error
-  /// (missing dir, malformed YAML) - the bindings gate must never crash the
-  /// whole validation over an unreadable overlay.
-  Map<String, ComponentOverlay> _loadOverlaysSafe(Directory dir) {
+  /// Loads `<dir>/*.yaml` overlays, tolerating every failure mode (missing
+  /// directory, unreadable or malformed YAML) with an empty map: the overlays
+  /// are read here only to reproduce generation's `tokenBindingsAdd` union,
+  /// never to re-report overlay drift (that is a generation-time gate).
+  Map<String, ComponentOverlay> _loadOverlaysOrEmpty(Directory dir) {
     try {
       return loadOverlays(dir);
     } catch (_) {
@@ -698,34 +756,33 @@ class ManifestValidator {
     }
   }
 
-  /// The `tokenBindingsAdd` escape-hatch entries the overlay layer merges into
-  /// a component's `tokenBindings` at generation time, resolved the same way
-  /// `generator`/`project_generator` do: a bare-id (library) component matches
-  /// its overlay by id; a namespaced (project) component matches by class name,
-  /// mirroring `ProjectComponentIdStrategy.idFor` (derived local part first,
-  /// then an explicit `class:` binding).
-  Set<String> _overlayTokenBindingsAdd(
-    String id,
-    String name, {
-    required bool namespaced,
-    required Map<String, ComponentOverlay> libraryOverlays,
-    required Map<String, ComponentOverlay> projectOverlays,
+  /// The `tokenBindingsAdd` entries generation merged into this component's
+  /// `tokenBindings`, resolved the way generation resolves a component's
+  /// overlay: by the id's local part, which IS the overlay's filename in both
+  /// flavors (the bare library id; a project id minus its `<package>:`
+  /// prefix - including the `class:`-override case, where the filename, not
+  /// the derived local part, becomes the id's local part). An overlay whose
+  /// `class:` key names a different class is not this component's overlay
+  /// (mirroring `ProjectComponentIdStrategy.idFor`).
+  Set<String> _overlayBindingsAdd({
+    required Map<String, ComponentOverlay> overlays,
+    required String id,
+    required String name,
   }) {
-    if (!namespaced) {
-      return libraryOverlays[id]?.tokenBindingsAdd.toSet() ?? const {};
-    }
-    final derived = projectOverlays[kebabCase(name)];
-    if (derived != null && (derived.className == null || derived.className == name)) {
-      return derived.tokenBindingsAdd.toSet();
-    }
-    for (final overlay in projectOverlays.values) {
-      if (overlay.className == name) {
-        return overlay.tokenBindingsAdd.toSet();
-      }
-    }
-    return const {};
+    final overlay = overlays[id.substring(id.indexOf(':') + 1)];
+    if (overlay == null) return const {};
+    if (overlay.className != null && overlay.className != name) return const {};
+    return overlay.tokenBindingsAdd.toSet();
   }
 }
+
+/// Every object entry of a decoded manifest section (`components`/`models`/
+/// `helpers`), tolerating an absent or wrong-typed section: `"models": {}` is
+/// already reported by the schema gate, and every later gate must keep
+/// walking instead of throwing a `CastError` on the way (`validate` reports
+/// every finding, it never fails fast).
+List<Map<String, dynamic>> _sectionEntries(dynamic raw) =>
+    raw is List ? raw.whereType<Map<String, dynamic>>().toList() : const [];
 
 /// Minimal structural deep-equality for decoded JSON values (`Map`, `List`,
 /// and primitives), used by the merged-freshness gate to compare embedded

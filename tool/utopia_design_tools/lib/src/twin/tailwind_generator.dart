@@ -126,15 +126,8 @@ List<TailwindLine> buildTailwindLines(TokenDocument document) {
       final node = entry.value;
       final aliasPath = aliasPathOf(node.value);
       final value = aliasPath != null ? resolveAlias(document, aliasPath).terminal!.value as Map : node.value as Map;
-      // fontFamily may itself be an alias (schema-permitted, validator-accepted);
-      // resolve it before quoting, else the alias string is emitted as a literal.
-      final rawFamily = value['fontFamily'];
-      final familyAlias = rawFamily is String ? aliasPathOf(rawFamily) : null;
-      final fontFamilyRaw = familyAlias != null ? resolveAlias(document, familyAlias).terminal!.value : rawFamily;
-      final fontFamilyCss = fontFamilyRaw is List
-          ? fontFamilyRaw.map((f) => _quoteFamily(f as String)).join(', ')
-          : _quoteFamily(fontFamilyRaw as String);
-      lines.add(TailwindLine.declaration('--font-$role', fontFamilyCss));
+      final fontFamilyCss = serializeFontFamily(document, 'textStyle.$role.fontFamily', value['fontFamily']);
+      lines.add(TailwindLine.declaration('--font-${_kebabSegment(role)}', fontFamilyCss));
     }
 
     // textStyle-colors.<role> -> --color-text-style-<role>
@@ -146,7 +139,7 @@ List<TailwindLine> buildTailwindLines(TokenDocument document) {
         final value = aliasPath != null ? resolveAlias(document, aliasPath).terminal!.value : node.value;
         lines.add(
           TailwindLine.declaration(
-            '--color-text-style-$role',
+            '--color-text-style-${_kebabSegment(role)}',
             serializeColor((value as Map).cast<String, dynamic>()),
           ),
         );
@@ -189,8 +182,6 @@ String _serializeLiteral(String? type, dynamic value) {
       throw StateError('generate_twin: unsupported scalar token \$type "$type"');
   }
 }
-
-String _quoteFamily(String family) => family.contains(' ') ? '"$family"' : family;
 
 /// Renders the full `tokens.tailwind.css` file text for [document], read from
 /// [inputPath] and carrying [profileVersion] (both recorded in the header

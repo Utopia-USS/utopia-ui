@@ -375,10 +375,12 @@ ExtractionResult extractAll(SourceModel model, {ComponentIdStrategy idStrategy =
 
   // Pass 3: resolve the model closure - every directly referenced model,
   // plus (recursively) types referenced in a model's own props, plus every
-  // exported subtype of any sealed model referenced.
-  final models = _resolveModelClosure(model, referencedModelNames);
+  // exported subtype of any sealed model referenced. Classes already emitted
+  // as components are excluded (a component used as a prop type stays a
+  // single entry, in `components`).
+  final models = _resolveModelClosure(model, referencedModelNames, componentClassNames: componentClasses.keys.toSet());
 
-  // Pass 4: helpers - exported top-level functions/hooks/typedefs.
+  // Pass 4: helpers - exported top-level functions/hooks/typedefs/extensions.
   final helpers = _extractHelpers(model);
 
   return ExtractionResult(components: components, models: models, helpers: helpers, errors: const []);
@@ -712,7 +714,9 @@ _MappedType _mapPortableType({
     return _MappedType('enum', enumName: bareName, values: values);
   }
 
-  // 6. Exported utopia_ui class.
+  // 6. Exported utopia_ui class. A component class reached here keeps
+  // `type: "model"` with `modelName` naming the class; the model closure
+  // leaves it out of `models`, since it already has a `components` entry.
   if (model.classesByName.containsKey(bareName)) {
     return _MappedType('model', modelName: bareName);
   }
@@ -756,7 +760,17 @@ bool _functionReturnsWidgetLike(TypeAnnotation? returnType) {
 // Model closure (pass 3)
 // ---------------------------------------------------------------------
 
-List<ExtractedModel> _resolveModelClosure(SourceModel model, Set<String> initialNames) {
+/// Walks the model closure over [initialNames]. [componentClassNames] are the
+/// classes already emitted as components: a component class that appears as a
+/// declared prop type (`_mapPortableType` maps any known class to
+/// `type: "model"`) must not be listed a second time as a model - the prop's
+/// `modelName` keeps naming the class, and that reference resolves against
+/// the `components` section instead (validate_manifest gate 4).
+List<ExtractedModel> _resolveModelClosure(
+  SourceModel model,
+  Set<String> initialNames, {
+  Set<String> componentClassNames = const {},
+}) {
   final resolved = <String, ExtractedModel>{};
   final pending = List<String>.from(initialNames);
   final seen = <String>{};
@@ -765,6 +779,7 @@ List<ExtractedModel> _resolveModelClosure(SourceModel model, Set<String> initial
     final name = pending.removeLast();
     if (!seen.add(name)) continue;
     if (_excludedClassNames.contains(name)) continue;
+    if (componentClassNames.contains(name)) continue;
 
     final enumDecl = model.enumsByName[name];
     if (enumDecl != null) {
@@ -853,27 +868,34 @@ List<ExtractedHelper> _extractHelpers(SourceModel model) {
         ),
       );
     }
-    for (final ext in file.extensions) {
-      // Unnamed extensions expose no referenceable API name - skip them.
-      final nameToken = ext.name;
-      if (nameToken == null) continue;
-      final name = nameToken.lexeme;
-      if (!isPublicName(name)) continue;
-      final onType = ext.onClause?.extendedType.toSource();
-      final typeParams = ext.typeParameters?.toSource() ?? '';
+    for (final extensionNode in file.extensions) {
+      // An unnamed extension (`extension on DateTime { ... }`) has no name to
+      // key a helper entry by (the schema's `name` is required), and callers
+      // cannot reference it - skipped entirely.
+      final name = extensionNode.name?.lexeme;
+      if (name == null || !isPublicName(name)) continue;
       helpers.add(
         ExtractedHelper(
           name: name,
           kind: 'extension',
-          description: cleanDescription(rawDocComment(ext.documentationComment)) ?? '',
+          description: cleanDescription(rawDocComment(extensionNode.documentationComment)) ?? '',
           file: file.repoRelativePath,
-          signature: onType != null ? 'extension $name$typeParams on $onType' : 'extension $name$typeParams',
+          signature: _extensionSignature(extensionNode, name),
         ),
       );
     }
   }
   helpers.sort((a, b) => a.name.compareTo(b.name));
   return helpers;
+}
+
+/// Verbatim declaration signature of a named extension, up to (not including)
+/// its body: `extension <name><typeParams> on <extendedType>`.
+String _extensionSignature(ExtensionDeclaration node, String name) {
+  final typeParamsSrc = node.typeParameters?.toSource() ?? '';
+  final extendedType = node.onClause?.extendedType.toSource();
+  final onSrc = extendedType != null ? ' on $extendedType' : '';
+  return 'extension $name$typeParamsSrc$onSrc';
 }
 
 /// Verbatim declaration signature of a top-level function, up to (not

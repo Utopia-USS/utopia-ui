@@ -477,11 +477,20 @@ class ThemeSpec {
         throw StateError('generate_theme: "$path": ${resolution.error}');
       }
       final terminalValue = resolution.terminal!.value;
-      if (terminalValue is List && terminalValue.isNotEmpty) {
-        layer = (terminalValue.first as Map).cast<String, dynamic>();
-      } else {
+      if (terminalValue is! List || terminalValue.isEmpty) {
         throw StateError('generate_theme: "$path" alias did not resolve to a shadow layer');
       }
+      // A per-layer alias names one layer, but a shadow token's value is a
+      // layer *array*: silently keeping only the first layer would drop the
+      // rest of the referenced shadow, so refuse instead.
+      if (terminalValue.length > 1) {
+        throw StateError(
+          'generate_theme: "$path": shadow-layer alias "{$aliasPath}" resolves to '
+          '"${resolution.terminal!.path}", which has ${terminalValue.length} layers; a per-layer alias '
+          'must target a single-layer shadow (alias the whole shadow token instead)',
+        );
+      }
+      layer = (terminalValue.first as Map).cast<String, dynamic>();
     } else if (rawLayer is Map) {
       layer = rawLayer.cast<String, dynamic>();
     } else {
@@ -496,6 +505,21 @@ class ThemeSpec {
     );
   }
 
+  /// Reads a `fontFamily` array as `List<String>`, checking every element up
+  /// front: `.cast<String>()` is lazy, so a non-string element would surface
+  /// later as a raw TypeError on the first read instead of the named error the
+  /// sibling (non-list, non-string) branch raises.
+  static List<String> _stringList(List<dynamic> raw, String path) {
+    final families = <String>[];
+    for (final entry in raw) {
+      if (entry is! String) {
+        throw StateError('generate_theme: "$path" must be a string or array of strings');
+      }
+      families.add(entry);
+    }
+    return families;
+  }
+
   static double _dimensionOf(dynamic value) {
     if (value is Map && value['value'] is num) {
       return (value['value'] as num).toDouble();
@@ -503,15 +527,15 @@ class ThemeSpec {
     throw StateError('generate_theme: expected a dimension object, got "$value"');
   }
 
-  /// Resolves a value that may be an alias string (`{group.token}`) to its
-  /// terminal token `$value`, passing non-alias values (dimension maps, plain
-  /// numbers, literal font-family strings) through unchanged. The schema lets
-  /// each typography sub-value be an alias, and the validator accepts them, so
-  /// generation must resolve them rather than consume the alias string raw.
-  static dynamic _resolveMaybeAlias(TokenDocument document, String path, dynamic raw) {
-    if (raw is! String) return raw;
+  /// Follows an inner alias inside a composite `$value` (a typography
+  /// sub-property, protocol SPEC 2.4: each of fontFamily/fontSize/fontWeight/
+  /// letterSpacing is `oneOf {value, alias}`) to its terminal token's
+  /// `$value`. Non-alias values pass through unchanged.
+  static dynamic _resolveInnerValue(TokenDocument document, String path, dynamic raw) {
     final aliasPath = aliasPathOf(raw);
-    if (aliasPath == null) return raw;
+    if (aliasPath == null) {
+      return raw;
+    }
     final resolution = resolveAlias(document, aliasPath);
     if (!resolution.isResolved) {
       throw StateError('generate_theme: "$path": ${resolution.error}');
@@ -527,12 +551,15 @@ class ThemeSpec {
       throw StateError('generate_theme: "$path" did not resolve to a typography value');
     }
 
-    final fontFamilyRaw = _resolveMaybeAlias(document, '$path.fontFamily', value['fontFamily']);
+    // Every typography sub-property may itself be an alias (protocol SPEC 2.4
+    // / tokens.schema.json), exactly like a per-layer shadow alias, so each
+    // one is resolved before it is read.
+    final fontFamilyRaw = _resolveInnerValue(document, '$path.fontFamily', value['fontFamily']);
     final List<String> families;
     if (fontFamilyRaw is String) {
       families = [fontFamilyRaw];
     } else if (fontFamilyRaw is List) {
-      families = fontFamilyRaw.cast<String>();
+      families = _stringList(fontFamilyRaw, '$path.fontFamily');
     } else {
       throw StateError('generate_theme: "$path.fontFamily" must be a string or array of strings');
     }
@@ -540,12 +567,12 @@ class ThemeSpec {
       throw StateError('generate_theme: "$path.fontFamily" must not be empty');
     }
 
-    final fontSize = _dimensionOf(_resolveMaybeAlias(document, '$path.fontSize', value['fontSize']));
-    final fontWeightRaw = _resolveMaybeAlias(document, '$path.fontWeight', value['fontWeight']);
+    final fontSize = _dimensionOf(_resolveInnerValue(document, '$path.fontSize', value['fontSize']));
+    final fontWeightRaw = _resolveInnerValue(document, '$path.fontWeight', value['fontWeight']);
     final fontWeight = fontWeightRaw is num
         ? fontWeightRaw.round()
         : throw StateError('generate_theme: "$path.fontWeight" did not resolve to a number');
-    final letterSpacing = _dimensionOf(_resolveMaybeAlias(document, '$path.letterSpacing', value['letterSpacing']));
+    final letterSpacing = _dimensionOf(_resolveInnerValue(document, '$path.letterSpacing', value['letterSpacing']));
 
     // The typography token's own $extensions live on the node reached after
     // alias resolution: a typography token is never itself an alias to

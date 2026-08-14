@@ -247,6 +247,47 @@ void main() {
     });
   });
 
+  group('validator agreement', () {
+    test('a document the validator calls clean yields no fixes, float imprecision included', () {
+      final doc = loadDefaultTheme();
+      _tokenValueMap(doc, 'x')[r'$value'] = 3;
+      // x*0.1 is the classic IEEE-754 case: 3 * 0.1 == 0.30000000000000004,
+      // so a stored 0.3 is within the validator's derivationTolerance but not
+      // exactly equal - the fixer must agree with the validator, not rewrite.
+      _utopiaExtensionsOf(doc, 'spacing', 'xxs').utopiaNamespace['derivation'] = 'x*0.1';
+
+      // Re-derive the rest of the tree for x=3 (every other multiple is a
+      // half-integer, so those land exactly), then write the clean decimal a
+      // human or the exporter would store for spacing.xxs.
+      TokenFixer.fix(doc);
+      _dimensionMap(doc, 'spacing', 'xxs')['value'] = 0.3;
+
+      expect(
+        errorsOf(doc),
+        isEmpty,
+        reason: 'the setup must be validator-clean: ${errorsOf(doc).map((f) => f.toLine())}',
+      );
+      expect(TokenFixer.fix(doc), isEmpty);
+      expect(_dimensionValue(doc, 'spacing', 'xxs'), 0.3);
+    });
+
+    test('radius.full keeps its 9999 sentinel even when a derivation extension is present', () {
+      final doc = loadDefaultTheme();
+      // The validator rejects a derivation on radius.full outright (SPEC 2.5);
+      // honoring it would overwrite the pill sentinel with x*2 = 8.
+      _tokenValueMap(doc, 'radius', 'full')[r'$extensions'] = {
+        'io.utopiasoft.design': {'derivation': 'x*2'},
+      };
+
+      final fixes = TokenFixer.fix(doc);
+
+      expect(fixes.map((f) => f.path), isNot(contains('radius.full')));
+      expect(_dimensionValue(doc, 'radius', 'full'), 9999);
+      // ...and the document stays invalid, so --fix cannot mask the error.
+      expect(errorsOf(doc).map((f) => f.message), anyElement(contains('must not carry a derivation extension')));
+    });
+  });
+
   group('CLI level (real bin/validate_tokens.dart via Process.run)', () {
     test('a rebranded x=4->5 scratch copy: --fix exits 0 with FIXED lines, then a rerun says nothing to fix', () async {
       final scratchDir = Directory.systemTemp.createTempSync('validate_tokens_fix_cli_');

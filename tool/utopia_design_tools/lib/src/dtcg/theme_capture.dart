@@ -350,19 +350,21 @@ class ThemeCapture {
   }
 
   /// Computes the `x*<multiple>` derivation stamp for [value] against base
-  /// [x], or `null` when [value] is not within [derivationTolerance] of a
-  /// clean (at most 3-decimal) multiple of [x].
+  /// [x], or `null` when a 3-decimal multiple cannot reproduce [value] within
+  /// [derivationTolerance].
+  ///
+  /// The check is deliberately in value-space (`|value - x*rounded|`), the
+  /// same space the validator's derivation gate uses: rounding the multiple
+  /// itself always lands within 0.0005 of the exact multiple, so a
+  /// multiple-space comparison would accept every slot and stamp derivations
+  /// the validator then rejects (the value-space error scales with [x], e.g.
+  /// x=6 with value 47 stamps `x*7.833` but re-derives to 46.998).
   static String? _derivationOf(double value, double x) {
     if (x == 0) {
       return null;
     }
     final multiple = value / x;
     final rounded = _roundTo(multiple, 3);
-    // Compare in value space, matching the validator's derivation gate
-    // (`|actual - x * rounded|`): rounding `multiple` to 3 decimals bounds the
-    // multiple-space error to <= 0.0005 < derivationTolerance, so a
-    // multiple-space check here would never reject, yet the reconstructed
-    // value `x * rounded` can drift past tolerance for larger `x`.
     if ((value - x * rounded).abs() > derivationTolerance) {
       return null;
     }

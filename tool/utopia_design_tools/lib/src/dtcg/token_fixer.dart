@@ -38,11 +38,11 @@ class TokenFix {
   /// Which repair class produced this fix.
   final TokenFixKind kind;
 
-  /// Text-mode rendering. Derivation re-derivation: `FIXED <path>: <old> ->
-  /// <new>`. Color hex resync additionally states the direction and hints at
-  /// the field to edit instead: `FIXED <path>: hex "<old>" -> "<new>" (hex
-  /// re-derived from components; to change the color itself, edit
-  /// components)`.
+  /// Text-mode rendering. Derivation re-derivation:
+  /// `FIXED <path>: <old> -> <new>`. Color hex resync additionally states the
+  /// direction and hints at the field to edit instead:
+  /// `FIXED <path>: hex "<old>" -> "<new>"` followed by
+  /// `(hex re-derived from components; to change the color itself, edit components)`.
   String toLine() {
     if (kind == TokenFixKind.colorHexResync) {
       return 'FIXED $path: hex "$from" -> "$to" (hex re-derived from components; '
@@ -123,8 +123,12 @@ class TokenFixer {
     final type = node[r'$type'];
     final value = node[r'$value'];
 
-    // Repair class 1: derivation re-derivation.
-    if (xValue != null) {
+    // Repair class 1: derivation re-derivation. radius.full is excluded the
+    // same way the validator excludes it (protocol SPEC 2.5: deliberately not
+    // base-derived, a derivation extension there is an error, not a repair
+    // instruction) - honoring one would overwrite the pill sentinel with a
+    // derived value and still leave the document invalid.
+    if (xValue != null && path != 'radius.full') {
       final extensions = node[r'$extensions'];
       if (extensions is Map<String, dynamic>) {
         final ns = extensions['io.utopiasoft.design'];
@@ -166,13 +170,6 @@ class TokenFixer {
     double xValue,
     List<TokenFix> fixes,
   ) {
-    // radius.full is deliberately not base-derived (the effectively-infinite
-    // pill sentinel); the validator rejects a derivation on it outright. Never
-    // re-derive it here - doing so would overwrite the sentinel with x*<m> and
-    // still leave the validator's "must not carry a derivation" error standing.
-    if (path == 'radius.full') {
-      return;
-    }
     final match = RegExp(r'^x\*([0-9]+(?:\.[0-9]+)?)$').firstMatch(derivation);
     if (match == null) {
       return;
@@ -235,9 +232,10 @@ class TokenFixer {
   }
 
   /// Whether [a] and [b] are the same number for fixing purposes: equal
-  /// within [derivationTolerance], matching the validator's derivation gate
-  /// so a value the validator calls clean is never needlessly rewritten with
-  /// float noise (which would report a spurious `FIXED`).
+  /// within [derivationTolerance], the same tolerance the validator's
+  /// derivation gate applies. Exact equality would let `--fix` rewrite a
+  /// document the validator calls clean (e.g. a stored `0.3` against
+  /// `3 * 0.1 == 0.30000000000000004`) and report a spurious `FIXED`.
   static bool _numEquals(double a, double b) => (a - b).abs() <= derivationTolerance;
 
   /// Converts a [double] to the JSON-friendly numeric representation: an

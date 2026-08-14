@@ -114,29 +114,50 @@ Future<void> main(List<String> arguments) async {
   final document = TokenDocument.parse(rawJson);
   final profileVersion = (document.rootExtensions?['profileVersion'] as String?) ?? protocolVersion;
 
+  final headerInputPath = RepoLocator.normalizeInputPath(targetFile.path);
+
+  // Everything is rendered before anything is written: a document that passes
+  // the token gates can still be incoherent for codegen (a typography
+  // sub-property aliasing a non-dimension token, a per-layer shadow alias to a
+  // multi-layer shadow), and those are deliberate StateErrors carrying an
+  // actionable message. Report them like generate_theme does - exit 1 with the
+  // message, no half-written twin and no raw stack trace.
+  final String cssContent;
+  final String? tailwindContent;
+  final String? frontMatterBody;
+  try {
+    cssContent = generateCss(document, inputPath: headerInputPath, profileVersion: profileVersion);
+    tailwindContent = skipTailwind
+        ? null
+        : generateTailwind(document, inputPath: headerInputPath, profileVersion: profileVersion);
+    frontMatterBody = skipDesignMd ? null : buildFrontMatterBody(document);
+  } on StateError catch (e) {
+    exitCode = 1;
+    // The generators' messages already carry the tool-name prefix (they are
+    // written to be printed verbatim), so it is not doubled here.
+    stderr.writeln(e.message.startsWith('generate_twin: ') ? e.message : 'generate_twin: ${e.message}');
+    return;
+  }
+
   final outputOption = args['output'] as String?;
   final outputDir = Directory(outputOption ?? _defaultTwinDir());
   outputDir.createSync(recursive: true);
 
   final writtenPaths = <String>[];
 
-  final headerInputPath = RepoLocator.normalizeInputPath(targetFile.path);
   final cssFile = File(p.join(outputDir.path, 'tokens.css'));
-  cssFile.writeAsStringSync(generateCss(document, inputPath: headerInputPath, profileVersion: profileVersion));
+  cssFile.writeAsStringSync(cssContent);
   writtenPaths.add(cssFile.path);
 
-  if (!skipTailwind) {
+  if (tailwindContent != null) {
     final tailwindFile = File(p.join(outputDir.path, 'tokens.tailwind.css'));
-    tailwindFile.writeAsStringSync(
-      generateTailwind(document, inputPath: headerInputPath, profileVersion: profileVersion),
-    );
+    tailwindFile.writeAsStringSync(tailwindContent);
     writtenPaths.add(tailwindFile.path);
   }
 
-  if (!skipDesignMd) {
+  if (frontMatterBody != null) {
     final designMdFile = File(p.join(outputDir.path, 'DESIGN.md'));
     final existingContent = designMdFile.existsSync() ? designMdFile.readAsStringSync() : null;
-    final frontMatterBody = buildFrontMatterBody(document);
     final splice = spliceDesignMd(existingContent, frontMatterBody);
     if (splice.warning != null) {
       stderr.writeln('generate_twin: warning: ${splice.warning}');

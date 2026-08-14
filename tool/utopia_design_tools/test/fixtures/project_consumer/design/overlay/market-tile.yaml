@@ -3,3 +3,8 @@ notes: >-
   A stock/instrument quote tile: composes UtopiaCard + UtopiaChip, reads
   colors/spacing from the theme, and colours its chip from a project-local
   gain/loss constant (the legal "values on the side" pattern, SPEC 3.8).
+# Exercises the escape hatch end to end on the namespaced (project) path: a
+# binding the AST extractor cannot see, merged in at generation and subtracted
+# from validate_manifest's stale diff.
+tokenBindingsAdd:
+  - theme.cardShadow

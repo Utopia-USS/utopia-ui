@@ -976,9 +976,9 @@
   box-sizing: border-box;
   display: inline-flex;
   align-items: center;
-  width: 40px; /* utopia-literal-ok: mirrors Dart UtopiaSwitch track width = tokens.x*10 (x=4) */
-  height: 24px; /* utopia-literal-ok: mirrors Dart UtopiaSwitch track height = tokens.x*6 (x=4) */
-  padding: 2px; /* utopia-literal-ok: mirrors Dart UtopiaSwitch thumb inset = tokens.x*0.5 (x=4) */
+  width: 40px; /* utopia-literal-ok: mirrors UtopiaSwitch track width = tokens.x*10 */
+  height: 24px; /* utopia-literal-ok: mirrors UtopiaSwitch track height = tokens.x*6 */
+  padding: 2px; /* utopia-literal-ok: mirrors UtopiaSwitch thumb inset = tokens.x*0.5 */
   border: 0;
   border-radius: var(--utopia-radius-full);
   background-color: var(--utopia-color-disabled);
@@ -995,9 +995,14 @@
   cursor: default;
 }
 
+.utopia-switch.is-disabled {
+  opacity: 0.5; /* mirrors UtopiaSwitch disabled fade (onChanged == null, not readOnly) */
+  cursor: default;
+}
+
 .utopia-switch__thumb {
-  width: 20px; /* utopia-literal-ok: mirrors Dart UtopiaSwitch thumb size = trackHeight - 2*thumbInset = tokens.x*5 (x=4) */
-  height: 20px; /* utopia-literal-ok: mirrors Dart UtopiaSwitch thumb size = trackHeight - 2*thumbInset = tokens.x*5 (x=4) */
+  width: 20px; /* utopia-literal-ok: mirrors UtopiaSwitch thumb size = track height - 2 * thumb inset = tokens.x*5 */
+  height: 20px; /* utopia-literal-ok: mirrors UtopiaSwitch thumb size = track height - 2 * thumb inset = tokens.x*5 */
   border-radius: var(--utopia-radius-full);
   background-color: var(--utopia-text-style-button-color);
   transition: transform var(--utopia-duration-sm) ease;

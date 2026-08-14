@@ -1530,12 +1530,13 @@
         "tokens.x"
       ],
       "states": [
+        "disabled",
         "readOnly"
       ],
       "examples": [
         "example/lib/sections/selection_section.dart"
       ],
-      "notes": "A themed on/off switch, styled from UtopiaThemeColors instead of the ambient MaterialApp theme. readOnly blocks interaction while keeping the full-color styling, instead of Flutter's faded disabled look."
+      "notes": "A themed on/off switch, styled from UtopiaThemeColors instead of the ambient MaterialApp theme. readOnly blocks interaction while keeping the full-color styling; a null onChanged (without readOnly) is the disabled state and renders faded at 50% opacity."
     },
     {
       "id": "switch-field",
@@ -1583,6 +1584,7 @@
         "textStyles.text"
       ],
       "states": [
+        "disabled",
         "readOnly"
       ],
       "composes": [
@@ -1593,7 +1595,7 @@
         "example/lib/sections/selection_section.dart",
         "example/lib/sections/dialogs_section.dart"
       ],
-      "notes": "A titled row pairing a label with a switch, wrapped in the shared field-wrapper chrome so it lines up with the other utopia_ui fields."
+      "notes": "A titled row pairing a label with a switch, wrapped in the shared field-wrapper chrome so it lines up with the other utopia_ui fields. readOnly and onChanged are forwarded verbatim to the inner switch, so readOnly blocks interaction while keeping the full-color styling; a null onChanged (without readOnly) is the disabled state and renders the inner switch faded at 50% opacity."
     },
     {
       "id": "table",

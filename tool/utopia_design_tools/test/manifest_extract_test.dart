@@ -75,6 +75,26 @@ void main() {
       final hook = extraction.helpers.singleWhere((h) => h.name == 'useUtopiaTableState');
       expect(hook.kind, 'hook');
     });
+
+    test('public barrel-exported extensions are helpers of kind "extension"', () {
+      final extensions = {
+        for (final h in extraction.helpers.where((h) => h.kind == 'extension')) h.name: h,
+      };
+      expect(extensions.keys.toSet(), {
+        'UtopiaDateTimeExtension',
+        'UtopiaPageTypeContextX',
+        'UtopiaPageTypeX',
+        'UtopiaThemeContextExtensions',
+      });
+
+      final dateTime = extensions['UtopiaDateTimeExtension']!;
+      expect(dateTime.file, 'lib/src/util/date_time_extension.dart');
+      expect(dateTime.signature, 'extension UtopiaDateTimeExtension on DateTime');
+      expect(dateTime.description, startsWith('`DateTime` convenience helpers'));
+
+      expect(extensions['UtopiaPageTypeContextX']!.signature, 'extension UtopiaPageTypeContextX on BuildContext');
+      expect(extensions['UtopiaPageTypeX']!.signature, 'extension UtopiaPageTypeX on UtopiaPageType');
+    });
   });
 
   group('button (golden spot check)', () {

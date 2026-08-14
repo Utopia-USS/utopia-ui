@@ -4,3 +4,8 @@ notes: >-
   file's local part ("star-rating") differs from DemoRatingStars's derived
   kebab-case ("demo-rating-stars"), so the overlay binds explicitly via the
   class key.
+# Also exercises tokenBindingsAdd on a class-overridden overlay: the id's local
+# part is this file's name, not the derived one, which is how both generation
+# and validate_manifest must resolve the overlay.
+tokenBindingsAdd:
+  - theme.tileHeight

@@ -90,6 +90,61 @@ void main() {
     }
   });
 
+  group('wrong-typed sections stay findings, never crashes', () {
+    // validate() reports every finding instead of failing fast, so a section
+    // the schema gate already rejected must not throw a CastError on the way
+    // through the later gates.
+    for (final section in ['models', 'helpers']) {
+      test('"$section": {} reports the schema finding and nothing else', () {
+        final validator = ManifestValidator(schema, utopiaUiRoot: repoRoot);
+        final doc = loadFixture('valid/mini.manifest.json');
+        doc['packageVersion'] = readPackageVersion(File(p.join(repoRoot.path, 'pubspec.yaml')));
+        doc[section] = <String, dynamic>{};
+
+        final errors = errorsOnly(validator.validate(doc));
+        expect(errors.map((f) => f.path), [section], reason: errors.map((f) => f.toLine()).join('; '));
+      });
+    }
+
+    test('a wrong-typed "package" reports the schema finding instead of throwing a CastError', () {
+      final validator = ManifestValidator(schema, utopiaUiRoot: repoRoot);
+      final doc = <String, dynamic>{'schemaVersion': '0.2.0', 'package': 123, 'components': <dynamic>[]};
+
+      // A throw here fails the test outright; the findings are the schema
+      // gate's own report on the wrong-typed value.
+      final findings = validator.validate(doc);
+      expect(findings, isNotEmpty);
+      expect(
+        errorsOnly(findings).map((f) => f.path),
+        contains('package'),
+        reason: findings.map((f) => f.toLine()).join('; '),
+      );
+    });
+  });
+
+  group('CLI (validate_manifest): valid JSON that is not a manifest object', () {
+    final toolDir = Directory.current;
+
+    for (final content in ['[]', '"not-a-manifest"', '42']) {
+      test('$content exits 2 with a "not a manifest object" error', () async {
+        final tempDir = Directory.systemTemp.createTempSync('validate_manifest_input_');
+        addTearDown(() => tempDir.deleteSync(recursive: true));
+        final targetFile = File(p.join(tempDir.path, 'not-an-object.manifest.json'))..writeAsStringSync('$content\n');
+
+        final result = await Process.run('dart', [
+          'run',
+          'bin/validate_manifest.dart',
+          targetFile.path,
+          '--sources',
+          repoRoot.path,
+        ], workingDirectory: toolDir.path);
+
+        expect(result.exitCode, 2, reason: 'stdout=${result.stdout} stderr=${result.stderr}');
+        expect(result.stderr.toString(), contains('is not a manifest object'));
+      });
+    }
+  });
+
   group('SPEC 3.8 flavor gates: invalid fixtures each trip their gate', () {
     final projectRoot = Directory(p.join(Directory.current.path, 'test', 'fixtures', 'project_consumer'));
     final cases = <String, String>{

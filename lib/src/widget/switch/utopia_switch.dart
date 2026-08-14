@@ -17,6 +17,10 @@ class UtopiaSwitch extends StatelessWidget {
   /// (instead of a faded disabled look).
   final bool readOnly;
 
+  /// Fade applied when [onChanged] is `null` without [readOnly] - the
+  /// disabled affordance a Material `Switch` would otherwise provide.
+  static const double _disabledOpacity = 0.5;
+
   /// Creates a themed on/off switch.
   const UtopiaSwitch({super.key, required this.value, this.onChanged, this.readOnly = false});
 
@@ -25,46 +29,52 @@ class UtopiaSwitch extends StatelessWidget {
     final colors = context.colors;
     final tokens = context.tokens;
     final interactive = !readOnly && onChanged != null;
-    // Track/thumb extents are derived from the base unit so the switch scales
-    // with a rebrand like every other control (a dense UtopiaButton/field is
-    // x*10 tall). At the default x=4 these are 40x24 with a 2px inset and a
-    // 20px thumb; the twin mirrors the same multiples in `components.css`.
-    final trackWidth = tokens.x * 10;
-    final trackHeight = tokens.x * 6;
-    final thumbInset = tokens.x * 0.5;
-    final thumbSize = trackHeight - 2 * thumbInset;
     // The thumb sits on a primary (active) or disabled (inactive) fill - the
     // same grounds a UtopiaButton's content sits on - so it follows the
     // button text colour instead of hard-coding white, and adapts to themes
     // whose on-primary content is dark.
     final thumbColor = context.textStyles.button.color ?? const Color(0xFFFFFFFF);
+    // Track geometry derives from the token base (10x wide, 6x tall, the thumb
+    // inset 0.5x on every side) so the switch rescales with every other
+    // control on a base-unit rebrand; the twin mirrors these multiples in
+    // `components.css`.
+    final trackWidth = tokens.x * 10;
+    final trackHeight = tokens.x * 6;
+    final thumbInset = tokens.x * 0.5;
+    final thumbSize = trackHeight - 2 * thumbInset;
+    // readOnly is a display-of-state mode, so it keeps the full-color styling;
+    // a null onChanged is a disabled control and reads as one.
+    final faded = !readOnly && onChanged == null;
 
     return Semantics(
       toggled: value,
       enabled: interactive,
-      child: MouseRegion(
-        cursor: interactive ? SystemMouseCursors.click : MouseCursor.defer,
-        child: GestureDetector(
-          behavior: HitTestBehavior.opaque,
-          onTap: interactive ? () => onChanged!(!value) : null,
-          child: AnimatedContainer(
-            duration: tokens.durations.sm,
-            curve: Curves.ease,
-            width: trackWidth,
-            height: trackHeight,
-            padding: EdgeInsets.all(thumbInset),
-            decoration: BoxDecoration(
-              color: value ? colors.primary : colors.disabled,
-              borderRadius: tokens.radius.fullAll,
-            ),
-            child: AnimatedAlign(
+      child: Opacity(
+        opacity: faded ? _disabledOpacity : 1,
+        child: MouseRegion(
+          cursor: interactive ? SystemMouseCursors.click : MouseCursor.defer,
+          child: GestureDetector(
+            behavior: HitTestBehavior.opaque,
+            onTap: interactive ? () => onChanged!(!value) : null,
+            child: AnimatedContainer(
               duration: tokens.durations.sm,
               curve: Curves.ease,
-              alignment: value ? Alignment.centerRight : Alignment.centerLeft,
-              child: Container(
-                width: thumbSize,
-                height: thumbSize,
-                decoration: BoxDecoration(color: thumbColor, borderRadius: tokens.radius.fullAll),
+              width: trackWidth,
+              height: trackHeight,
+              padding: EdgeInsets.all(thumbInset),
+              decoration: BoxDecoration(
+                color: value ? colors.primary : colors.disabled,
+                borderRadius: tokens.radius.fullAll,
+              ),
+              child: AnimatedAlign(
+                duration: tokens.durations.sm,
+                curve: Curves.ease,
+                alignment: value ? Alignment.centerRight : Alignment.centerLeft,
+                child: Container(
+                  width: thumbSize,
+                  height: thumbSize,
+                  decoration: BoxDecoration(color: thumbColor, borderRadius: tokens.radius.fullAll),
+                ),
               ),
             ),
           ),

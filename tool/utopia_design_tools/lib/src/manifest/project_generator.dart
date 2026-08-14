@@ -88,12 +88,22 @@ ProjectGenerationResult generateProjectManifest({
         '(resolve a utopia_ui checkout/package that ships manifest/utopia.manifest.json)';
     return ProjectGenerationResult.failed([message]);
   }
-  final Map<String, dynamic> libraryManifest;
+  // Decode to dynamic first: valid JSON that is not an object (a top-level
+  // array, a bare string/number) decodes fine and would otherwise throw a
+  // CastError outside the FormatException catch.
+  final dynamic decodedLibraryManifest;
   try {
-    libraryManifest = jsonDecode(libraryManifestFile.readAsStringSync()) as Map<String, dynamic>;
+    decodedLibraryManifest = jsonDecode(libraryManifestFile.readAsStringSync());
   } on FormatException catch (e) {
     return ProjectGenerationResult.failed(['${libraryManifestFile.path} is not valid JSON: ${e.message}']);
   }
+  if (decodedLibraryManifest is! Map<String, dynamic>) {
+    final message =
+        '${libraryManifestFile.path} is not a manifest object - the shipped library manifest must be a '
+        'JSON object (see protocol/schemas/manifest.schema.json)';
+    return ProjectGenerationResult.failed([message]);
+  }
+  final libraryManifest = decodedLibraryManifest;
 
   final hasOverlays =
       overlayDir.existsSync() && overlayDir.listSync().whereType<File>().any((f) => f.path.endsWith('.yaml'));

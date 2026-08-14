@@ -1,7 +1,11 @@
-states: [readOnly]
+states: [readOnly, disabled]
 notes: >-
   A titled row pairing a label with a switch, wrapped in the shared
   field-wrapper chrome so it lines up with the other utopia_ui fields.
+  readOnly and onChanged are forwarded verbatim to the inner switch, so
+  readOnly blocks interaction while keeping the full-color styling; a null
+  onChanged (without readOnly) is the disabled state and renders the inner
+  switch faded at 50% opacity.
 examples:
   - example/lib/sections/selection_section.dart
   - example/lib/sections/dialogs_section.dart

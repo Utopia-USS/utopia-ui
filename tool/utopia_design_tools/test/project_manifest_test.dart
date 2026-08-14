@@ -89,6 +89,23 @@ void main() {
       expect((densityProp['values'] as List).cast<String>(), ['compact', 'regular']);
     });
 
+    test("overlay tokenBindingsAdd is merged into the component's tokenBindings", () {
+      final components = (generate().projectManifest!['components'] as List).cast<Map<String, dynamic>>();
+
+      // Bindings extraction is whole-file, so both classes in market_tile.dart
+      // share the file's five source bindings; only the overlay's addition
+      // differs per component.
+      const sourceBindings = ['colors.border', 'colors.primary', 'colors.text', 'tokens.spacing.md', 'tokens.spacing.sm'];
+
+      final marketTile = components.firstWhere((c) => c['name'] == 'MarketTile');
+      expect(marketTile['tokenBindings'], [...sourceBindings.take(3), 'theme.cardShadow', ...sourceBindings.skip(3)]);
+
+      // The class-override case: the overlay is resolved by the id's local
+      // part ("star-rating"), not by the class's derived kebab-case.
+      final rating = components.firstWhere((c) => c['name'] == 'DemoRatingStars');
+      expect(rating['tokenBindings'], [...sourceBindings.take(3), 'theme.tileHeight', ...sourceBindings.skip(3)]);
+    });
+
     test('project document carries the flavor markers (package, utopiaUiVersion, no merged)', () {
       final result = generate();
       final doc = result.projectManifest!;
@@ -162,6 +179,26 @@ void main() {
         'bare id not present in the shipped library manifest - project components must be namespaced '
             '"<package>:<local-part>" (stale or hand-edited merged view - regenerate)',
       );
+    });
+  });
+
+  group('shipped library manifest input guard', () {
+    test('valid JSON that is not an object fails generation with a clean error, not a CastError', () {
+      final fakeUtopiaUiRoot = Directory.systemTemp.createTempSync('fake_utopia_ui_');
+      addTearDown(() => fakeUtopiaUiRoot.deleteSync(recursive: true));
+      File(p.join(fakeUtopiaUiRoot.path, 'pubspec.yaml')).writeAsStringSync('name: utopia_ui\nversion: 9.9.9\n');
+      final libraryManifestFile = File(p.join(fakeUtopiaUiRoot.path, 'manifest', 'utopia.manifest.json'));
+      libraryManifestFile.parent.createSync(recursive: true);
+      libraryManifestFile.writeAsStringSync('[]\n');
+
+      final result = generateProjectManifest(
+        projectRoot: projectRoot,
+        overlayDir: overlayDir,
+        utopiaUiRoot: fakeUtopiaUiRoot,
+      );
+
+      expect(result.isOk, isFalse);
+      expect(result.errors.single, contains('is not a manifest object'));
     });
   });
 

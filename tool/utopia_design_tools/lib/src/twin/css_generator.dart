@@ -221,10 +221,10 @@ String _serializeLiteralByType(String? type, dynamic value) {
 String serializeShadowValue(TokenDocument document, TokenNode node) {
   final aliasPath = aliasPathOf(node.value);
   final layers = aliasPath != null ? resolveAlias(document, aliasPath).terminal!.value as List : node.value as List;
-  return layers.map((rawLayer) => _serializeShadowLayer(document, rawLayer)).join(', ');
+  return layers.map((rawLayer) => _serializeShadowLayer(document, node.path, rawLayer)).join(', ');
 }
 
-String _serializeShadowLayer(TokenDocument document, dynamic rawLayer) {
+String _serializeShadowLayer(TokenDocument document, String path, dynamic rawLayer) {
   Map<String, dynamic> layer;
   if (rawLayer is String) {
     final aliasPath = aliasPathOf(rawLayer);
@@ -233,11 +233,22 @@ String _serializeShadowLayer(TokenDocument document, dynamic rawLayer) {
     }
     final resolution = resolveAlias(document, aliasPath);
     final terminalValue = resolution.terminal!.value;
-    if (terminalValue is List && terminalValue.isNotEmpty) {
-      layer = (terminalValue.first as Map).cast<String, dynamic>();
-    } else {
+    if (terminalValue is! List || terminalValue.isEmpty) {
       throw StateError('generate_twin: shadow layer alias "$rawLayer" did not resolve to a shadow');
     }
+    // A per-layer alias names one layer, but a shadow token's value is a
+    // layer *array*: emitting only the first layer would silently drop the
+    // rest of the referenced shadow, so refuse instead. Mirrors ThemeSpec's
+    // guard so generate_twin and generate_theme reject the same document
+    // rather than one throwing while the other quietly emits a wrong value.
+    if (terminalValue.length > 1) {
+      throw StateError(
+        'generate_twin: "$path": shadow-layer alias "{$aliasPath}" resolves to '
+        '"${resolution.terminal!.path}", which has ${terminalValue.length} layers; a per-layer alias '
+        'must target a single-layer shadow (alias the whole shadow token instead)',
+      );
+    }
+    layer = (terminalValue.first as Map).cast<String, dynamic>();
   } else {
     layer = (rawLayer as Map).cast<String, dynamic>();
   }
@@ -293,36 +304,24 @@ List<CssDeclaration> _serializeTypographyToken(
   final aliasPath = aliasPathOf(node.value);
   final value = aliasPath != null ? resolveAlias(document, aliasPath).terminal!.value as Map : node.value as Map;
 
-  final basePrefix = cssVarName('textStyle.$role');
+  final tokenPath = 'textStyle.$role';
+  final basePrefix = cssVarName(tokenPath);
   final declarations = <CssDeclaration>[];
 
-  // Each typography sub-value may itself be an alias (the schema permits it and
-  // the validator accepts it); resolve to the terminal value before consuming,
-  // as the shadow layers above already do.
-  dynamic resolveSub(dynamic raw) {
-    if (raw is String) {
-      final aliasPath = aliasPathOf(raw);
-      if (aliasPath != null) return resolveAlias(document, aliasPath).terminal!.value;
-    }
-    return raw;
-  }
+  declarations.add(
+    CssDeclaration(
+      '$basePrefix-font-family',
+      serializeFontFamily(document, '$tokenPath.fontFamily', value['fontFamily']),
+    ),
+  );
 
-  final fontFamilyRaw = resolveSub(value['fontFamily']);
-  final String fontFamilyCss;
-  if (fontFamilyRaw is List) {
-    fontFamilyCss = fontFamilyRaw.map((f) => _quoteFontFamily(f as String)).join(', ');
-  } else {
-    fontFamilyCss = _quoteFontFamily(fontFamilyRaw as String);
-  }
-  declarations.add(CssDeclaration('$basePrefix-font-family', fontFamilyCss));
-
-  final fontSize = ((resolveSub(value['fontSize']) as Map)['value'] as num).toDouble();
+  final fontSize = _typographyDimension(document, '$tokenPath.fontSize', value['fontSize']);
   declarations.add(CssDeclaration('$basePrefix-font-size', serializeDimensionValue(fontSize)));
 
-  final fontWeight = resolveSub(value['fontWeight']) as num;
+  final fontWeight = _typographyNumber(document, '$tokenPath.fontWeight', value['fontWeight']);
   declarations.add(CssDeclaration('$basePrefix-font-weight', serializeUnitlessNumber(fontWeight)));
 
-  final letterSpacing = ((resolveSub(value['letterSpacing']) as Map)['value'] as num).toDouble();
+  final letterSpacing = _typographyDimension(document, '$tokenPath.letterSpacing', value['letterSpacing']);
   declarations.add(CssDeclaration('$basePrefix-letter-spacing', serializeDimensionValue(letterSpacing)));
 
   // Folded sibling color: textStyle-colors.<role> -> --utopia-text-style-<role>-color,
@@ -341,9 +340,85 @@ List<CssDeclaration> _serializeTypographyToken(
   return declarations;
 }
 
-/// Quotes a font family name for CSS when it contains a space (`"Sora Sans"`);
-/// single-word families are emitted bare (`Sora`).
-String _quoteFontFamily(String family) => family.contains(' ') ? '"$family"' : family;
+/// Follows an inner alias inside a composite `$value`: every typography
+/// sub-property is `oneOf {value, alias}` in its own right (protocol SPEC 2.4 /
+/// `tokens.schema.json`), so a sub-value must be resolved before it is read.
+/// Non-alias values pass through unchanged. Shared with
+/// `tailwind_generator.dart` so both stylesheets resolve identically.
+dynamic resolveTypographySubValue(TokenDocument document, String path, dynamic raw) {
+  final aliasPath = aliasPathOf(raw);
+  if (aliasPath == null) {
+    return raw;
+  }
+  final resolution = resolveAlias(document, aliasPath);
+  if (!resolution.isResolved) {
+    throw StateError('generate_twin: "$path": ${resolution.error}');
+  }
+  return resolution.terminal!.value;
+}
+
+/// Resolves and reads a typography number sub-value (`fontWeight`) as a plain
+/// number. A sub-value alias is only checked for resolvability by the token
+/// gates, not for the kind of token it lands on, so an alias to (say) a
+/// dimension arrives here as a `Map`: name the path and the expected kind
+/// instead of failing with a raw cast error.
+num _typographyNumber(TokenDocument document, String path, dynamic raw) {
+  final resolved = resolveTypographySubValue(document, path, raw);
+  if (resolved is num) {
+    return resolved;
+  }
+  throw StateError('generate_twin: "$path" did not resolve to a number');
+}
+
+/// Resolves and reads a typography dimension sub-value (`fontSize`,
+/// `letterSpacing`) as logical px.
+double _typographyDimension(TokenDocument document, String path, dynamic raw) {
+  final resolved = resolveTypographySubValue(document, path, raw);
+  if (resolved is Map && resolved['value'] is num) {
+    return (resolved['value'] as num).toDouble();
+  }
+  throw StateError('generate_twin: "$path" did not resolve to a dimension');
+}
+
+/// Serializes a typography `fontFamily` sub-value (a name, a fallback list, or
+/// an alias to either) as a CSS `font-family` value. Shared with
+/// `tailwind_generator.dart`'s `--font-<role>` mapping.
+String serializeFontFamily(TokenDocument document, String path, dynamic raw) {
+  final resolved = resolveTypographySubValue(document, path, raw);
+  if (resolved is List) {
+    return resolved.map((f) => _quoteFontFamily(f as String)).join(', ');
+  }
+  if (resolved is String) {
+    return _quoteFontFamily(resolved);
+  }
+  throw StateError('generate_twin: "$path" did not resolve to a font family name or list of names');
+}
+
+/// A font family name that may be printed bare: a plain CSS identifier
+/// (letters, digits and `-`, never starting with a digit). Every CSS generic
+/// family keyword (`sans-serif`, `ui-sans-serif`, ...) is one, so a generic is
+/// never quoted - a quoted `"sans-serif"` would name a family literally called
+/// that instead of selecting the generic.
+final RegExp _plainFontIdentifier = RegExp(r'^[a-zA-Z-][a-zA-Z0-9-]*$');
+
+/// Quotes a font family name for CSS unless it is a plain identifier
+/// ([_plainFontIdentifier]), so `Sora` prints bare while `Sora Sans` prints as
+/// `"Sora Sans"`. Family names are free-form strings from the token document,
+/// not identifiers: a name carrying `"`, `;`, `,` or `}` would otherwise close
+/// the declaration and inject arbitrary rules into the generated stylesheet,
+/// so `\` and `"` are escaped inside the quoted form and newlines (illegal raw
+/// in a CSS string) become `\a` escapes.
+String _quoteFontFamily(String family) {
+  if (_plainFontIdentifier.hasMatch(family)) {
+    return family;
+  }
+  final escaped = family
+      .replaceAll(r'\', r'\\')
+      .replaceAll('"', r'\"')
+      .replaceAll('\r', r'\a ')
+      .replaceAll('\n', r'\a ');
+  return '"$escaped"';
+}
 
 /// Renders the full `tokens.css` file text for [document], read from
 /// [inputPath] (recorded in the header comment) and carrying [profileVersion]

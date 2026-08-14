@@ -1,6 +1,7 @@
 /// Parses the `utopia_ui` barrel (`lib/utopia_ui.dart`) and every file it
 /// exports into a flat, queryable picture of the package's public surface:
-/// classes, enums, top-level functions and typedefs, keyed by name.
+/// classes, enums, top-level functions, typedefs and extensions, keyed by
+/// name.
 ///
 /// Parser-based only (package:analyzer's `parseString`/`parseFile`, parsed AST,
 /// no element resolution, no analysis context) - see `ledger/checkpoints/A3-spec.md`
@@ -50,7 +51,8 @@ class ParsedFile {
   /// file.
   final List<NamedCompilationUnitMember> typedefs;
 
-  /// Every top-level extension declaration in this file.
+  /// Every top-level `extension` declaration in this file (named and unnamed
+  /// alike; the helper extractor skips the unnamed ones).
   final List<ExtensionDeclaration> extensions;
 }
 
@@ -181,15 +183,6 @@ class SourceModel {
   ParsedFile? fileDeclaring(String className) {
     for (final file in files) {
       if (file.classes.any((c) => c.name.lexeme == className)) return file;
-    }
-    return null;
-  }
-
-  /// The [ParsedFile] declaring the top-level enum named [enumName], or
-  /// `null` if not found.
-  ParsedFile? fileDeclaringEnum(String enumName) {
-    for (final file in files) {
-      if (file.enums.any((e) => e.name.lexeme == enumName)) return file;
     }
     return null;
   }

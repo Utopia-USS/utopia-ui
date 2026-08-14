@@ -74,4 +74,38 @@ void main() {
       });
     }
   });
+
+  group('gate 5: the colorToken target must be a color token', () {
+    /// The canonical valid fixture with `textStyle.header`'s `colorToken`
+    /// extension repointed at [target]. `loadFixture` re-reads the file, so
+    /// each call gets its own mutable tree.
+    Map<String, dynamic> docWithHeaderColorToken(String target) {
+      final doc = loadFixture('valid/default-theme.tokens.json');
+      final header = (doc['textStyle'] as Map<String, dynamic>)['header'] as Map<String, dynamic>;
+      final extensions = (header[r'$extensions'] as Map<String, dynamic>)['io.utopiasoft.design']
+          as Map<String, dynamic>;
+      extensions['colorToken'] = target;
+      return doc;
+    }
+
+    List<String> errorMessages(Map<String, dynamic> doc) =>
+        validator.validate(doc).where((f) => f.severity.name == 'error').map((f) => f.message).toList();
+
+    test('a colorToken pointing at a non-color token is an error', () {
+      expect(
+        errorMessages(docWithHeaderColorToken('spacing.md')),
+        anyElement(contains('colorToken "spacing.md" resolves to a dimension token, not a color token')),
+      );
+    });
+
+    test('a colorToken pointing at a real color token is accepted (only the convention warning fires)', () {
+      final doc = docWithHeaderColorToken('color.primary');
+
+      expect(errorMessages(doc), isEmpty);
+      expect(
+        validator.validate(doc).where((f) => f.severity.name == 'warning').map((f) => f.message),
+        anyElement(contains('is not the conventional "textStyle-colors.header"')),
+      );
+    });
+  });
 }

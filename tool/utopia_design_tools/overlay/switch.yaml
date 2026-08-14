@@ -1,7 +1,8 @@
-states: [readOnly]
+states: [readOnly, disabled]
 notes: >-
   A themed on/off switch, styled from UtopiaThemeColors instead of the ambient
   MaterialApp theme. readOnly blocks interaction while keeping the full-color
-  styling, instead of Flutter's faded disabled look.
+  styling; a null onChanged (without readOnly) is the disabled state and renders
+  faded at 50% opacity.
 examples:
   - example/lib/sections/selection_section.dart

@@ -119,7 +119,11 @@ Future<void> main(List<String> arguments) async {
     return;
   }
   final schema = loadSchema(schemaFile.readAsStringSync());
-  final validator = ManifestValidator(schema, utopiaUiRoot: repoRoot);
+  // The overlay directory generation just merged `tokenBindingsAdd` from is
+  // passed through: the bindings gate subtracts those entries, so a custom
+  // --overlay-dir would otherwise make self-validation report every added
+  // binding as stale and refuse to write.
+  final validator = ManifestValidator(schema, utopiaUiRoot: repoRoot, libraryOverlayDir: overlayDir);
   final selfCheckFindings = validator.validate(manifest);
   final selfCheckReport = FindingReport(selfCheckFindings);
   if (selfCheckReport.hasErrors) {
@@ -259,7 +263,12 @@ Future<void> _runProjectMode(ArgResults args, {required bool asJson}) async {
     return;
   }
   final schema = loadSchema(schemaFile.readAsStringSync());
-  final validator = ManifestValidator(schema, utopiaUiRoot: utopiaUiRoot, projectRoot: projectRoot);
+  final validator = ManifestValidator(
+    schema,
+    utopiaUiRoot: utopiaUiRoot,
+    projectRoot: projectRoot,
+    projectOverlayDir: overlayDir,
+  );
   final selfCheckFindings = [
     ...validator.validate(projectManifest),
     ...validator.validate(mergedManifest),

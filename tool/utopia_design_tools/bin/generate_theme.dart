@@ -109,10 +109,23 @@ Future<void> main(List<String> arguments) async {
   try {
     final document = TokenDocument.parse(rawJson);
     spec = ThemeSpec.fromDocument(document);
-    generated = emitDart(spec, inputPath: targetFile.path);
+    // Normalized like generate_twin's header path: an in-repo input is
+    // recorded relative to the utopia_ui root, so the generated identity
+    // header does not vary with the directory the tool happened to be invoked
+    // from. The Regenerate: line keeps the path as invoked instead - the
+    // normalized one is relative to the utopia_ui root, which is not
+    // necessarily the directory the printed command would be run from, and a
+    // command that resolves nowhere is worse than none.
+    generated = emitDart(
+      spec,
+      inputPath: RepoLocator.normalizeInputPath(targetFile.path),
+      regeneratePath: targetFile.path,
+    );
   } on StateError catch (e) {
     exitCode = 1;
-    stderr.writeln('generate_theme: ${e.message}');
+    // ThemeSpec's messages already carry the tool-name prefix (they are
+    // written to be printed verbatim), so it is not doubled here.
+    stderr.writeln(e.message.startsWith('generate_theme: ') ? e.message : 'generate_theme: ${e.message}');
     return;
   }
 
