@@ -11,12 +11,19 @@
     dart run utopia_design_tools:generate_twin --compose-gallery
 
   Mirrors example/lib/sections/*.dart one-to-one, in the same order as
-  example/lib/pages/components_page.dart: table, fields, buttons, selection,
-  chips-text, dialogs, sidebar, loading, colors, typography, surfaces (11
-  sections). Each section below carries an HTML comment naming the example
-  file it mirrors. Specimens are still DUPLICATES of components.html markup
-  in the emitted file (no build step, no JS includes: gallery.html opens as a
-  static file) - per the H4 contract, every specimen root also carries
+  example/lib/pages/components_page.dart: colors, typography, surfaces,
+  buttons, selection, fields, chips-text, loading, table, dialogs, sidebar
+  (11 sections). That sequence is deliberate - foundations, then primitives,
+  then composites - and it replaces the original H4 listing, which opened on
+  the table. The reorder was made in BOTH surfaces at once (this file and
+  example/lib/pages/components_page.dart), so what H4 actually freezes - the
+  gallery mirroring the example components page section for section, in the
+  same order - is untouched; only the shared order moved. Anything reordered
+  here has to move there in the same change, and the other way round. Each
+  section below carries an HTML comment naming the example file it mirrors.
+  Specimens are still DUPLICATES of components.html markup in the emitted
+  file (no build step, no JS includes: gallery.html opens as a static file) -
+  per the H4 contract, every specimen root also carries
   data-utopia-id="<manifest id>".
 
   Two component families are shown here without an example-app counterpart:
@@ -171,60 +178,182 @@
       </p>
     </div>
 
-    <!-- mirrors example/lib/sections/table_section.dart -->
+    <!-- mirrors example/lib/sections/colors_section.dart -->
     <section class="twin-section">
-      <h2 class="twin-section__name">Table</h2>
+      <h2 class="twin-section__name">Colors</h2>
       <p class="twin-section__description">
-        The flagship component: a sliver table with client-side search, sort and themed cells.
+        UtopiaThemeColors - the full token set of the active theme.
       </p>
       <div class="twin-specimens">
-        <div class="twin-specimen" style="width: 100%;">
-          <span class="twin-specimen__label">Invoices</span>
-          <div class="utopia-table" data-utopia-id="table" style="width: 560px;">
-            <div class="utopia-table-search-panel" data-utopia-id="table-search-panel">
-              <div class="utopia-table-search-panel__search">
-                <div class="utopia-search-field utopia-search-field--dense">
-                  <span class="utopia-search-field__icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-                  </span>
-                  <input class="utopia-search-field__input" type="text" placeholder="Search by customer" />
+        <div class="twin-swatch"><span class="twin-swatch__chip" style="background: var(--utopia-color-primary);"></span><p class="twin-swatch__name">primary</p><p class="twin-swatch__hex">#536dfe</p></div>
+        <div class="twin-swatch"><span class="twin-swatch__chip" style="background: var(--utopia-color-accent);"></span><p class="twin-swatch__name">accent</p><p class="twin-swatch__hex">#536dfe</p></div>
+        <div class="twin-swatch"><span class="twin-swatch__chip" style="background: var(--utopia-color-canvas);"></span><p class="twin-swatch__name">canvas</p><p class="twin-swatch__hex">#f5f5f5</p></div>
+        <div class="twin-swatch"><span class="twin-swatch__chip" style="background: var(--utopia-color-surface);"></span><p class="twin-swatch__name">surface</p><p class="twin-swatch__hex">#ffffff</p></div>
+        <div class="twin-swatch"><span class="twin-swatch__chip" style="background: var(--utopia-color-field);"></span><p class="twin-swatch__name">field</p><p class="twin-swatch__hex">#ededed</p></div>
+        <div class="twin-swatch"><span class="twin-swatch__chip" style="background: var(--utopia-color-border);"></span><p class="twin-swatch__name">border</p><p class="twin-swatch__hex">#e8eaf0</p></div>
+        <div class="twin-swatch"><span class="twin-swatch__chip" style="background: var(--utopia-color-row-alt);"></span><p class="twin-swatch__name">rowAlt</p><p class="twin-swatch__hex">#f7f8fb</p></div>
+        <div class="twin-swatch"><span class="twin-swatch__chip" style="background: var(--utopia-color-hover);"></span><p class="twin-swatch__name">hover</p><p class="twin-swatch__hex">#eff1f8</p></div>
+        <div class="twin-swatch"><span class="twin-swatch__chip" style="background: var(--utopia-color-chip-background);"></span><p class="twin-swatch__name">chipBackground</p><p class="twin-swatch__hex">#e7eafd</p></div>
+        <div class="twin-swatch"><span class="twin-swatch__chip" style="background: var(--utopia-color-chip-foreground);"></span><p class="twin-swatch__name">chipForeground</p><p class="twin-swatch__hex">#536dfe</p></div>
+        <div class="twin-swatch"><span class="twin-swatch__chip" style="background: var(--utopia-color-text);"></span><p class="twin-swatch__name">text</p><p class="twin-swatch__hex">rgb(0 0 0 / 0.8667)</p></div>
+        <div class="twin-swatch"><span class="twin-swatch__chip" style="background: var(--utopia-color-hint);"></span><p class="twin-swatch__name">hint</p><p class="twin-swatch__hex">#9aa0b5</p></div>
+        <div class="twin-swatch"><span class="twin-swatch__chip" style="background: var(--utopia-color-error);"></span><p class="twin-swatch__name">error</p><p class="twin-swatch__hex">#ff5252</p></div>
+        <div class="twin-swatch"><span class="twin-swatch__chip" style="background: var(--utopia-color-disabled);"></span><p class="twin-swatch__name">disabled</p><p class="twin-swatch__hex">#bdbdbd</p></div>
+      </div>
+      <div class="twin-on-colored-strip" style="margin-top: 16px;">
+        <div class="twin-on-colored-item"><span class="twin-on-colored-item__dot" style="background: var(--utopia-color-on-colored-content);"></span><span class="twin-on-colored-item__label">onColoredContent</span></div>
+        <div class="twin-on-colored-item"><span class="twin-on-colored-item__dot" style="background: var(--utopia-color-on-colored-selected);"></span><span class="twin-on-colored-item__label">onColoredSelected</span></div>
+        <div class="twin-on-colored-item"><span class="twin-on-colored-item__dot" style="background: var(--utopia-color-on-colored-hover);"></span><span class="twin-on-colored-item__label">onColoredHover</span></div>
+      </div>
+    </section>
+
+    <!-- mirrors example/lib/sections/typography_section.dart -->
+    <section class="twin-section">
+      <h2 class="twin-section__name">Typography</h2>
+      <p class="twin-section__description">
+        UtopiaThemeTextStyles - the six roles every component draws from.
+      </p>
+      <div class="utopia-card" style="width: 100%; max-width: 640px;">
+        <div class="utopia-card__content">
+          <div class="twin-type-row">
+            <span style="font-family: var(--utopia-text-style-header-font-family), sans-serif; font-size: var(--utopia-text-style-header-font-size); font-weight: var(--utopia-text-style-header-font-weight); letter-spacing: var(--utopia-text-style-header-letter-spacing); color: var(--utopia-text-style-header-color);">The quick brown fox 0123</span>
+            <span class="twin-type-row__caption">header - 24px w600</span>
+          </div>
+          <div class="twin-type-row">
+            <span style="font-family: var(--utopia-text-style-title-font-family), sans-serif; font-size: var(--utopia-text-style-title-font-size); font-weight: var(--utopia-text-style-title-font-weight); letter-spacing: var(--utopia-text-style-title-letter-spacing); color: var(--utopia-text-style-title-color);">The quick brown fox 0123</span>
+            <span class="twin-type-row__caption">title - 16px w600</span>
+          </div>
+          <div class="twin-type-row">
+            <span style="font-family: var(--utopia-text-style-label-font-family), sans-serif; font-size: var(--utopia-text-style-label-font-size); font-weight: var(--utopia-text-style-label-font-weight); letter-spacing: var(--utopia-text-style-label-letter-spacing); color: var(--utopia-text-style-label-color);">The quick brown fox 0123</span>
+            <span class="twin-type-row__caption">label - 12px w600</span>
+          </div>
+          <div class="twin-type-row">
+            <span style="font-family: var(--utopia-text-style-text-font-family), sans-serif; font-size: var(--utopia-text-style-text-font-size); font-weight: var(--utopia-text-style-text-font-weight); letter-spacing: var(--utopia-text-style-text-letter-spacing); color: var(--utopia-text-style-text-color);">The quick brown fox 0123</span>
+            <span class="twin-type-row__caption">text - 12px w600</span>
+          </div>
+          <div class="twin-type-row">
+            <span style="font-family: var(--utopia-text-style-caption-font-family), sans-serif; font-size: var(--utopia-text-style-caption-font-size); font-weight: var(--utopia-text-style-caption-font-weight); letter-spacing: var(--utopia-text-style-caption-letter-spacing); color: var(--utopia-text-style-caption-color);">The quick brown fox 0123</span>
+            <span class="twin-type-row__caption">caption - 10px w600</span>
+          </div>
+          <div class="twin-type-row">
+            <span class="twin-type-row__on-gradient">
+              <span style="font-family: var(--utopia-text-style-button-font-family), sans-serif; font-size: var(--utopia-text-style-button-font-size); font-weight: var(--utopia-text-style-button-font-weight); letter-spacing: var(--utopia-text-style-button-letter-spacing); color: var(--utopia-text-style-button-color);">The quick brown fox 0123</span>
+            </span>
+            <span class="twin-type-row__caption">button - 12px w600</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- mirrors example/lib/sections/surfaces_section.dart -->
+    <section class="twin-section">
+      <h2 class="twin-section__name">Surfaces &amp; shape</h2>
+      <p class="twin-section__description">
+        Cards, field chrome, gradients and hairlines - the shells everything else sits in.
+      </p>
+      <div class="twin-specimens">
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">UtopiaCard</span>
+          <!-- utopia-specimen: card -->
+        </div>
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">UtopiaFieldWrapper (field chrome, no visual twin as a standalone)</span>
+          <div class="utopia-labeled-field" data-utopia-id="field-wrapper" style="width: 240px;">
+            <div class="utopia-text-field__chrome">
+              <div class="utopia-labeled-field__row">
+                <div class="utopia-text-field__body">
+                  <p class="utopia-text-field__label">Field chrome</p>
+                  <p class="utopia-text-field__value">Shared by every field</p>
                 </div>
               </div>
             </div>
-            <div class="utopia-table__header">
-              <span class="utopia-table__header-cell utopia-table__header-cell--id">Id</span>
-              <span class="utopia-table__header-cell utopia-table__header-cell--customer utopia-table__header-cell--active">Customer</span>
-              <span class="utopia-table__header-cell utopia-table__header-cell--amount">Amount</span>
-              <span class="utopia-table__header-cell utopia-table__header-cell--status">Status</span>
-            </div>
-            <hr class="utopia-divider" data-utopia-id="divider" />
-            <div class="utopia-table__row">
-              <span class="utopia-table__cell utopia-table__cell--id">INV-1042</span>
-              <span class="utopia-table__cell utopia-table__cell--customer">Northwind Traders</span>
-              <span class="utopia-table__cell utopia-table__cell--amount">$1,280.00</span>
-              <span class="utopia-table__cell utopia-table__cell--status">
-                <span class="utopia-chip utopia-chip--accent" data-utopia-id="chip"><span class="utopia-chip__label">Paid</span></span>
-              </span>
-            </div>
-            <hr class="utopia-divider" />
-            <div class="utopia-table__row utopia-table__row--alt">
-              <span class="utopia-table__cell utopia-table__cell--id">INV-1043</span>
-              <span class="utopia-table__cell utopia-table__cell--customer">Blue Harbor Studio</span>
-              <span class="utopia-table__cell utopia-table__cell--amount">$640.50</span>
-              <span class="utopia-table__cell utopia-table__cell--status">
-                <span class="utopia-chip" data-utopia-id="chip"><span class="utopia-chip__label">Pending</span></span>
-              </span>
-            </div>
-            <hr class="utopia-divider" />
-            <div class="utopia-table__row">
-              <span class="utopia-table__cell utopia-table__cell--id">INV-1044</span>
-              <span class="utopia-table__cell utopia-table__cell--customer">Cedar &amp; Finch</span>
-              <span class="utopia-table__cell utopia-table__cell--amount">$2,310.00</span>
-              <span class="utopia-table__cell utopia-table__cell--status">
-                <span class="utopia-chip utopia-chip--danger" data-utopia-id="chip"><span class="utopia-chip__label">Overdue</span></span>
-              </span>
-            </div>
           </div>
+        </div>
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">UtopiaGradientBackground (no visual twin as a standalone)</span>
+          <div data-utopia-id="gradient-background" style="width: 160px; height: 56px; border-radius: var(--utopia-theme-border-radius); background: linear-gradient(to top right, var(--utopia-color-primary), var(--utopia-color-accent)); display: flex; align-items: center; justify-content: center;">
+            <span style="font-family: var(--utopia-text-style-button-font-family), sans-serif; font-size: var(--utopia-text-style-button-font-size); font-weight: var(--utopia-text-style-button-font-weight); color: var(--utopia-text-style-button-color);">primary -&gt; accent</span>
+          </div>
+        </div>
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Disabled gradient</span>
+          <div style="width: 160px; height: 56px; border-radius: var(--utopia-theme-border-radius); background: linear-gradient(to top right, var(--utopia-color-disabled), color-mix(in srgb, var(--utopia-color-disabled) 95%, transparent)); display: flex; align-items: center; justify-content: center;">
+            <span style="font-family: var(--utopia-text-style-button-font-family), sans-serif; font-size: var(--utopia-text-style-button-font-size); font-weight: var(--utopia-text-style-button-font-weight); color: var(--utopia-text-style-button-color);">disabled</span>
+          </div>
+        </div>
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">UtopiaDivider</span>
+          <!-- utopia-specimen: divider -->
+        </div>
+      </div>
+    </section>
+
+    <!-- mirrors example/lib/sections/buttons_section.dart -->
+    <section class="twin-section">
+      <h2 class="twin-section__name">Buttons</h2>
+      <p class="twin-section__description">
+        UtopiaButton - the gradient call-to-action, with dense, loading, disabled and icon variants -
+        plus UtopiaGhostButton, the quiet secondary action it pairs with in an action row.
+      </p>
+      <div class="twin-specimens">
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Default</span>
+          <button class="utopia-button" data-utopia-id="button" type="button" style="max-width: 200px;">
+            <span class="utopia-button__label">Save changes</span>
+          </button>
+        </div>
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Dense</span>
+          <!-- utopia-specimen: button #2 -->
+        </div>
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Loading</span>
+          <!-- utopia-specimen: button #3 -->
+        </div>
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Disabled</span>
+          <!-- utopia-specimen: button #4 -->
+        </div>
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">UtopiaGhostButton</span>
+          <!-- utopia-specimen: ghost-button -->
+        </div>
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">UtopiaRemoveIconButton</span>
+          <!-- utopia-specimen: remove-icon-button -->
+        </div>
+      </div>
+    </section>
+
+    <!-- mirrors example/lib/sections/selection_section.dart -->
+    <section class="twin-section">
+      <h2 class="twin-section__name">Selection</h2>
+      <p class="twin-section__description">
+        Switches and check rows - the boolean controls.
+      </p>
+      <div class="twin-specimens">
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">UtopiaSwitch</span>
+          <!-- utopia-specimen: switch #1 -->
+        </div>
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">UtopiaSwitch - read only</span>
+          <!-- utopia-specimen: switch #3 -->
+        </div>
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">UtopiaSwitch - disabled</span>
+          <!-- utopia-specimen: switch #4 -->
+        </div>
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">UtopiaSwitchField</span>
+          <div class="utopia-switch-field" data-utopia-id="switch-field" style="width: 320px;">
+            <p class="utopia-switch-field__title">Email notifications</p>
+            <span class="utopia-switch is-on" aria-hidden="true"><span class="utopia-switch__thumb"></span></span>
+          </div>
+        </div>
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">UtopiaCheckRow</span>
+          <!-- utopia-specimen: check-row #2 -->
         </div>
       </div>
     </section>
@@ -342,76 +471,6 @@
       </div>
     </section>
 
-    <!-- mirrors example/lib/sections/buttons_section.dart -->
-    <section class="twin-section">
-      <h2 class="twin-section__name">Buttons</h2>
-      <p class="twin-section__description">
-        UtopiaButton - the gradient call-to-action, with dense, loading, disabled and icon variants -
-        plus UtopiaGhostButton, the quiet secondary action it pairs with in an action row.
-      </p>
-      <div class="twin-specimens">
-        <div class="twin-specimen">
-          <span class="twin-specimen__label">Default</span>
-          <button class="utopia-button" data-utopia-id="button" type="button" style="max-width: 200px;">
-            <span class="utopia-button__label">Save changes</span>
-          </button>
-        </div>
-        <div class="twin-specimen">
-          <span class="twin-specimen__label">Dense</span>
-          <!-- utopia-specimen: button #2 -->
-        </div>
-        <div class="twin-specimen">
-          <span class="twin-specimen__label">Loading</span>
-          <!-- utopia-specimen: button #3 -->
-        </div>
-        <div class="twin-specimen">
-          <span class="twin-specimen__label">Disabled</span>
-          <!-- utopia-specimen: button #4 -->
-        </div>
-        <div class="twin-specimen">
-          <span class="twin-specimen__label">UtopiaGhostButton</span>
-          <!-- utopia-specimen: ghost-button -->
-        </div>
-        <div class="twin-specimen">
-          <span class="twin-specimen__label">UtopiaRemoveIconButton</span>
-          <!-- utopia-specimen: remove-icon-button -->
-        </div>
-      </div>
-    </section>
-
-    <!-- mirrors example/lib/sections/selection_section.dart -->
-    <section class="twin-section">
-      <h2 class="twin-section__name">Selection</h2>
-      <p class="twin-section__description">
-        Switches and check rows - the boolean controls.
-      </p>
-      <div class="twin-specimens">
-        <div class="twin-specimen">
-          <span class="twin-specimen__label">UtopiaSwitch</span>
-          <!-- utopia-specimen: switch #1 -->
-        </div>
-        <div class="twin-specimen">
-          <span class="twin-specimen__label">UtopiaSwitch - read only</span>
-          <!-- utopia-specimen: switch #3 -->
-        </div>
-        <div class="twin-specimen">
-          <span class="twin-specimen__label">UtopiaSwitch - disabled</span>
-          <!-- utopia-specimen: switch #4 -->
-        </div>
-        <div class="twin-specimen">
-          <span class="twin-specimen__label">UtopiaSwitchField</span>
-          <div class="utopia-switch-field" data-utopia-id="switch-field" style="width: 320px;">
-            <p class="utopia-switch-field__title">Email notifications</p>
-            <span class="utopia-switch is-on" aria-hidden="true"><span class="utopia-switch__thumb"></span></span>
-          </div>
-        </div>
-        <div class="twin-specimen">
-          <span class="twin-specimen__label">UtopiaCheckRow</span>
-          <!-- utopia-specimen: check-row #2 -->
-        </div>
-      </div>
-    </section>
-
     <!-- mirrors example/lib/sections/chips_text_section.dart -->
     <section class="twin-section">
       <h2 class="twin-section__name">Chips &amp; text</h2>
@@ -454,6 +513,98 @@
         <div class="twin-specimen">
           <span class="twin-specimen__label">UtopiaHeader</span>
           <!-- utopia-specimen: header -->
+        </div>
+      </div>
+    </section>
+
+    <!-- mirrors example/lib/sections/loading_section.dart -->
+    <section class="twin-section">
+      <h2 class="twin-section__name">Loading</h2>
+      <p class="twin-section__description">
+        Spinners, bouncing dots and shimmer skeletons.
+      </p>
+      <div class="twin-specimens">
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">UtopiaLoader 12 / 20 / 32</span>
+          <div style="display: flex; align-items: center; gap: 24px;">
+            <!-- utopia-specimen: loader #1 -->
+            <!-- utopia-specimen: loader #2 -->
+            <!-- utopia-specimen: loader #3 -->
+          </div>
+        </div>
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">UtopiaThreeBounce</span>
+          <!-- utopia-specimen: three-bounce #1 -->
+        </div>
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">UtopiaThreeBounce - primary</span>
+          <!-- utopia-specimen: three-bounce #2 -->
+        </div>
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Skeleton (UtopiaMockLoadingBox)</span>
+          <div style="display: flex; flex-direction: column; gap: 12px; width: 280px;">
+            <!-- utopia-specimen: mock-loading-box #1 -->
+            <!-- utopia-specimen: mock-loading-box #2 -->
+            <!-- utopia-specimen: mock-loading-box #3 -->
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- mirrors example/lib/sections/table_section.dart -->
+    <section class="twin-section">
+      <h2 class="twin-section__name">Table</h2>
+      <p class="twin-section__description">
+        The flagship component: a sliver table with client-side search, sort and themed cells.
+      </p>
+      <div class="twin-specimens">
+        <div class="twin-specimen" style="width: 100%;">
+          <span class="twin-specimen__label">Invoices</span>
+          <div class="utopia-table" data-utopia-id="table" style="width: 560px;">
+            <div class="utopia-table-search-panel" data-utopia-id="table-search-panel">
+              <div class="utopia-table-search-panel__search">
+                <div class="utopia-search-field utopia-search-field--dense">
+                  <span class="utopia-search-field__icon" aria-hidden="true">
+                    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
+                  </span>
+                  <input class="utopia-search-field__input" type="text" placeholder="Search by customer" />
+                </div>
+              </div>
+            </div>
+            <div class="utopia-table__header">
+              <span class="utopia-table__header-cell utopia-table__header-cell--id">Id</span>
+              <span class="utopia-table__header-cell utopia-table__header-cell--customer utopia-table__header-cell--active">Customer</span>
+              <span class="utopia-table__header-cell utopia-table__header-cell--amount">Amount</span>
+              <span class="utopia-table__header-cell utopia-table__header-cell--status">Status</span>
+            </div>
+            <hr class="utopia-divider" data-utopia-id="divider" />
+            <div class="utopia-table__row">
+              <span class="utopia-table__cell utopia-table__cell--id">INV-1042</span>
+              <span class="utopia-table__cell utopia-table__cell--customer">Northwind Traders</span>
+              <span class="utopia-table__cell utopia-table__cell--amount">$1,280.00</span>
+              <span class="utopia-table__cell utopia-table__cell--status">
+                <span class="utopia-chip utopia-chip--accent" data-utopia-id="chip"><span class="utopia-chip__label">Paid</span></span>
+              </span>
+            </div>
+            <hr class="utopia-divider" />
+            <div class="utopia-table__row utopia-table__row--alt">
+              <span class="utopia-table__cell utopia-table__cell--id">INV-1043</span>
+              <span class="utopia-table__cell utopia-table__cell--customer">Blue Harbor Studio</span>
+              <span class="utopia-table__cell utopia-table__cell--amount">$640.50</span>
+              <span class="utopia-table__cell utopia-table__cell--status">
+                <span class="utopia-chip" data-utopia-id="chip"><span class="utopia-chip__label">Pending</span></span>
+              </span>
+            </div>
+            <hr class="utopia-divider" />
+            <div class="utopia-table__row">
+              <span class="utopia-table__cell utopia-table__cell--id">INV-1044</span>
+              <span class="utopia-table__cell utopia-table__cell--customer">Cedar &amp; Finch</span>
+              <span class="utopia-table__cell utopia-table__cell--amount">$2,310.00</span>
+              <span class="utopia-table__cell utopia-table__cell--status">
+                <span class="utopia-chip utopia-chip--danger" data-utopia-id="chip"><span class="utopia-chip__label">Overdue</span></span>
+              </span>
+            </div>
+          </div>
         </div>
       </div>
     </section>
@@ -518,150 +669,6 @@
               </li>
             </ul>
           </nav>
-        </div>
-      </div>
-    </section>
-
-    <!-- mirrors example/lib/sections/loading_section.dart -->
-    <section class="twin-section">
-      <h2 class="twin-section__name">Loading</h2>
-      <p class="twin-section__description">
-        Spinners, bouncing dots and shimmer skeletons.
-      </p>
-      <div class="twin-specimens">
-        <div class="twin-specimen">
-          <span class="twin-specimen__label">UtopiaLoader 12 / 20 / 32</span>
-          <div style="display: flex; align-items: center; gap: 24px;">
-            <!-- utopia-specimen: loader #1 -->
-            <!-- utopia-specimen: loader #2 -->
-            <!-- utopia-specimen: loader #3 -->
-          </div>
-        </div>
-        <div class="twin-specimen">
-          <span class="twin-specimen__label">UtopiaThreeBounce</span>
-          <!-- utopia-specimen: three-bounce #1 -->
-        </div>
-        <div class="twin-specimen">
-          <span class="twin-specimen__label">UtopiaThreeBounce - primary</span>
-          <!-- utopia-specimen: three-bounce #2 -->
-        </div>
-        <div class="twin-specimen">
-          <span class="twin-specimen__label">Skeleton (UtopiaMockLoadingBox)</span>
-          <div style="display: flex; flex-direction: column; gap: 12px; width: 280px;">
-            <!-- utopia-specimen: mock-loading-box #1 -->
-            <!-- utopia-specimen: mock-loading-box #2 -->
-            <!-- utopia-specimen: mock-loading-box #3 -->
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- mirrors example/lib/sections/colors_section.dart -->
-    <section class="twin-section">
-      <h2 class="twin-section__name">Colors</h2>
-      <p class="twin-section__description">
-        UtopiaThemeColors - the full token set of the active theme.
-      </p>
-      <div class="twin-specimens">
-        <div class="twin-swatch"><span class="twin-swatch__chip" style="background: var(--utopia-color-primary);"></span><p class="twin-swatch__name">primary</p><p class="twin-swatch__hex">#536dfe</p></div>
-        <div class="twin-swatch"><span class="twin-swatch__chip" style="background: var(--utopia-color-accent);"></span><p class="twin-swatch__name">accent</p><p class="twin-swatch__hex">#536dfe</p></div>
-        <div class="twin-swatch"><span class="twin-swatch__chip" style="background: var(--utopia-color-canvas);"></span><p class="twin-swatch__name">canvas</p><p class="twin-swatch__hex">#f5f5f5</p></div>
-        <div class="twin-swatch"><span class="twin-swatch__chip" style="background: var(--utopia-color-surface);"></span><p class="twin-swatch__name">surface</p><p class="twin-swatch__hex">#ffffff</p></div>
-        <div class="twin-swatch"><span class="twin-swatch__chip" style="background: var(--utopia-color-field);"></span><p class="twin-swatch__name">field</p><p class="twin-swatch__hex">#ededed</p></div>
-        <div class="twin-swatch"><span class="twin-swatch__chip" style="background: var(--utopia-color-border);"></span><p class="twin-swatch__name">border</p><p class="twin-swatch__hex">#e8eaf0</p></div>
-        <div class="twin-swatch"><span class="twin-swatch__chip" style="background: var(--utopia-color-row-alt);"></span><p class="twin-swatch__name">rowAlt</p><p class="twin-swatch__hex">#f7f8fb</p></div>
-        <div class="twin-swatch"><span class="twin-swatch__chip" style="background: var(--utopia-color-hover);"></span><p class="twin-swatch__name">hover</p><p class="twin-swatch__hex">#eff1f8</p></div>
-        <div class="twin-swatch"><span class="twin-swatch__chip" style="background: var(--utopia-color-chip-background);"></span><p class="twin-swatch__name">chipBackground</p><p class="twin-swatch__hex">#e7eafd</p></div>
-        <div class="twin-swatch"><span class="twin-swatch__chip" style="background: var(--utopia-color-chip-foreground);"></span><p class="twin-swatch__name">chipForeground</p><p class="twin-swatch__hex">#536dfe</p></div>
-        <div class="twin-swatch"><span class="twin-swatch__chip" style="background: var(--utopia-color-text);"></span><p class="twin-swatch__name">text</p><p class="twin-swatch__hex">rgb(0 0 0 / 0.8667)</p></div>
-        <div class="twin-swatch"><span class="twin-swatch__chip" style="background: var(--utopia-color-hint);"></span><p class="twin-swatch__name">hint</p><p class="twin-swatch__hex">#9aa0b5</p></div>
-        <div class="twin-swatch"><span class="twin-swatch__chip" style="background: var(--utopia-color-error);"></span><p class="twin-swatch__name">error</p><p class="twin-swatch__hex">#ff5252</p></div>
-        <div class="twin-swatch"><span class="twin-swatch__chip" style="background: var(--utopia-color-disabled);"></span><p class="twin-swatch__name">disabled</p><p class="twin-swatch__hex">#bdbdbd</p></div>
-      </div>
-      <div class="twin-on-colored-strip" style="margin-top: 16px;">
-        <div class="twin-on-colored-item"><span class="twin-on-colored-item__dot" style="background: var(--utopia-color-on-colored-content);"></span><span class="twin-on-colored-item__label">onColoredContent</span></div>
-        <div class="twin-on-colored-item"><span class="twin-on-colored-item__dot" style="background: var(--utopia-color-on-colored-selected);"></span><span class="twin-on-colored-item__label">onColoredSelected</span></div>
-        <div class="twin-on-colored-item"><span class="twin-on-colored-item__dot" style="background: var(--utopia-color-on-colored-hover);"></span><span class="twin-on-colored-item__label">onColoredHover</span></div>
-      </div>
-    </section>
-
-    <!-- mirrors example/lib/sections/typography_section.dart -->
-    <section class="twin-section">
-      <h2 class="twin-section__name">Typography</h2>
-      <p class="twin-section__description">
-        UtopiaThemeTextStyles - the six roles every component draws from.
-      </p>
-      <div class="utopia-card" style="width: 100%; max-width: 640px;">
-        <div class="utopia-card__content">
-          <div class="twin-type-row">
-            <span style="font-family: var(--utopia-text-style-header-font-family), sans-serif; font-size: var(--utopia-text-style-header-font-size); font-weight: var(--utopia-text-style-header-font-weight); letter-spacing: var(--utopia-text-style-header-letter-spacing); color: var(--utopia-text-style-header-color);">The quick brown fox 0123</span>
-            <span class="twin-type-row__caption">header - 24px w600</span>
-          </div>
-          <div class="twin-type-row">
-            <span style="font-family: var(--utopia-text-style-title-font-family), sans-serif; font-size: var(--utopia-text-style-title-font-size); font-weight: var(--utopia-text-style-title-font-weight); letter-spacing: var(--utopia-text-style-title-letter-spacing); color: var(--utopia-text-style-title-color);">The quick brown fox 0123</span>
-            <span class="twin-type-row__caption">title - 16px w600</span>
-          </div>
-          <div class="twin-type-row">
-            <span style="font-family: var(--utopia-text-style-label-font-family), sans-serif; font-size: var(--utopia-text-style-label-font-size); font-weight: var(--utopia-text-style-label-font-weight); letter-spacing: var(--utopia-text-style-label-letter-spacing); color: var(--utopia-text-style-label-color);">The quick brown fox 0123</span>
-            <span class="twin-type-row__caption">label - 12px w600</span>
-          </div>
-          <div class="twin-type-row">
-            <span style="font-family: var(--utopia-text-style-text-font-family), sans-serif; font-size: var(--utopia-text-style-text-font-size); font-weight: var(--utopia-text-style-text-font-weight); letter-spacing: var(--utopia-text-style-text-letter-spacing); color: var(--utopia-text-style-text-color);">The quick brown fox 0123</span>
-            <span class="twin-type-row__caption">text - 12px w600</span>
-          </div>
-          <div class="twin-type-row">
-            <span style="font-family: var(--utopia-text-style-caption-font-family), sans-serif; font-size: var(--utopia-text-style-caption-font-size); font-weight: var(--utopia-text-style-caption-font-weight); letter-spacing: var(--utopia-text-style-caption-letter-spacing); color: var(--utopia-text-style-caption-color);">The quick brown fox 0123</span>
-            <span class="twin-type-row__caption">caption - 10px w600</span>
-          </div>
-          <div class="twin-type-row">
-            <span class="twin-type-row__on-gradient">
-              <span style="font-family: var(--utopia-text-style-button-font-family), sans-serif; font-size: var(--utopia-text-style-button-font-size); font-weight: var(--utopia-text-style-button-font-weight); letter-spacing: var(--utopia-text-style-button-letter-spacing); color: var(--utopia-text-style-button-color);">The quick brown fox 0123</span>
-            </span>
-            <span class="twin-type-row__caption">button - 12px w600</span>
-          </div>
-        </div>
-      </div>
-    </section>
-
-    <!-- mirrors example/lib/sections/surfaces_section.dart -->
-    <section class="twin-section">
-      <h2 class="twin-section__name">Surfaces &amp; shape</h2>
-      <p class="twin-section__description">
-        Cards, field chrome, gradients and hairlines - the shells everything else sits in.
-      </p>
-      <div class="twin-specimens">
-        <div class="twin-specimen">
-          <span class="twin-specimen__label">UtopiaCard</span>
-          <!-- utopia-specimen: card -->
-        </div>
-        <div class="twin-specimen">
-          <span class="twin-specimen__label">UtopiaFieldWrapper (field chrome, no visual twin as a standalone)</span>
-          <div class="utopia-labeled-field" data-utopia-id="field-wrapper" style="width: 240px;">
-            <div class="utopia-text-field__chrome">
-              <div class="utopia-labeled-field__row">
-                <div class="utopia-text-field__body">
-                  <p class="utopia-text-field__label">Field chrome</p>
-                  <p class="utopia-text-field__value">Shared by every field</p>
-                </div>
-              </div>
-            </div>
-          </div>
-        </div>
-        <div class="twin-specimen">
-          <span class="twin-specimen__label">UtopiaGradientBackground (no visual twin as a standalone)</span>
-          <div data-utopia-id="gradient-background" style="width: 160px; height: 56px; border-radius: var(--utopia-theme-border-radius); background: linear-gradient(to top right, var(--utopia-color-primary), var(--utopia-color-accent)); display: flex; align-items: center; justify-content: center;">
-            <span style="font-family: var(--utopia-text-style-button-font-family), sans-serif; font-size: var(--utopia-text-style-button-font-size); font-weight: var(--utopia-text-style-button-font-weight); color: var(--utopia-text-style-button-color);">primary -&gt; accent</span>
-          </div>
-        </div>
-        <div class="twin-specimen">
-          <span class="twin-specimen__label">Disabled gradient</span>
-          <div style="width: 160px; height: 56px; border-radius: var(--utopia-theme-border-radius); background: linear-gradient(to top right, var(--utopia-color-disabled), color-mix(in srgb, var(--utopia-color-disabled) 95%, transparent)); display: flex; align-items: center; justify-content: center;">
-            <span style="font-family: var(--utopia-text-style-button-font-family), sans-serif; font-size: var(--utopia-text-style-button-font-size); font-weight: var(--utopia-text-style-button-font-weight); color: var(--utopia-text-style-button-color);">disabled</span>
-          </div>
-        </div>
-        <div class="twin-specimen">
-          <span class="twin-specimen__label">UtopiaDivider</span>
-          <!-- utopia-specimen: divider -->
         </div>
       </div>
     </section>
