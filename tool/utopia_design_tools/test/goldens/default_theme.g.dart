@@ -3,7 +3,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:utopia_ui/utopia_ui.dart';
 
-/// App theme built from the token document (protocol 0.2.0).
+/// App theme built from the token document (protocol 0.3.0).
 UtopiaThemeData buildUtopiaTheme() {
   const tokens = UtopiaTokens(
     x: 4,

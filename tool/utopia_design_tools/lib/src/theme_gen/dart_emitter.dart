@@ -10,6 +10,7 @@
 library;
 
 import 'package:dart_style/dart_style.dart';
+import 'package:utopia_design_tools/src/dtcg/validator.dart' show protocolVersion;
 import 'package:utopia_design_tools/src/theme_gen/theme_spec.dart';
 
 /// The page width every generated file is formatted to, matching this
@@ -61,7 +62,10 @@ String emitDart(ThemeSpec spec, {required String inputPath, String? regeneratePa
   buffer.writeln("import 'package:flutter/widgets.dart';");
   buffer.writeln("import 'package:utopia_ui/utopia_ui.dart';");
   buffer.writeln();
-  buffer.writeln('/// App theme built from the token document (protocol 0.2.0).');
+  // The protocol version is the validator's single source of truth, not a
+  // literal: a hand-maintained copy here silently outlived the 0.2.0 bump and
+  // stamped every consumer's generated theme with a stale version.
+  buffer.writeln('/// App theme built from the token document (protocol $protocolVersion).');
   buffer.writeln('UtopiaThemeData buildUtopiaTheme() {');
   buffer.writeln(_emitTokens(spec));
   buffer.writeln();

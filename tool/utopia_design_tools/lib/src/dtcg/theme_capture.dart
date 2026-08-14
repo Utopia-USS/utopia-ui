@@ -1,5 +1,6 @@
 import 'package:flutter/widgets.dart';
 import 'package:utopia_design_tools/src/dtcg/token_document.dart' show derivationTolerance;
+import 'package:utopia_design_tools/src/dtcg/validator.dart' show protocolVersion;
 import 'package:utopia_ui/utopia_ui.dart';
 
 /// Raised when a [UtopiaThemeData] uses a Flutter feature that is out of
@@ -28,8 +29,10 @@ class UnsupportedThemeFeature implements Exception {
 class ThemeCapture {
   const ThemeCapture._();
 
-  /// The protocol version stamped at the document root.
-  static const String profileVersion = '0.2.0';
+  /// The protocol version stamped at the document root. Aliases the
+  /// validator's [protocolVersion] so the stamp and the compatibility check
+  /// can never disagree (the pair drifted once already).
+  static const String profileVersion = protocolVersion;
 
   /// Captures [theme] into an ordered token-document map. Throws
   /// [UnsupportedThemeFeature] when the theme uses a shape the protocol does

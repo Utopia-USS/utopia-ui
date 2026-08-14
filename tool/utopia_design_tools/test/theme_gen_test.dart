@@ -348,6 +348,138 @@ void main() {
     });
   });
 
+  group('CLI --check freshness gate (real bin/generate_theme.dart via Process.run)', () {
+    final entrypoint = p.join(Directory.current.path, 'bin', 'generate_theme.dart');
+
+    Future<ProcessResult> runCheck({required String tokensPath, required String outputPath}) => Process.run('dart', [
+      'run',
+      entrypoint,
+      tokensPath,
+      '-o',
+      outputPath,
+      '--check',
+    ], workingDirectory: Directory.current.path);
+
+    test('the committed golden is up to date: exit 0, nothing written', () async {
+      final goldenPath = p.join('test', 'goldens', 'default_theme.g.dart');
+      final before = goldenFile.readAsBytesSync();
+
+      // The exact pair the golden was generated from (see this file's header),
+      // run from the same working directory - --check is byte-exact, and the
+      // emitted `Regenerate:` line keeps the token path as invoked.
+      final result = await runCheck(
+        tokensPath: p.join('..', '..', 'tokens', 'utopia.tokens.json'),
+        outputPath: goldenPath,
+      );
+
+      expect(result.exitCode, 0, reason: 'stdout: ${result.stdout}\nstderr: ${result.stderr}');
+      expect(result.stdout, contains('up to date'));
+      expect(goldenFile.readAsBytesSync(), before);
+    });
+
+    test('a changed token makes the generated file stale: exit 1, file left untouched', () async {
+      final scratchDir = Directory.systemTemp.createTempSync('generate_theme_check_stale_');
+      addTearDown(() => scratchDir.deleteSync(recursive: true));
+
+      final tokensFile = File(p.join(scratchDir.path, 'tokens.json'));
+      tokensFile.writeAsStringSync(canonicalTokensFile.readAsStringSync());
+      final outputFile = File(p.join(scratchDir.path, 'theme.g.dart'));
+
+      final generate = await Process.run('dart', [
+        'run',
+        entrypoint,
+        tokensFile.path,
+        '-o',
+        outputFile.path,
+      ], workingDirectory: Directory.current.path);
+      expect(generate.exitCode, 0, reason: 'stdout: ${generate.stdout}\nstderr: ${generate.stderr}');
+
+      // Freshly generated: the gate is quiet.
+      final fresh = await runCheck(tokensPath: tokensFile.path, outputPath: outputFile.path);
+      expect(fresh.exitCode, 0, reason: 'stdout: ${fresh.stdout}\nstderr: ${fresh.stderr}');
+
+      // tileHeight is a plain design decision (no derivation gate to trip), so
+      // moving it off the Dart default changes the emitted output and nothing
+      // else - exactly the drift a consumer's edited token document produces.
+      final raw = jsonDecode(tokensFile.readAsStringSync()) as Map<String, dynamic>;
+      ((raw['theme'] as Map<String, dynamic>)['tileHeight'] as Map<String, dynamic>)[r'$value'] = {
+        'value': 64,
+        'unit': 'px',
+      };
+      tokensFile.writeAsStringSync(jsonEncode(raw));
+      final beforeCheck = outputFile.readAsBytesSync();
+
+      final stale = await runCheck(tokensPath: tokensFile.path, outputPath: outputFile.path);
+
+      expect(stale.exitCode, 1, reason: 'stdout: ${stale.stdout}\nstderr: ${stale.stderr}');
+      expect(stale.stderr, contains('is stale - regenerate via:'));
+      expect(stale.stderr, contains('dart run utopia_design_tools:generate_theme ${tokensFile.path}'));
+      expect(stale.stderr, contains('-o ${outputFile.path}'));
+      // --check never writes: the stale file is reported, not repaired.
+      expect(outputFile.readAsBytesSync(), beforeCheck);
+    });
+
+    test('a missing output file is a failure, and --check does not create it', () async {
+      final scratchDir = Directory.systemTemp.createTempSync('generate_theme_check_missing_');
+      addTearDown(() => scratchDir.deleteSync(recursive: true));
+
+      // Nested under a directory that does not exist either: the writing path
+      // would create it (createSync(recursive: true)), --check must not.
+      final missingParent = Directory(p.join(scratchDir.path, 'lib', 'theme'));
+      final outputFile = File(p.join(missingParent.path, 'utopia_theme.g.dart'));
+
+      final result = await runCheck(
+        tokensPath: p.join('..', '..', 'tokens', 'utopia.tokens.json'),
+        outputPath: outputFile.path,
+      );
+
+      expect(result.exitCode, 1, reason: 'stdout: ${result.stdout}\nstderr: ${result.stderr}');
+      expect(result.stderr, contains('does not exist'));
+      expect(result.stderr, contains('dart run utopia_design_tools:generate_theme'));
+      expect(outputFile.existsSync(), isFalse);
+      expect(missingParent.existsSync(), isFalse);
+    });
+
+    test('--json reports the same verdicts machine-readably', () async {
+      final scratchDir = Directory.systemTemp.createTempSync('generate_theme_check_json_');
+      addTearDown(() => scratchDir.deleteSync(recursive: true));
+
+      final outputFile = File(p.join(scratchDir.path, 'theme.g.dart'));
+      final tokensPath = p.join('..', '..', 'tokens', 'utopia.tokens.json');
+
+      Future<Map<String, dynamic>> checkJson() async {
+        final result = await Process.run('dart', [
+          'run',
+          entrypoint,
+          tokensPath,
+          '-o',
+          outputFile.path,
+          '--check',
+          '--json',
+        ], workingDirectory: Directory.current.path);
+        return {
+          'exitCode': result.exitCode,
+          ...jsonDecode(result.stdout as String) as Map<String, dynamic>,
+        };
+      }
+
+      final missing = await checkJson();
+      expect(missing['exitCode'], 1);
+      expect(missing['status'], 'missing');
+
+      outputFile.writeAsStringSync(goldenFile.readAsStringSync());
+      final ok = await checkJson();
+      expect(ok['exitCode'], 0);
+      expect(ok['status'], 'ok');
+
+      outputFile.writeAsStringSync('// hand-edited\n${goldenFile.readAsStringSync()}');
+      final stale = await checkJson();
+      expect(stale['exitCode'], 1);
+      expect(stale['status'], 'stale');
+      expect(stale['regenerate'], contains('-o ${outputFile.path}'));
+    });
+  });
+
   group('shadow layer aliases', () {
     /// Returns the canonical document with `shadow.lg` doctored to
     /// [layerCount] identical layers and `shadow.md` replaced by a single

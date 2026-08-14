@@ -23,6 +23,13 @@ import 'package:utopia_design_tools/src/util/repo.dart';
 Future<void> main(List<String> arguments) async {
   final parser = ArgParser()
     ..addOption('output', abbr: 'o', help: 'Output path for the generated Dart file.')
+    ..addFlag(
+      'check',
+      help:
+          'Compare the generated output against the existing output file instead of writing it; '
+          'exit 1 when it is stale or missing. Pass the same arguments as the generating run.',
+      negatable: false,
+    )
     ..addFlag('json', help: 'Emit machine-readable JSON output instead of text.', negatable: false)
     ..addFlag('help', abbr: 'h', help: 'Show usage.', negatable: false);
 
@@ -37,13 +44,16 @@ Future<void> main(List<String> arguments) async {
   }
 
   if (args['help'] as bool) {
-    stdout.writeln('Usage: dart run utopia_design_tools:generate_theme [<tokens-file>] [-o <path>] [--json]');
+    stdout.writeln(
+      'Usage: dart run utopia_design_tools:generate_theme [<tokens-file>] [-o <path>] [--check] [--json]',
+    );
     stdout.writeln(parser.usage);
     exitCode = 0;
     return;
   }
 
   final asJson = args['json'] as bool;
+  final checkOnly = args['check'] as bool;
   final positional = args.rest;
 
   final targetFile = _resolveTargetFile(positional);
@@ -132,6 +142,12 @@ Future<void> main(List<String> arguments) async {
   final outputOption = args['output'] as String?;
   final outputPath = outputOption ?? p.join('lib', 'theme', 'utopia_theme.g.dart');
   final outputFile = File(outputPath);
+
+  if (checkOnly) {
+    _runCheck(outputFile: outputFile, generated: generated, tokensPath: targetFile.path, asJson: asJson);
+    return;
+  }
+
   outputFile.parent.createSync(recursive: true);
   outputFile.writeAsStringSync(generated);
 
@@ -144,6 +160,91 @@ Future<void> main(List<String> arguments) async {
     stdout.writeln('next step: wrap your app root with UtopiaTheme(data: buildUtopiaTheme(), child: ...)');
   }
   exitCode = 0;
+}
+
+/// Runs the `--check` path: regenerates in memory and compares the result
+/// against the bytes already on disk at [outputFile]. Writes nothing, ever -
+/// not the output file and not its parent directory.
+///
+/// Exit codes: 0 when the file matches byte-for-byte, 1 when it is stale or
+/// absent (both mean the same thing to a caller: regenerate and commit the
+/// result), 2 when an existing file cannot be read.
+///
+/// The comparison is byte-exact against the text the writing path would have
+/// produced, so it only holds for the arguments the generating run used: the
+/// emitted `// Regenerate:` header line keeps the token path as invoked, so
+/// checking the same pair of files from another working directory reports a
+/// stale file over that one line. Hence "pass the same arguments" in --check's
+/// help text.
+void _runCheck({
+  required File outputFile,
+  required String generated,
+  required String tokensPath,
+  required bool asJson,
+}) {
+  final regenerateCommand = 'dart run utopia_design_tools:generate_theme $tokensPath -o ${outputFile.path}';
+
+  if (!outputFile.existsSync()) {
+    exitCode = 1;
+    if (asJson) {
+      stdout.writeln(
+        const JsonEncoder.withIndent('  ').convert({
+          'status': 'missing',
+          'path': outputFile.path,
+          'regenerate': regenerateCommand,
+        }),
+      );
+    } else {
+      stderr.writeln('generate_theme: ${outputFile.path} does not exist - generate it via: $regenerateCommand');
+    }
+    return;
+  }
+
+  final List<int> existing;
+  try {
+    existing = outputFile.readAsBytesSync();
+  } on FileSystemException catch (e) {
+    exitCode = 2;
+    stderr.writeln('generate_theme: failed to read ${outputFile.path}: ${e.message}');
+    return;
+  }
+
+  // The writing path uses writeAsStringSync, which encodes UTF-8 - so this is
+  // a comparison against exactly the bytes a regeneration would leave behind.
+  if (!_bytesEqual(existing, utf8.encode(generated))) {
+    exitCode = 1;
+    if (asJson) {
+      stdout.writeln(
+        const JsonEncoder.withIndent('  ').convert({
+          'status': 'stale',
+          'path': outputFile.path,
+          'regenerate': regenerateCommand,
+        }),
+      );
+    } else {
+      stderr.writeln('generate_theme: ${outputFile.path} is stale - regenerate via: $regenerateCommand');
+    }
+    return;
+  }
+
+  exitCode = 0;
+  if (asJson) {
+    stdout.writeln(const JsonEncoder.withIndent('  ').convert({'status': 'ok', 'path': outputFile.path}));
+  } else {
+    stdout.writeln('up to date: ${outputFile.path}');
+  }
+}
+
+bool _bytesEqual(List<int> a, List<int> b) {
+  if (a.length != b.length) {
+    return false;
+  }
+  for (var i = 0; i < a.length; i++) {
+    if (a[i] != b[i]) {
+      return false;
+    }
+  }
+  return true;
 }
 
 /// Resolves the file to generate from: the first positional argument if

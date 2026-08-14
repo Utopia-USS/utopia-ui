@@ -5,6 +5,7 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
 import 'package:utopia_design_tools/src/cli/output.dart';
 import 'package:utopia_design_tools/src/dtcg/token_document.dart';
+import 'package:utopia_design_tools/src/dtcg/validator.dart' show protocolVersion;
 import 'package:utopia_design_tools/src/twin/css_generator.dart';
 import 'package:utopia_design_tools/src/twin/design_md_generator.dart';
 import 'package:utopia_design_tools/src/twin/tailwind_generator.dart';
@@ -32,7 +33,7 @@ void main() {
     manifestComponentIds: manifestIds,
     tokenDocument: document ?? tokenDocument,
     tokensInputPath: RepoLocator.normalizeInputPath(tokensFile.path),
-    profileVersion: '0.2.0',
+    profileVersion: protocolVersion,
   );
 
   List<Finding> errorsOnly(List<Finding> findings) =>
@@ -62,9 +63,9 @@ void main() {
     if (document != null) {
       final inputPath = RepoLocator.normalizeInputPath(tokensFile.path);
       File(p.join(scratch.path, 'tokens.css'))
-          .writeAsStringSync(generateCss(document, inputPath: inputPath, profileVersion: '0.2.0'));
+          .writeAsStringSync(generateCss(document, inputPath: inputPath, profileVersion: protocolVersion));
       File(p.join(scratch.path, 'tokens.tailwind.css'))
-          .writeAsStringSync(generateTailwind(document, inputPath: inputPath, profileVersion: '0.2.0'));
+          .writeAsStringSync(generateTailwind(document, inputPath: inputPath, profileVersion: protocolVersion));
       final designMd = File(p.join(scratch.path, 'DESIGN.md'));
       designMd.writeAsStringSync(
         spliceDesignMd(
@@ -477,7 +478,7 @@ void main() {
     addTearDown(() => scratch.deleteSync(recursive: true));
     final twin = Directory(p.join(scratch.path, 'twin'))..createSync();
     File(p.join(twin.path, 'tokens.css')).writeAsStringSync(
-      generateCss(tokenDocument, inputPath: RepoLocator.normalizeInputPath(tokensFile.path), profileVersion: '0.2.0'),
+      generateCss(tokenDocument, inputPath: RepoLocator.normalizeInputPath(tokensFile.path), profileVersion: protocolVersion),
     );
     if (designMd != null) File(p.join(twin.path, 'DESIGN.md')).writeAsStringSync(designMd);
     if (galleryHtml != null) File(p.join(twin.path, 'gallery.html')).writeAsStringSync(galleryHtml);
@@ -498,7 +499,7 @@ void main() {
     manifestComponentStates: states,
     tokenDocument: tokenDocument,
     tokensInputPath: RepoLocator.normalizeInputPath(tokensFile.path),
-    profileVersion: '0.2.0',
+    profileVersion: protocolVersion,
   );
 
   /// A `DESIGN.md` whose front matter is exactly what `generate_twin` writes
@@ -828,7 +829,7 @@ void main() {
       final rebrandedDocument = TokenDocument.parse(rebrandedJson);
       final twinDir = Directory(p.join(scratchRoot.path, 'twin'))..createSync(recursive: true);
       File(p.join(twinDir.path, 'tokens.css')).writeAsStringSync(
-        generateCss(rebrandedDocument, inputPath: 'design/tokens.json', profileVersion: '0.2.0'),
+        generateCss(rebrandedDocument, inputPath: 'design/tokens.json', profileVersion: protocolVersion),
       );
 
       final result = await runValidateTwin(['--twin-dir', twinDir.path]);
