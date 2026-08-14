@@ -1,0 +1,8 @@
+# Generator output - regenerated per release (RELEASING.md step b), not
+# hand-edited. Marked linguist-generated so diffs collapse on GitHub and the
+# repo's language stats reflect source, not build products.
+tokens/utopia.tokens.json linguist-generated=true
+manifest/utopia.manifest.json linguist-generated=true
+twin/tokens.css linguist-generated=true
+twin/tokens.tailwind.css linguist-generated=true
+tool/utopia_design_tools/test/goldens/*.g.dart linguist-generated=true
