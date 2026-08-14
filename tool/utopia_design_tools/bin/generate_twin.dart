@@ -101,15 +101,16 @@ Future<void> main(List<String> arguments) async {
 
   if (composeGalleryOnly) {
     final outputDir = Directory((args['output'] as String?) ?? _defaultTwinDir());
-    final composed = _composeGalleryInto(outputDir, required: true);
-    if (composed == null) {
+    final gallery = _composeGalleryFor(outputDir, required: true);
+    if (gallery.content == null) {
       exitCode = 1;
       return;
     }
+    File(gallery.path).writeAsStringSync(gallery.content!);
     if (asJson) {
-      stdout.writeln(const JsonEncoder.withIndent('  ').convert({'status': 'ok', 'paths': [composed]}));
+      stdout.writeln(const JsonEncoder.withIndent('  ').convert({'status': 'ok', 'paths': [gallery.path]}));
     } else {
-      stdout.writeln('wrote $composed');
+      stdout.writeln('wrote ${gallery.path}');
     }
     exitCode = 0;
     return;
@@ -203,6 +204,19 @@ Future<void> main(List<String> arguments) async {
 
   final outputOption = args['output'] as String?;
   final outputDir = Directory(outputOption ?? _defaultTwinDir());
+
+  // The gallery belongs to that same render-first phase (SPEC 6.1 fan-out by
+  // presence, below): it can fail on a malformed marker or an unknown specimen
+  // id, and composing it only after tokens.css / tokens.tailwind.css /
+  // DESIGN.md had already landed is what would leave the half-written twin
+  // this whole block promises not to. Composed in memory here, written with
+  // the rest below.
+  final _GalleryComposition? gallery = skipGallery ? null : _composeGalleryFor(outputDir, required: false);
+  if (gallery != null && gallery.content == null && _gallerySourceFile(outputDir).existsSync()) {
+    exitCode = 1;
+    return;
+  }
+
   outputDir.createSync(recursive: true);
 
   final writtenPaths = <String>[];
@@ -234,13 +248,9 @@ Future<void> main(List<String> arguments) async {
   // nothing to compose and gets no gallery written as a side effect; the
   // maintainer twin in this repo has one, so a plain `generate_twin` keeps it
   // current instead of letting it drift until someone remembers the flag.
-  if (!skipGallery) {
-    final composed = _composeGalleryInto(outputDir, required: false);
-    if (composed == null && _gallerySourceFile(outputDir).existsSync()) {
-      exitCode = 1;
-      return;
-    }
-    if (composed != null) writtenPaths.add(composed);
+  if (gallery?.content != null) {
+    File(gallery!.path).writeAsStringSync(gallery.content!);
+    writtenPaths.add(gallery.path);
   }
 
   if (asJson) {
@@ -290,16 +300,24 @@ int _runScaffold(String componentId, {required String? manifestOption}) {
   return 0;
 }
 
-/// Composes `gallery.html` in [twinDir] from `gallery.src.html` +
-/// `components.html` and returns the written path, or `null` when it was not
-/// written.
+/// A composed gallery held in memory: the text to write and where it goes, or
+/// a `null` content when there is nothing to write (skipped) or the
+/// composition failed (already reported on stderr).
+typedef _GalleryComposition = ({String path, String? content});
+
+/// Composes `gallery.html` for [twinDir] from `gallery.src.html` +
+/// `components.html` IN MEMORY, writing nothing: the caller decides when the
+/// bytes land, which is what lets a failure here abort before the rest of the
+/// twin has been touched.
 ///
 /// A missing `gallery.src.html` is a hard error when [required] (the user
 /// asked for `--compose-gallery` explicitly) and a silent skip otherwise (a
-/// default run over a twin that never materialized the source skeleton).
-/// A malformed marker, an unknown id or a missing `components.html` is always
-/// reported and always leaves the existing `gallery.html` untouched.
-String? _composeGalleryInto(Directory twinDir, {required bool required}) {
+/// default run over a twin that never materialized the source skeleton); both
+/// come back with a `null` content, which callers distinguish by testing for
+/// the source file the same way this does. A malformed marker, an unknown id
+/// or a missing `components.html` is always reported.
+_GalleryComposition _composeGalleryFor(Directory twinDir, {required bool required}) {
+  final galleryPath = p.join(twinDir.path, 'gallery.html');
   final sourceFile = _gallerySourceFile(twinDir);
   if (!sourceFile.existsSync()) {
     if (required) {
@@ -308,7 +326,7 @@ String? _composeGalleryInto(Directory twinDir, {required bool required}) {
         'hand-authored skeleton plus components.html.',
       );
     }
-    return null;
+    return (path: galleryPath, content: null);
   }
 
   final componentsFile = File(p.join(twinDir.path, 'components.html'));
@@ -316,23 +334,21 @@ String? _composeGalleryInto(Directory twinDir, {required bool required}) {
     stderr.writeln(
       'generate_twin: ${componentsFile.path} not found - the gallery composes its specimens from that file.',
     );
-    return null;
+    return (path: galleryPath, content: null);
   }
 
-  final String composed;
   try {
-    composed = composeGallery(
-      source: sourceFile.readAsStringSync(),
-      componentsHtml: componentsFile.readAsStringSync(),
+    return (
+      path: galleryPath,
+      content: composeGallery(
+        source: sourceFile.readAsStringSync(),
+        componentsHtml: componentsFile.readAsStringSync(),
+      ),
     );
   } on StateError catch (e) {
     stderr.writeln('generate_twin: ${e.message}');
-    return null;
+    return (path: galleryPath, content: null);
   }
-
-  final galleryFile = File(p.join(twinDir.path, 'gallery.html'));
-  galleryFile.writeAsStringSync(composed);
-  return galleryFile.path;
 }
 
 File _gallerySourceFile(Directory twinDir) => File(p.join(twinDir.path, 'gallery.src.html'));

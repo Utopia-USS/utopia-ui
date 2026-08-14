@@ -377,6 +377,61 @@ void main() {
       expect(errorText.split('generate_twin:').length, 2, reason: 'the tool-name prefix is not doubled');
       expect(outputDir.existsSync(), isFalse, reason: 'nothing is written when generation fails');
     });
+
+    test('a malformed gallery marker exits 1 and leaves every existing twin file byte-identical', () async {
+      // The gallery is composed LAST but must fail FIRST: composing it after
+      // tokens.css / tokens.tailwind.css / DESIGN.md had already been written
+      // is what used to leave a half-written twin behind on a bad marker.
+      final scratch = Directory.systemTemp.createTempSync('generate_twin_bad_marker_');
+      addTearDown(() => scratch.deleteSync(recursive: true));
+
+      final tokensFile = File(p.join(scratch.path, 'tokens.json'))
+        ..writeAsStringSync(const JsonEncoder.withIndent('  ').convert(loadCanonical()));
+
+      // A twin whose generated surfaces are already on disk, all three
+      // deliberately stale, so a write of any of them shows up as a diff.
+      final outputDir = Directory(p.join(scratch.path, 'twin'))..createSync(recursive: true);
+      const staleMarker = '/* stale */\n';
+      final existing = <String, String>{
+        'tokens.css': staleMarker,
+        'tokens.tailwind.css': staleMarker,
+        'DESIGN.md': '---\nname: Stale\n---\n\n## Overview\n\nStale.\n',
+        'components.html': '<html><body>\n'
+            '<section class="twin-section" data-utopia-id="button">\n'
+            '  <button class="utopia-button" data-utopia-id="button">Go</button>\n'
+            '</section>\n</body></html>\n',
+        'gallery.html': '<html><body>previous gallery</body></html>\n',
+        // A trailing marker on a line that does not START with `<!--`: the
+        // shape that used to slip through as an ordinary comment.
+        'gallery.src.html': '<main>\n  <div> <!-- utopia-specimen: button -->\n</main>\n',
+      };
+      for (final entry in existing.entries) {
+        File(p.join(outputDir.path, entry.key)).writeAsStringSync(entry.value);
+      }
+
+      final result = await Process.run('dart', [
+        'run',
+        p.join(Directory.current.path, 'bin', 'generate_twin.dart'),
+        tokensFile.path,
+        '-o',
+        outputDir.path,
+      ], workingDirectory: Directory.current.path);
+
+      expect(result.exitCode, 1, reason: 'stdout: ${result.stdout}\nstderr: ${result.stderr}');
+      expect(result.stderr as String, contains('malformed specimen marker'));
+      for (final entry in existing.entries) {
+        expect(
+          File(p.join(outputDir.path, entry.key)).readAsStringSync(),
+          equals(entry.value),
+          reason: '${entry.key} was rewritten before the gallery failed',
+        );
+      }
+      expect(
+        outputDir.listSync().map((e) => p.basename(e.path)).toSet(),
+        equals(existing.keys.toSet()),
+        reason: 'no new file is created either',
+      );
+    });
   });
 
   group('DESIGN.md front matter', () {

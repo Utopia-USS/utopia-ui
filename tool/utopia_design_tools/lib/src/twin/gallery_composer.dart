@@ -111,7 +111,7 @@ String composeGallery({
     final line = lines[i];
     final match = _specimenMarker.firstMatch(line);
     if (match == null) {
-      if (line.trimLeft().startsWith('<!--') && _looseSpecimenMarker.hasMatch(line) && !_omitMarker.hasMatch(line)) {
+      if (_looseSpecimenMarker.hasMatch(line)) {
         throw StateError(
           '$sourceName:${i + 1}: malformed specimen marker - expected a line holding only '
           'an HTML comment of the form "utopia-specimen: <id>" or "utopia-specimen: <id> #<n>".',
@@ -173,15 +173,18 @@ const String _banner = '''
 /// nothing else on the line.
 final RegExp _specimenMarker = RegExp(r'^(\s*)<!--\s*utopia-specimen:\s*([a-z0-9-]+)\s*(?:#(\d+)\s*)?-->\s*$');
 
-/// Any mention of the specimen keyword on a line that opens an HTML comment,
-/// used to reject a marker the strict grammar did not accept instead of
-/// silently emitting it as a comment. Scoped to comment-opening lines so the
-/// source's own prose may still describe the grammar.
+/// Any mention of the specimen keyword with its payload separator, used to
+/// reject a marker the strict grammar did not accept instead of silently
+/// emitting it as a comment.
+///
+/// Deliberately unscoped: ANY line carrying `utopia-specimen:` must parse as a
+/// marker. A trailing marker (`<div> <!-- utopia-specimen: button -->`) and a
+/// line pairing one with an omit marker both used to slip through as ordinary
+/// comments, and the specimen then silently vanished from the composed
+/// gallery - the exact drift this composer exists to prevent. The source's own
+/// prose therefore names the keyword without the `:` (as this library's
+/// header and the composed banner both do).
 final RegExp _looseSpecimenMarker = RegExp(r'utopia-specimen\s*:');
-
-/// The omit marker, carried through untouched (grammar shared with
-/// `validate_twin`'s deliberate-omission gate).
-final RegExp _omitMarker = RegExp(r'<!--\s*utopia-twin-omit:\s*([a-z0-9-]+)\s*--');
 
 /// `data-utopia-id` in either quoting style, matching `TwinValidator`'s own
 /// attribute pattern so the composer and the id-coverage gate always agree on

@@ -365,7 +365,8 @@ Namespace rule (since 0.2.0):
 `components.html` for `data-utopia-id` roots (4.4) and emits
 `{ "file": "components.html", "selector": "[data-utopia-id=\"<id>\"]" }` for every component
 that has one, omitting the field entirely for components the twin does not render. `file` is
-twin-bundle-relative (4.1).
+twin-bundle-relative (4.1). Project manifests (3.8) do not carry `twin` bindings in 0.3.0 -
+the twin bundle belongs to `utopia_ui` and has no sections for project components.
 
 ### 3.5 Portable prop type vocabulary
 
@@ -521,7 +522,11 @@ twin/
 The gallery is composed, not hand-copied: each `<!-- utopia-specimen: <id> -->` marker in
 `gallery.src.html` is replaced by that specimen's subtree copied verbatim from
 `components.html` (`generate_twin --compose-gallery`), and the emitted `gallery.html` stays a
-committed static file. A `<!-- utopia-twin-omit: <id> -- <reason> -->` marker records a
+committed static file. When a component has several specimens, a trailing `#<n>` picks the
+n-th `data-utopia-id` root for that id in `components.html` document order (`<id>` alone means
+the first). The index is positional: inserting a specimen in the middle of a catalog section
+shifts the ones after it, so the composed `gallery.html` diff MUST be reviewed after catalog
+edits - the committed output is what makes that drift visible. A `<!-- utopia-twin-omit: <id> -- <reason> -->` marker records a
 manifest id a surface deliberately does not show; `validate_twin` treats missing ids without
 one as coverage warnings.
 

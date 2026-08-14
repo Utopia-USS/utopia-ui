@@ -2031,6 +2031,7 @@
       ],
       "states": [
         "disabled",
+        "on",
         "readOnly"
       ],
       "twin": {
@@ -2040,7 +2041,7 @@
       "examples": [
         "example/lib/sections/selection_section.dart"
       ],
-      "notes": "A themed on/off switch, styled from UtopiaThemeColors instead of the ambient MaterialApp theme. readOnly blocks interaction while keeping the full-color styling; a null onChanged (without readOnly) is the disabled state and renders faded at 50% opacity."
+      "notes": "A themed on/off switch, styled from UtopiaThemeColors instead of the ambient MaterialApp theme. on is the toggled-on track/thumb rendering (value: true); readOnly blocks interaction while keeping the full-color styling; a null onChanged (without readOnly) is the disabled state and renders faded at 50% opacity."
     },
     {
       "id": "switch-field",

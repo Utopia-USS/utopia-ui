@@ -153,7 +153,7 @@
       "type": "string",
       "enum": [
         "hover", "focus", "pressed", "loading", "disabled", "selected",
-        "error", "empty", "readOnly", "expanded", "open"
+        "error", "empty", "readOnly", "expanded", "open", "on"
       ]
     },
     "component": {

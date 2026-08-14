@@ -419,6 +419,24 @@ void main() {
       expect(outputFile.readAsBytesSync(), beforeCheck);
     });
 
+    test('a path holding a space comes back quoted, so the printed command is runnable', () async {
+      final scratchDir = Directory.systemTemp.createTempSync('generate_theme_check_spaced_');
+      addTearDown(() => scratchDir.deleteSync(recursive: true));
+
+      final spacedDir = Directory(p.join(scratchDir.path, 'My Projects'))..createSync(recursive: true);
+      final tokensFile = File(p.join(spacedDir.path, 'tokens.json'))
+        ..writeAsStringSync(canonicalTokensFile.readAsStringSync());
+      final outputFile = File(p.join(spacedDir.path, 'theme.g.dart'));
+
+      final result = await runCheck(tokensPath: tokensFile.path, outputPath: outputFile.path);
+
+      expect(result.exitCode, 1, reason: 'stdout: ${result.stdout}\nstderr: ${result.stderr}');
+      // Unquoted, the shell would split "My Projects" into two arguments and
+      // the suggested command would fail on a path that does not exist.
+      expect(result.stderr, contains("'${tokensFile.path}'"));
+      expect(result.stderr, contains("-o '${outputFile.path}'"));
+    });
+
     test('a missing output file is a failure, and --check does not create it', () async {
       final scratchDir = Directory.systemTemp.createTempSync('generate_theme_check_missing_');
       addTearDown(() => scratchDir.deleteSync(recursive: true));

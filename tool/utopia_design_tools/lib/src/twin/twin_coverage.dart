@@ -29,6 +29,7 @@ import 'dart:io';
 import 'package:path/path.dart' as p;
 
 import '../cli/output.dart';
+import 'section_scaffold.dart';
 
 /// Runs the coverage (gate 5) and state-parity (gate 6) checks over a twin
 /// bundle. Both are warning-only and each half is skipped when the file it
@@ -110,11 +111,13 @@ class TwinCoverageGates {
   /// reported in both directions (a manifest state with no class, and a class
   /// with no manifest state).
   ///
-  /// The twin-side set is the union of the `.is-*` classes used inside the
-  /// component's own `<section data-utopia-id="...">` in `components.html` and
-  /// the ones defined for it in `components.css` (attributed via the
-  /// `utopia-<id>` class in the same compound selector, see
-  /// [_ownerOfUtopiaClass]).
+  /// The twin-side set is the union of the `.is-*` classes attributed to the
+  /// component inside its own `<section data-utopia-id="...">` in
+  /// `components.html` (see [_stateClassesInHtml]) and the ones defined for it
+  /// in `components.css` (see [_stateClassesByComponent]). Both halves
+  /// attribute a class through the `utopia-<id>` class sharing its element /
+  /// compound selector, so a nested component's states never count as the
+  /// enclosing one's.
   List<Finding> checkStateParity() {
     final componentsHtmlFile = File(p.join(twinDir.path, 'components.html'));
     final componentsCssFile = File(p.join(twinDir.path, 'components.css'));
@@ -136,7 +139,7 @@ class TwinCoverageGates {
 
       final section = sections[id];
       final twinStates = <String>{
-        if (section != null) ..._stateClassesInHtml(section),
+        if (section != null) ..._stateClassesInHtml(section, sectionId: id),
         ...?cssStates[id],
       };
 
@@ -153,7 +156,7 @@ class TwinCoverageGates {
         findings.add(
           Finding.warning(
             id,
-            'state drift: manifest state "$state" has no .is-* class in the twin - add .is-${_kebabCase(state)} to '
+            'state drift: manifest state "$state" has no .is-* class in the twin - add ${twinStateClass(state)} to '
             'the components.html section or components.css, or drop the state from the manifest',
           ),
         );
@@ -181,10 +184,13 @@ class TwinCoverageGates {
   /// Turns one file's covered-id set into findings: one per missing id, one per
   /// dead or unparseable omit marker, and a covered/omitted/missing summary.
   ///
-  /// The summary is emitted only when the file is not fully covered (something
-  /// is missing, deliberately omitted, or the markers themselves are broken) -
-  /// a twin that tracks the manifest exactly stays silent, like every other
-  /// gate here.
+  /// The summary is emitted only when something is actually MISSING - a
+  /// declared omission is documented, not a finding, so a twin whose every gap
+  /// carries an omit marker stays silent no matter how many markers it has
+  /// (SPEC 4.1 scopes this gate's warnings to "missing ids WITHOUT one"). A
+  /// twin that tracks the manifest exactly stays silent for the same reason,
+  /// like every other gate here. Dead and unparseable markers still report on
+  /// their own: those are broken markers, not declared gaps.
   List<Finding> _coverageFindings({
     required File file,
     required String text,
@@ -231,7 +237,7 @@ class TwinCoverageGates {
       );
     }
 
-    if (missing.isNotEmpty || omittedCount > 0 || dead.isNotEmpty || markers.malformed.isNotEmpty) {
+    if (missing.isNotEmpty) {
       findings.add(
         Finding.warning(
           path,
@@ -381,12 +387,38 @@ class TwinCoverageGates {
     return sections;
   }
 
-  /// The `.is-*` state names (without the `is-` prefix) used on class
-  /// attributes inside one component's `components.html` section.
-  static Set<String> _stateClassesInHtml(String section) {
+  /// The `.is-*` state names (without the `is-` prefix) that one component's
+  /// `components.html` section attributes to [sectionId] itself.
+  ///
+  /// Attribution is per `class` attribute, not per section: a `.is-*` class
+  /// counts for [sectionId] only when the SAME attribute also carries a
+  /// `utopia-<id>` class resolving to it (longest matching id wins, the same
+  /// rule the CSS half applies in [_ownerOfUtopiaClass]). Without that, a
+  /// composite component would inherit the states of the components nested
+  /// inside its specimens - `switch-field`, whose specimens wrap a
+  /// `<span class="utopia-switch is-on">`, would report `.is-on` as its own.
+  ///
+  /// An element carrying no `utopia-*` class at all falls back to [sectionId]:
+  /// that is the scaffold's stub markup and any plain wrapper a maintainer
+  /// hand-wrote around a specimen, both of which belong to the section they
+  /// sit in. An element whose `utopia-*` classes name no manifest component is
+  /// unattributable and contributes nothing, exactly as in the CSS half.
+  Set<String> _stateClassesInHtml(String section, {required String sectionId}) {
     final states = <String>{};
     for (final match in _classAttr.allMatches(section)) {
-      for (final token in match.group(2)!.split(RegExp(r'\s+'))) {
+      final tokens = match.group(2)!.split(RegExp(r'\s+'));
+      String? owner;
+      var carriesUtopiaClass = false;
+      for (final token in tokens) {
+        if (!token.startsWith('utopia-')) continue;
+        carriesUtopiaClass = true;
+        final candidate = _ownerOfUtopiaClass(token);
+        if (candidate == null) continue;
+        if (owner == null || candidate.length > owner.length) owner = candidate;
+      }
+      if (owner == null && carriesUtopiaClass) continue;
+      if ((owner ?? sectionId) != sectionId) continue;
+      for (final token in tokens) {
         if (token.startsWith('is-') && token.length > 3) states.add(token.substring(3));
       }
     }
@@ -473,10 +505,4 @@ class TwinCoverageGates {
   /// compare equal.
   static String _normalizeStateName(String state) =>
       state.toLowerCase().replaceAll('-', '').replaceAll('_', '');
-
-  /// The kebab-case spelling of a manifest state, used only in the
-  /// `add .is-<state>` hint (SPEC 4.2's camelCase-splits-on-case-boundaries
-  /// rule, the same convention the CSS custom property names follow).
-  static String _kebabCase(String state) =>
-      state.replaceAllMapped(RegExp('(?<=[a-z0-9])([A-Z])'), (m) => '-${m.group(1)!}').toLowerCase();
 }

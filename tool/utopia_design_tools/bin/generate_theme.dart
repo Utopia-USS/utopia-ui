@@ -182,7 +182,8 @@ void _runCheck({
   required String tokensPath,
   required bool asJson,
 }) {
-  final regenerateCommand = 'dart run utopia_design_tools:generate_theme $tokensPath -o ${outputFile.path}';
+  final regenerateCommand =
+      'dart run utopia_design_tools:generate_theme ${_shellArg(tokensPath)} -o ${_shellArg(outputFile.path)}';
 
   if (!outputFile.existsSync()) {
     exitCode = 1;
@@ -233,6 +234,21 @@ void _runCheck({
   } else {
     stdout.writeln('up to date: ${outputFile.path}');
   }
+}
+
+/// Renders [value] as one shell argument of a copy-pasteable command line.
+///
+/// A path holding a space (or any other character a shell would read as
+/// syntax) is wrapped in single quotes, with embedded single quotes closed and
+/// reopened the POSIX way (`'\''`); a plain path is left exactly as it was, so
+/// the common message reads as an ordinary command rather than a quoted one.
+/// Without this, `--check` on a project under `~/My Projects` printed a
+/// "regenerate via" line that the shell would split into two arguments.
+String _shellArg(String value) {
+  if (value.isNotEmpty && !RegExp('[^A-Za-z0-9_@%+=:,./-]').hasMatch(value)) {
+    return value;
+  }
+  return "'${value.replaceAll("'", r"'\''")}'";
 }
 
 bool _bytesEqual(List<int> a, List<int> b) {

@@ -165,14 +165,39 @@ void main() {
       );
     });
 
-    test('prose mentioning the grammar inside a comment body is not a marker', () {
+    test('prose naming the keyword without its ":" is not a marker', () {
       const source = '''
 <!--
-  Each utopia-specimen: <id> marker is replaced by that specimen's subtree.
+  Each utopia-specimen marker is replaced by that specimen's subtree.
 -->
 ''';
 
       expect(composeGallery(source: source, componentsHtml: componentsHtml), contains('is replaced by that specimen'));
+    });
+
+    test('a marker sharing its line with other markup is rejected, not silently dropped', () {
+      // The strict grammar wants a marker alone on its line; this one parsed
+      // as an ordinary HTML comment, so the specimen silently vanished from
+      // the composed gallery - the exact drift the composer exists to prevent.
+      expect(
+        () => composeGallery(source: '<div> <!-- utopia-specimen: button -->\n', componentsHtml: componentsHtml),
+        throwsA(
+          isA<StateError>().having(
+            (e) => e.message,
+            'message',
+            allOf(contains('gallery.src.html:1'), contains('malformed specimen marker')),
+          ),
+        ),
+      );
+    });
+
+    test('an omit marker on the same line does not excuse a malformed specimen marker', () {
+      const source = '<!-- utopia-twin-omit: page-wrapper -- pure layout --> <!-- utopia-specimen: -->\n';
+
+      expect(
+        () => composeGallery(source: source, componentsHtml: componentsHtml),
+        throwsA(isA<StateError>().having((e) => e.message, 'message', contains('malformed specimen marker'))),
+      );
     });
   });
 

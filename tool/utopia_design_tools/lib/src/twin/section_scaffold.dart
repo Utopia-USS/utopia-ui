@@ -79,7 +79,7 @@ String buildSectionScaffold(ScaffoldComponent component) {
     ..writeln('      <div class="twin-specimens">')
     ..write(_specimenStub(component.id, label: 'Default', state: null));
   for (final state in component.states) {
-    buffer.write(_specimenStub(component.id, label: '$state (${_stateClass(state)})', state: state));
+    buffer.write(_specimenStub(component.id, label: '$state (${twinStateClass(state)})', state: state));
   }
   buffer
     ..writeln('      </div>')
@@ -92,7 +92,7 @@ String buildSectionScaffold(ScaffoldComponent component) {
 String _specimenStub(String id, {required String label, required String? state}) {
   final todo = state == null
       ? 'TODO: markup for "$id" - the root element MUST carry data-utopia-id="$id".'
-      : 'TODO: the "$state" state - same markup as the default specimen plus the ${_stateClass(state)} class '
+      : 'TODO: the "$state" state - same markup as the default specimen plus the ${twinStateClass(state)} class '
             'on its root (and data-utopia-id="$id").';
   return '        <div class="twin-specimen">\n'
       '          <span class="twin-specimen__label">${_escape(label)}</span>\n'
@@ -101,10 +101,15 @@ String _specimenStub(String id, {required String label, required String? state})
 }
 
 /// The class name a state variant is expressed with: `.is-<state>`,
-/// lower-cased, matching how `components.css` already spells its state
-/// classes (`readOnly` -> `.is-readonly`, alongside `.is-disabled`,
-/// `.is-loading`, `.is-selected`).
-String _stateClass(String state) => '.is-${state.toLowerCase()}';
+/// lower-cased with separators removed, matching how `components.css` already
+/// spells its state classes (`readOnly` -> `.is-readonly`, alongside
+/// `.is-disabled`, `.is-loading`, `.is-selected`).
+///
+/// The single source of truth for that spelling: the scaffold emits it, and
+/// `validate_twin`'s state-parity gate points at it in its "add the missing
+/// class" hint, so the tool never suggests a class the scaffold would not
+/// have written.
+String twinStateClass(String state) => '.is-${state.toLowerCase().replaceAll('-', '').replaceAll('_', '')}';
 
 /// The section heading for [id]: the kebab-case manifest id as a sentence
 /// (`switch-field` -> `Switch field`).

@@ -181,7 +181,8 @@ so "thousands of lines of JSON" reads as build product, not maintenance burden:
 | `tokens/utopia.tokens.json` | generated | `export_tokens` (from `UtopiaThemeData.defaultTheme`) |
 | `manifest/utopia.manifest.json` | generated (prose from dartdoc + `overlay/*.yaml`) | `generate_manifest` |
 | `twin/tokens.css`, `twin/tokens.tailwind.css`, `DESIGN.md` front matter | generated | `generate_twin` |
-| `twin/components.html`, `twin/components.css`, `twin/gallery.html` | hand-authored | - (curated per SPEC 4.4/4.5) |
+| `twin/gallery.html` | composed - do not edit | `generate_twin` (from `gallery.src.html` + `components.html`) |
+| `twin/components.html`, `twin/components.css`, `twin/gallery.src.html` | hand-authored | - (curated per SPEC 4.4/4.5) |
 | `protocol/` (spec + schemas) | hand-authored | - (normative) |
 
 Generated files are marked `linguist-generated` in `.gitattributes`, and CI regenerates all

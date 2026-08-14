@@ -595,7 +595,10 @@ void main() {
       );
     });
 
-    test('an omit marker declares the gap: no missing warning, counted as omitted', () {
+    test('an omit marker declares the gap: the gate goes fully silent, summary included', () {
+      // A declared omission is documentation, not a finding (SPEC 4.1 scopes
+      // the gate to "missing ids WITHOUT one"), so a file whose every gap
+      // carries a marker reports nothing at all - not even the summary line.
       final twin = syntheticTwin(
         galleryHtml: galleryWith(
           ['button'],
@@ -606,10 +609,26 @@ void main() {
         syntheticValidator(twin, ids: {'button', 'collapsible'}).validate(),
         'gallery.html',
       );
-      expect(coverage.map((f) => f.message), isNot(contains(contains('has no specimen'))));
+      expect(coverage, isEmpty, reason: coverage.map((f) => f.toLine()).join('; '));
+    });
+
+    test('the summary is emitted only alongside a real missing id', () {
+      final twin = syntheticTwin(
+        galleryHtml: galleryWith(
+          ['button'],
+          extra: '<!-- utopia-twin-omit: collapsible -- pure-behaviour widget, nothing to render -->',
+        ),
+      );
+      final coverage = coverageFindings(
+        syntheticValidator(twin, ids: {'button', 'collapsible', 'card'}).validate(),
+        'gallery.html',
+      );
       expect(
-        coverage.single.message,
-        'twin coverage: 1 covered, 1 omitted, 0 missing (of 2 manifest components)',
+        coverage.map((f) => f.message),
+        containsAll([
+          contains('manifest component "card" has no specimen in gallery.html'),
+          'twin coverage: 1 covered, 1 omitted, 1 missing (of 3 manifest components)',
+        ]),
       );
     });
 
@@ -773,6 +792,61 @@ void main() {
         syntheticValidator(twin, ids: {'button'}, states: {'button': ['hover']}).validate(),
       );
       expect(findings.single.message, contains('manifest state "hover" has no .is-* class'));
+    });
+
+    test('a nested component of another id does not leak its states to the section', () {
+      // switch-field's specimens wrap a <span class="utopia-switch is-on">:
+      // the .is-on belongs to switch, and switch-field must neither be
+      // credited with it nor reported for carrying an undeclared state.
+      final twin = syntheticTwin(
+        componentsHtml: componentsHtmlWith({
+          'switch-field': '<div class="utopia-switch-field is-readonly" data-utopia-id="switch-field">\n'
+              '      <span class="utopia-switch is-on" aria-hidden="true"></span>\n'
+              '    </div>',
+        }),
+      );
+      final findings = stateFindings(
+        syntheticValidator(
+          twin,
+          ids: {'switch', 'switch-field'},
+          states: {
+            'switch': ['on'],
+            'switch-field': ['readOnly'],
+          },
+        ).validate(),
+      );
+      // switch-field: its own .is-readonly matches, the nested .is-on is not
+      // its own. switch: its section is absent from this components.html, so
+      // its "on" state has no class to match anywhere - the one honest
+      // finding here, and it is filed against switch, not switch-field.
+      expect(findings.map((f) => f.path), everyElement('switch'));
+      expect(findings.single.message, contains('manifest state "on" has no .is-* class'));
+    });
+
+    test('an element with no utopia-* class at all falls back to the section it sits in', () {
+      // The scaffold's stub markup and hand-written wrappers carry only
+      // twin-* classes; a state class on one of those is the section's own.
+      final twin = syntheticTwin(
+        componentsHtml: componentsHtmlWith({
+          'button': '<div class="twin-specimen is-loading" data-utopia-id="button"></div>',
+        }),
+      );
+      expect(
+        stateFindings(syntheticValidator(twin, ids: {'button'}, states: {'button': ['loading']}).validate()),
+        isEmpty,
+      );
+    });
+
+    test('the missing-class hint spells the state the way the scaffold does', () {
+      // One truth for the spelling: components.css and generate_twin
+      // --scaffold both write .is-readonly, so the hint must not suggest a
+      // kebab-cased .is-read-only nobody uses.
+      final twin = syntheticTwin(componentsCss: '.utopia-text-field { opacity: 1; }\n');
+      final findings = stateFindings(
+        syntheticValidator(twin, ids: {'text-field'}, states: {'text-field': ['readOnly']}).validate(),
+      );
+      expect(findings.single.message, contains('add .is-readonly to'));
+      expect(findings.single.message, isNot(contains('.is-read-only')));
     });
 
     test('a component declaring no states is skipped in both directions', () {
