@@ -1,0 +1,38 @@
+# Publishing filter for the utopia_ui pub tarball. When this file exists it REPLACES
+# .gitignore for publishing, so build/tooling excludes are repeated here.
+#
+# MUST ship (Utopia Design Protocol artifacts, version-matched via the pub cache):
+# protocol/, tokens/, manifest/, twin/, skills/ - do not add them here.
+
+# Build/tooling artifacts (mirrors .gitignore)
+**/.dart_tool
+.idea
+*.iml
+pubspec_overrides.yaml
+.flutter-plugins
+.flutter-plugins-dependencies
+.cursorrules
+pubspec.lock
+.fvm/
+build/
+
+# Working documents - never published (also never committed; pub does not read
+# .git/info/exclude, so they are repeated here as a second fence)
+research/
+ledger/
+PROTOCOL_PLAN.md
+PROTOCOL_LEDGER.md
+SESSION_A_PROMPT.md
+SESSION_B_PROMPT.md
+DIRECTION_REVIEW_PROMPT.md
+
+# The design-tools package publishes separately (its own pubspec); shipping its
+# source inside the utopia_ui tarball would be redundant weight.
+tool/
+
+# Repo-internal docs not useful to package consumers
+AGENTS.md
+CHARTER.md
+
+# README hero images: GitHub-hosted (raw.githubusercontent.com), must not ship in the tarball
+docs/

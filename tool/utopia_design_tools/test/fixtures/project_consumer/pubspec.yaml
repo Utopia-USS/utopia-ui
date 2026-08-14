@@ -1,0 +1,20 @@
+name: demo_consumer
+description: >-
+  Fixture consumer project for generate_manifest --project (SPEC 3.8): a
+  mini but real Dart package exercising opt-in custom component extraction,
+  namespaced ids, project models/enums, and the merged manifest view.
+version: 0.1.0
+publish_to: none
+
+environment:
+  sdk: ^3.11.0
+
+dependencies:
+  flutter:
+    sdk: flutter
+  utopia_ui:
+    path: ../../../../..
+
+dev_dependencies:
+  flutter_test:
+    sdk: flutter

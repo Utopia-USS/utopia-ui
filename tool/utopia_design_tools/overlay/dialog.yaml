@@ -1,0 +1,8 @@
+notes: >-
+  Adaptive dialog chrome: a bottom sheet on mobile, a centered rounded card
+  everywhere else. Two constructors share one build: the raw (unnamed)
+  constructor hands the body to a caller-supplied builder (maxWidth defaults
+  to 1000); the form constructor composes that same builder internally from a
+  scrollable sliver and a pinned bottom bar (maxWidth defaults to 600).
+examples:
+  - example/lib/sections/dialogs_section.dart

@@ -1,0 +1,2376 @@
+{
+  "schemaVersion": "0.2.0",
+  "package": "demo_consumer",
+  "packageVersion": "0.1.0",
+  "utopiaUiVersion": "0.1.0",
+  "merged": true,
+  "components": [
+    {
+      "id": "button",
+      "name": "UtopiaButton",
+      "description": "TAMPERED description - stale merged view fixture",
+      "file": "lib/src/widget/button/utopia_button.dart",
+      "constructors": [
+        {
+          "name": "",
+          "description": "Creates the primary call-to-action button.",
+          "props": [
+            {
+              "name": "child",
+              "type": "widget-slot",
+              "dartType": "Widget",
+              "required": true,
+              "description": "The button's content, styled with `UtopiaThemeTextStyles.button`."
+            },
+            {
+              "name": "onTap",
+              "type": "callback",
+              "dartType": "void Function()",
+              "required": true,
+              "description": "Called on tap, while isEnabled is `true`."
+            },
+            {
+              "name": "isEnabled",
+              "type": "bool",
+              "dartType": "bool",
+              "required": false,
+              "default": "true",
+              "description": "Whether the button responds to taps; visually dims via UtopiaGradientBackground when `false`."
+            },
+            {
+              "name": "loading",
+              "type": "bool",
+              "dartType": "bool",
+              "required": false,
+              "default": "false",
+              "description": "Replaces child with a UtopiaThreeBounce indicator while `true`."
+            },
+            {
+              "name": "dense",
+              "type": "bool",
+              "dartType": "bool",
+              "required": false,
+              "default": "false",
+              "description": "Uses a shorter fixed extent (10x instead of 15x the token base - 40 instead of 60 by default) when height is not set."
+            },
+            {
+              "name": "maxWidth",
+              "type": "number",
+              "dartType": "double",
+              "required": false,
+              "default": "300",
+              "description": "Upper bound on the button's width."
+            },
+            {
+              "name": "colors",
+              "type": "list",
+              "dartType": "List<Color>?",
+              "required": false,
+              "description": "Overrides the default primary/accent gradient.",
+              "itemType": "color",
+              "itemDartType": "Color"
+            },
+            {
+              "name": "height",
+              "type": "number",
+              "dartType": "double?",
+              "required": false,
+              "description": "Overrides the fixed square extent (min/max height and min width). Defaults to 10x the token base when dense (40), 15x otherwise (60, matching a resting field's total height). Pair with maxWidth == height for a square icon button."
+            }
+          ]
+        }
+      ],
+      "tokenBindings": [
+        "colors.accent",
+        "colors.onColoredHover",
+        "colors.primary",
+        "textStyles.button",
+        "theme.borderRadius",
+        "tokens.x"
+      ],
+      "states": [
+        "disabled",
+        "hover",
+        "loading"
+      ],
+      "composes": [
+        "gradient-background",
+        "three-bounce"
+      ],
+      "examples": [
+        "example/lib/sections/buttons_section.dart",
+        "example/lib/sections/dialogs_section.dart"
+      ],
+      "notes": "The primary call-to-action button. Loading swaps the label for an inline UtopiaThreeBounce indicator while keeping the button's size stable; disabled dims the gradient fill instead of hiding the button."
+    },
+    {
+      "id": "card",
+      "name": "UtopiaCard",
+      "description": "A raised, rounded, hairline-bordered surface - the container the table and other grouped content sit on. Styling comes from `UtopiaThemeData.cardDecoration` and `cardBorderDecoration`, so it stays themable from one place.",
+      "file": "lib/src/widget/layout/utopia_card.dart",
+      "constructors": [
+        {
+          "name": "",
+          "description": "Creates a card surface around child.",
+          "props": [
+            {
+              "name": "child",
+              "type": "widget-slot",
+              "dartType": "Widget",
+              "required": true,
+              "description": "The content laid over the card decoration."
+            }
+          ]
+        }
+      ],
+      "tokenBindings": [
+        "colors.border",
+        "colors.surface",
+        "theme.cardBorderDecoration",
+        "theme.cardBorderWidth",
+        "theme.cardDecoration",
+        "theme.cardRadius",
+        "theme.cardShadow"
+      ],
+      "examples": [
+        "example/lib/sections/surfaces_section.dart",
+        "example/lib/sections/typography_section.dart"
+      ],
+      "notes": "A raised, rounded, hairline-bordered surface - the container the table and other grouped content sit on. Styling comes entirely from UtopiaThemeData.cardDecoration/cardBorderDecoration, so it stays themable from one place. See utopiaCardSliver for the sliver counterpart used inside a CustomScrollView."
+    },
+    {
+      "id": "check-row",
+      "name": "UtopiaCheckRow",
+      "description": "A non-Material selectable row: a label preceded by a check box, used inside dropdown popups. Styled from the Utopia theme, no ink splash.",
+      "file": "lib/src/widget/select/utopia_check_row.dart",
+      "constructors": [
+        {
+          "name": "",
+          "description": "Creates a selectable check row.",
+          "props": [
+            {
+              "name": "label",
+              "type": "string",
+              "dartType": "String",
+              "required": true,
+              "description": "The row's text."
+            },
+            {
+              "name": "selected",
+              "type": "bool",
+              "dartType": "bool",
+              "required": true,
+              "description": "Whether the check box renders as checked."
+            },
+            {
+              "name": "onTap",
+              "type": "callback",
+              "dartType": "VoidCallback",
+              "required": true,
+              "description": "Called when the row is tapped."
+            }
+          ]
+        }
+      ],
+      "tokenBindings": [
+        "colors.accent",
+        "colors.disabled",
+        "colors.hover",
+        "textStyles.text",
+        "tokens.borders.thin",
+        "tokens.durations.xs",
+        "tokens.radius.smAll",
+        "tokens.spacing.md"
+      ],
+      "states": [
+        "hover",
+        "selected"
+      ],
+      "examples": [
+        "example/lib/sections/selection_section.dart"
+      ],
+      "notes": "A non-Material selectable row: a label preceded by a check box, used inside dropdown popups. Styled from the Utopia theme, with no ink splash."
+    },
+    {
+      "id": "chip",
+      "name": "UtopiaChip",
+      "description": "A small rounded pill used to display a categorical / tag-like value in a `UtopiaTable` cell (e.g. a dropdown value or one element of a to-many relation).",
+      "file": "lib/src/widget/chip/utopia_chip.dart",
+      "constructors": [
+        {
+          "name": "",
+          "description": "Creates a chip pill.",
+          "props": [
+            {
+              "name": "child",
+              "type": "widget-slot",
+              "dartType": "Widget",
+              "required": true,
+              "description": "The chip label."
+            },
+            {
+              "name": "leading",
+              "type": "widget-slot",
+              "dartType": "Widget?",
+              "required": false,
+              "description": "Optional leading widget (icon, dot, \u2026) shown before child."
+            },
+            {
+              "name": "color",
+              "type": "color",
+              "dartType": "Color?",
+              "required": false,
+              "description": "Overrides `UtopiaThemeColors.chipBackground`."
+            },
+            {
+              "name": "contentColor",
+              "type": "color",
+              "dartType": "Color?",
+              "required": false,
+              "description": "Overrides `UtopiaThemeColors.chipForeground`."
+            }
+          ]
+        }
+      ],
+      "tokenBindings": [
+        "colors.chipBackground",
+        "colors.chipForeground",
+        "textStyles.caption",
+        "theme.chipRadius",
+        "tokens.spacing.md",
+        "tokens.spacing.xs"
+      ],
+      "examples": [
+        "example/lib/sections/chips_text_section.dart",
+        "example/lib/sections/table_section.dart"
+      ],
+      "notes": "A small rounded pill for a categorical/tag-like value, typically inside a table cell. color and contentColor override the theme's chip background/foreground defaults per-instance."
+    },
+    {
+      "id": "chip-list",
+      "name": "UtopiaChipList",
+      "description": "A wrap of UtopiaChips with a trailing \"+N more\" overflow chip.",
+      "file": "lib/src/widget/chip/utopia_chip_list.dart",
+      "constructors": [
+        {
+          "name": "",
+          "description": "Creates a wrap of chips with optional overflow collapsing.",
+          "props": [
+            {
+              "name": "labels",
+              "type": "list",
+              "dartType": "IList<String>",
+              "required": true,
+              "description": "The labels to render, in order.",
+              "itemType": "string",
+              "itemDartType": "String"
+            },
+            {
+              "name": "maxLength",
+              "type": "number",
+              "dartType": "int?",
+              "required": false,
+              "description": "Maximum number of value chips to show before collapsing into \"+N more\". `null` shows every label."
+            }
+          ]
+        }
+      ],
+      "tokenBindings": [
+        "colors.hint",
+        "textStyles.text",
+        "tokens.spacing.sm",
+        "tokens.spacing.xs"
+      ],
+      "composes": [
+        "chip"
+      ],
+      "examples": [
+        "example/lib/sections/chips_text_section.dart"
+      ],
+      "notes": "A wrap of chips with a trailing \"+N more\" overflow chip once maxLength is set and exceeded. An empty labels list renders a muted \"-\" placeholder."
+    },
+    {
+      "id": "collapsible",
+      "name": "UtopiaCollapsible",
+      "description": "Animates its child between collapsed (zero extent) and expanded along one axis, clipping the child while it animates.",
+      "file": "lib/src/widget/misc/utopia_collapsible.dart",
+      "constructors": [
+        {
+          "name": "",
+          "description": "Creates a collapsible along an explicit axis.",
+          "props": [
+            {
+              "name": "duration",
+              "type": "duration",
+              "dartType": "Duration",
+              "required": true,
+              "description": "Duration of the collapse/expand animation."
+            },
+            {
+              "name": "axis",
+              "type": "other",
+              "dartType": "Axis",
+              "required": true,
+              "description": "The axis along which the child collapses."
+            },
+            {
+              "name": "curve",
+              "type": "other",
+              "dartType": "Curve",
+              "required": false,
+              "default": "Curves.decelerate",
+              "description": "Curve of the collapse/expand animation."
+            },
+            {
+              "name": "isExpanded",
+              "type": "bool",
+              "dartType": "bool",
+              "required": true,
+              "description": "Whether the child is currently shown at its full extent."
+            },
+            {
+              "name": "child",
+              "type": "widget-slot",
+              "dartType": "Widget",
+              "required": true,
+              "description": "The content to collapse/expand."
+            }
+          ]
+        },
+        {
+          "name": "vertical",
+          "description": "Collapses the child's height.",
+          "props": [
+            {
+              "name": "duration",
+              "type": "duration",
+              "dartType": "Duration",
+              "required": true,
+              "description": "Duration of the collapse/expand animation."
+            },
+            {
+              "name": "curve",
+              "type": "other",
+              "dartType": "Curve",
+              "required": false,
+              "default": "Curves.decelerate",
+              "description": "Curve of the collapse/expand animation."
+            },
+            {
+              "name": "isExpanded",
+              "type": "bool",
+              "dartType": "bool",
+              "required": true,
+              "description": "Whether the child is currently shown at its full extent."
+            },
+            {
+              "name": "child",
+              "type": "widget-slot",
+              "dartType": "Widget",
+              "required": true,
+              "description": "The content to collapse/expand."
+            }
+          ]
+        },
+        {
+          "name": "horizontal",
+          "description": "Collapses the child's width.",
+          "props": [
+            {
+              "name": "duration",
+              "type": "duration",
+              "dartType": "Duration",
+              "required": true,
+              "description": "Duration of the collapse/expand animation."
+            },
+            {
+              "name": "curve",
+              "type": "other",
+              "dartType": "Curve",
+              "required": false,
+              "default": "Curves.decelerate",
+              "description": "Curve of the collapse/expand animation."
+            },
+            {
+              "name": "isExpanded",
+              "type": "bool",
+              "dartType": "bool",
+              "required": true,
+              "description": "Whether the child is currently shown at its full extent."
+            },
+            {
+              "name": "child",
+              "type": "widget-slot",
+              "dartType": "Widget",
+              "required": true,
+              "description": "The content to collapse/expand."
+            }
+          ]
+        }
+      ],
+      "tokenBindings": []
+    },
+    {
+      "id": "confirm-dialog",
+      "name": "UtopiaConfirmDialog",
+      "description": "A themed confirm/cancel prompt drawn with the utopia card chrome - the same surface, border, shadow and radius as every other card - rather than a Material AlertDialog.",
+      "file": "lib/src/widget/dialog/utopia_confirm_dialog.dart",
+      "constructors": [
+        {
+          "name": "",
+          "description": "Creates a confirm dialog. Use show to present it as a route.",
+          "props": [
+            {
+              "name": "title",
+              "type": "string",
+              "dartType": "String",
+              "required": true,
+              "description": "Dialog title, shown in `textStyles.header`."
+            },
+            {
+              "name": "subtitle",
+              "type": "string",
+              "dartType": "String?",
+              "required": false,
+              "description": "Optional body copy, shown in `textStyles.text` below the title. When null, the dialog renders with no content section."
+            },
+            {
+              "name": "confirmLabel",
+              "type": "string",
+              "dartType": "String",
+              "required": false,
+              "default": "'Proceed'",
+              "description": "Label of the confirming action button."
+            },
+            {
+              "name": "cancelLabel",
+              "type": "string",
+              "dartType": "String",
+              "required": false,
+              "default": "'Cancel'",
+              "description": "Label of the cancelling action button."
+            },
+            {
+              "name": "hasConfirm",
+              "type": "bool",
+              "dartType": "bool",
+              "required": false,
+              "default": "true",
+              "description": "Whether the confirming action button is shown."
+            },
+            {
+              "name": "hasCancel",
+              "type": "bool",
+              "dartType": "bool",
+              "required": false,
+              "default": "true",
+              "description": "Whether the cancelling action button is shown."
+            },
+            {
+              "name": "danger",
+              "type": "bool",
+              "dartType": "bool",
+              "required": false,
+              "default": "false",
+              "description": "Renders the confirming action in the theme's error colour, for destructive confirmations (delete, sign out, ...)."
+            }
+          ]
+        }
+      ],
+      "tokenBindings": [
+        "colors.error",
+        "colors.hover",
+        "textStyles.header",
+        "textStyles.label",
+        "textStyles.text",
+        "theme.borderRadius",
+        "theme.cardBorderDecoration",
+        "theme.cardDecoration",
+        "tokens.spacing.md",
+        "tokens.spacing.xl",
+        "tokens.x"
+      ],
+      "composes": [
+        "button"
+      ],
+      "examples": [
+        "example/lib/sections/dialogs_section.dart"
+      ],
+      "notes": "A themed confirm/cancel prompt drawn with the utopia card chrome rather than a Material AlertDialog. danger renders the confirming action in the theme's error colour, for destructive confirmations (delete, sign out, ...). Use show to present it as a route with the ambient theme re-attached."
+    },
+    {
+      "id": "copyable-text",
+      "name": "UtopiaCopyableText",
+      "description": "A single-line, ellipsized text label that copies its value to the clipboard on tap, showing a tooltip with the full text and a snackbar confirmation once copied. Tints to the accent colour on hover so the copy affordance is visible before the cursor change. A `null` text renders as `-` and is not copyable.",
+      "file": "lib/src/widget/text/utopia_copyable_text.dart",
+      "constructors": [
+        {
+          "name": "",
+          "description": "Creates a copy-on-tap text label.",
+          "props": [
+            {
+              "name": "text",
+              "type": "string",
+              "dartType": "String?",
+              "required": true,
+              "description": "The text to display and copy; `null` renders as `-` and disables copying."
+            }
+          ]
+        }
+      ],
+      "tokenBindings": [
+        "colors.accent",
+        "textStyles.button",
+        "textStyles.text",
+        "tokens.durations.xs",
+        "tokens.spacing.md",
+        "tokens.spacing.xl",
+        "tokens.spacing.xxl"
+      ],
+      "composes": [
+        "multi-widget"
+      ]
+    },
+    {
+      "id": "date-picker",
+      "name": "UtopiaDatePicker",
+      "description": "A tap-to-open date field: displays the picked date through a UtopiaTextField, opens an anchored calendar popover and offers a clear affordance via UtopiaRemoveIconButton.",
+      "file": "lib/src/widget/date_picker/utopia_date_picker.dart",
+      "constructors": [
+        {
+          "name": "",
+          "description": "Creates a tap-to-open date field.",
+          "props": [
+            {
+              "name": "date",
+              "type": "date",
+              "dartType": "DateTime?",
+              "required": true,
+              "description": "The currently picked date; `null` shows the field empty."
+            },
+            {
+              "name": "label",
+              "type": "string",
+              "dartType": "String",
+              "required": true,
+              "description": "The floating label shown above the field."
+            },
+            {
+              "name": "onDateChanged",
+              "type": "callback",
+              "dartType": "void Function(DateTime?)?",
+              "required": false,
+              "description": "Called with the newly picked date, or `null` when the field is cleared."
+            },
+            {
+              "name": "firstDate",
+              "type": "date",
+              "dartType": "DateTime?",
+              "required": false,
+              "description": "Earliest selectable date. Defaults to 50 years before today."
+            },
+            {
+              "name": "lastDate",
+              "type": "date",
+              "dartType": "DateTime?",
+              "required": false,
+              "description": "Latest selectable date. Defaults to 50 years after today."
+            }
+          ]
+        }
+      ],
+      "tokenBindings": [],
+      "states": [
+        "open"
+      ],
+      "composes": [
+        "overlay-anchor",
+        "remove-icon-button",
+        "text-field"
+      ],
+      "examples": [
+        "example/lib/sections/fields_section.dart",
+        "example/lib/sections/dialogs_section.dart"
+      ],
+      "notes": "A tap-to-open date field: displays the picked date through a text-field trigger, opens an anchored calendar popover, and offers a clear affordance. The calendar grid is Material-owned and restyled from the ambient theme via utopiaDatePickerMaterialTheme, so re-theming affects it even though this component's tokenBindings list is empty (it reads no theme member directly)."
+    },
+    {
+      "id": "dialog",
+      "name": "UtopiaDialog",
+      "description": "Adaptive dialog chrome: a bottom sheet on UtopiaPageType.mobile, a centered rounded card everywhere else.",
+      "file": "lib/src/widget/dialog/utopia_dialog.dart",
+      "constructors": [
+        {
+          "name": "",
+          "description": "Raw variant - full control of the body below the title row via builder.",
+          "props": [
+            {
+              "name": "title",
+              "type": "widget-slot",
+              "dartType": "Widget",
+              "required": true,
+              "description": "The title shown in the header row, next to the back/close affordance."
+            },
+            {
+              "name": "builder",
+              "type": "builder-slot",
+              "dartType": "Widget Function(BuildContext context, UtopiaPageType pageType)",
+              "required": true,
+              "description": "Builds the dialog body below the title row, given the UtopiaPageType resolved for the dialog's own available space."
+            },
+            {
+              "name": "maxWidth",
+              "type": "number",
+              "dartType": "double",
+              "required": false,
+              "default": "1000",
+              "description": "Maximum width of the dialog card on tablet/web. Ignored on mobile, where the dialog is presented as a full-width bottom sheet."
+            },
+            {
+              "name": "dismissible",
+              "type": "bool",
+              "dartType": "bool",
+              "required": false,
+              "default": "true",
+              "description": "Whether the dialog can be dismissed at all. Controls the back (mobile) / close (desktop) affordance in the title row AND blocks route pops (barrier taps, Escape, system back) via a PopScope while `false` - so a `dismissible: false` dialog cannot be dismissed regardless of how it was shown."
+            }
+          ]
+        },
+        {
+          "name": "form",
+          "description": "Form variant - a sliver-scrollable sliver with a bottom bar pinned below it (typically the submit/cancel actions), built on top of UtopiaFormLayout.raw.",
+          "props": [
+            {
+              "name": "title",
+              "type": "widget-slot",
+              "dartType": "Widget",
+              "required": true,
+              "description": "The title shown in the header row, next to the back/close affordance."
+            },
+            {
+              "name": "sliver",
+              "type": "widget-slot",
+              "dartType": "Widget",
+              "required": true
+            },
+            {
+              "name": "bottom",
+              "type": "widget-slot",
+              "dartType": "Widget",
+              "required": true
+            },
+            {
+              "name": "maxWidth",
+              "type": "number",
+              "dartType": "double",
+              "required": false,
+              "default": "600",
+              "description": "Maximum width of the dialog card on tablet/web. Ignored on mobile, where the dialog is presented as a full-width bottom sheet."
+            },
+            {
+              "name": "dismissible",
+              "type": "bool",
+              "dartType": "bool",
+              "required": false,
+              "default": "true",
+              "description": "Whether the dialog can be dismissed at all. Controls the back (mobile) / close (desktop) affordance in the title row AND blocks route pops (barrier taps, Escape, system back) via a PopScope while `false` - so a `dismissible: false` dialog cannot be dismissed regardless of how it was shown."
+            }
+          ]
+        }
+      ],
+      "tokenBindings": [
+        "colors.border",
+        "colors.surface",
+        "colors.text",
+        "textStyles.header",
+        "textStyles.title",
+        "theme.cardBorderDecoration",
+        "theme.cardDecoration",
+        "tokens.durations.sm",
+        "tokens.radius.fullAll",
+        "tokens.radius.xl",
+        "tokens.spacing.lg",
+        "tokens.spacing.md",
+        "tokens.spacing.sm",
+        "tokens.spacing.xl",
+        "tokens.spacing.xxxl",
+        "tokens.x"
+      ],
+      "composes": [
+        "form-layout",
+        "page-wrapper"
+      ],
+      "examples": [
+        "example/lib/sections/dialogs_section.dart"
+      ],
+      "notes": "Adaptive dialog chrome: a bottom sheet on mobile, a centered rounded card everywhere else. Two constructors share one build: the raw (unnamed) constructor hands the body to a caller-supplied builder (maxWidth defaults to 1000); the form constructor composes that same builder internally from a scrollable sliver and a pinned bottom bar (maxWidth defaults to 600)."
+    },
+    {
+      "id": "divider",
+      "name": "UtopiaDivider",
+      "description": "A hairline divider drawn in the theme's divider colour.",
+      "file": "lib/src/widget/layout/utopia_divider.dart",
+      "constructors": [
+        {
+          "name": "",
+          "description": "Creates a hairline divider.",
+          "props": []
+        }
+      ],
+      "tokenBindings": [
+        "colors.divider",
+        "colors.surface",
+        "colors.text",
+        "theme.dividerThickness"
+      ],
+      "examples": [
+        "example/lib/sections/surfaces_section.dart",
+        "example/lib/sections/typography_section.dart"
+      ],
+      "notes": "A hairline divider drawn in the theme's divider colour. When UtopiaThemeColors.divider is unset, the colour derives from the theme's text colour over the surface, so it stays visible in any theme."
+    },
+    {
+      "id": "dropdown-field",
+      "name": "UtopiaDropdownField",
+      "description": "A single-select dropdown presented as a UtopiaLabeledField trigger with a UtopiaOverlayAnchor popup listing values, each rendered through valueLabelBuilder.",
+      "file": "lib/src/widget/dropdown/utopia_dropdown_field.dart",
+      "generic": true,
+      "constructors": [
+        {
+          "name": "",
+          "description": "Creates a single-select dropdown field.",
+          "props": [
+            {
+              "name": "value",
+              "type": "generic-model",
+              "dartType": "T?",
+              "required": true,
+              "description": "The currently selected option; `null` is a valid selection when it is present in values (e.g. a filter's \"All\")."
+            },
+            {
+              "name": "onChanged",
+              "type": "callback",
+              "dartType": "void Function(T)",
+              "required": true,
+              "description": "Called with the newly picked option when it is tapped in the popup."
+            },
+            {
+              "name": "values",
+              "type": "list",
+              "dartType": "List<T>",
+              "required": true,
+              "description": "The selectable options, in display order.",
+              "itemType": "generic-model",
+              "itemDartType": "T"
+            },
+            {
+              "name": "label",
+              "type": "string",
+              "dartType": "String",
+              "required": true,
+              "description": "The floating label shown above the trigger field."
+            },
+            {
+              "name": "valueLabelBuilder",
+              "type": "callback",
+              "dartType": "String Function(T)",
+              "required": true,
+              "description": "Renders an option (or value) as its display text."
+            }
+          ]
+        }
+      ],
+      "tokenBindings": [
+        "colors.accent",
+        "colors.hover",
+        "textStyles.text",
+        "tokens.spacing.lg",
+        "tokens.spacing.md"
+      ],
+      "states": [
+        "focus",
+        "open"
+      ],
+      "composes": [
+        "labeled-field",
+        "overlay-anchor"
+      ],
+      "examples": [
+        "example/lib/sections/fields_section.dart",
+        "example/lib/sections/dialogs_section.dart"
+      ],
+      "notes": "A single-select dropdown presented as a labeled-field trigger with an overlay-anchor popup listing values. null can be a valid selection when it is present in values (e.g. a filter's \"All\")."
+    },
+    {
+      "id": "field-wrapper",
+      "name": "UtopiaFieldWrapper",
+      "description": "Shared borderless chrome and interactive-height floor for every utopia_ui field.",
+      "file": "lib/src/widget/wrapper/utopia_field_wrapper.dart",
+      "constructors": [
+        {
+          "name": "",
+          "description": "Creates the shared field chrome around child.",
+          "props": [
+            {
+              "name": "child",
+              "type": "widget-slot",
+              "dartType": "Widget",
+              "required": true,
+              "description": "The content laid over the field chrome."
+            },
+            {
+              "name": "hasError",
+              "type": "bool",
+              "dartType": "bool",
+              "required": false,
+              "default": "false",
+              "description": "When `true`, outlines the chrome in the theme's error colour - the field-level half of the error state (`UtopiaTextField` renders the message below the field)."
+            },
+            {
+              "name": "dense",
+              "type": "bool",
+              "dartType": "bool",
+              "required": false,
+              "default": "false",
+              "description": "Compact chrome whose resting height matches a dense `UtopiaButton`, for toolbar rows where fields and dense buttons sit side by side."
+            }
+          ]
+        }
+      ],
+      "tokenBindings": [
+        "colors.border",
+        "colors.error",
+        "colors.hint",
+        "textStyles.label",
+        "textStyles.text",
+        "theme.fieldContentPadding",
+        "theme.fieldDecoration",
+        "theme.fieldMinHeight",
+        "tokens.borders.hairline",
+        "tokens.durations.sm",
+        "tokens.fontWeights.regular",
+        "tokens.x"
+      ]
+    },
+    {
+      "id": "form-layout",
+      "name": "UtopiaFormLayout",
+      "description": "Scrollable layout with fixed content on the bottom.",
+      "file": "lib/src/widget/layout/utopia_form_layout.dart",
+      "constructors": [
+        {
+          "name": "simple",
+          "description": "Simple variant - wraps content in a SingleChildScrollView.",
+          "props": [
+            {
+              "name": "backgroundColor",
+              "type": "color",
+              "dartType": "Color",
+              "required": true,
+              "description": "The fill behind content and the color the fade bar fades into."
+            },
+            {
+              "name": "fadeBarHeight",
+              "type": "number",
+              "dartType": "double",
+              "required": false,
+              "default": "16",
+              "description": "Height of the fade bar separating content from bottom."
+            },
+            {
+              "name": "fadeDuration",
+              "type": "duration",
+              "dartType": "Duration",
+              "required": false,
+              "default": "const Duration(milliseconds: 100)",
+              "description": "Duration of the fade bar's show/hide animation."
+            },
+            {
+              "name": "content",
+              "type": "widget-slot",
+              "dartType": "Widget",
+              "required": true
+            },
+            {
+              "name": "bottom",
+              "type": "widget-slot",
+              "dartType": "Widget",
+              "required": true,
+              "description": "The fixed content pinned below content."
+            }
+          ]
+        },
+        {
+          "name": "raw",
+          "description": "Raw variant - content is used as-is and must provide its own scrollable, whose notifications drive the fade bar.",
+          "props": [
+            {
+              "name": "backgroundColor",
+              "type": "color",
+              "dartType": "Color",
+              "required": true,
+              "description": "The fill behind content and the color the fade bar fades into."
+            },
+            {
+              "name": "fadeBarHeight",
+              "type": "number",
+              "dartType": "double",
+              "required": false,
+              "default": "16",
+              "description": "Height of the fade bar separating content from bottom."
+            },
+            {
+              "name": "fadeDuration",
+              "type": "duration",
+              "dartType": "Duration",
+              "required": false,
+              "default": "const Duration(milliseconds: 100)",
+              "description": "Duration of the fade bar's show/hide animation."
+            },
+            {
+              "name": "content",
+              "type": "widget-slot",
+              "dartType": "Widget",
+              "required": true,
+              "description": "The scrollable body above bottom."
+            },
+            {
+              "name": "bottom",
+              "type": "widget-slot",
+              "dartType": "Widget",
+              "required": true,
+              "description": "The fixed content pinned below content."
+            }
+          ]
+        }
+      ],
+      "tokenBindings": []
+    },
+    {
+      "id": "gradient-background",
+      "name": "UtopiaGradientBackground",
+      "description": "An animated bottom-left-to-top-right gradient fill - the backing surface of `UtopiaButton`, dimming to `UtopiaThemeColors.disabled` when isEnabled is `false`.",
+      "file": "lib/src/widget/layout/utopia_gradient_background.dart",
+      "constructors": [
+        {
+          "name": "",
+          "description": "Creates the animated gradient surface.",
+          "props": [
+            {
+              "name": "child",
+              "type": "widget-slot",
+              "dartType": "Widget",
+              "required": true,
+              "description": "The content laid over the gradient."
+            },
+            {
+              "name": "borderRadius",
+              "type": "other",
+              "dartType": "BorderRadius?",
+              "required": false,
+              "description": "Corner radius of the gradient surface."
+            },
+            {
+              "name": "clipBehavior",
+              "type": "other",
+              "dartType": "Clip?",
+              "required": false,
+              "description": "Clip behavior applied to the surface; defaults to Clip.none."
+            },
+            {
+              "name": "isEnabled",
+              "type": "bool",
+              "dartType": "bool",
+              "required": false,
+              "default": "true",
+              "description": "When `false`, renders the disabled-state fill instead of colors."
+            },
+            {
+              "name": "colors",
+              "type": "list",
+              "dartType": "List<Color>?",
+              "required": false,
+              "description": "Overrides the default primary/accent gradient colors.",
+              "itemType": "color",
+              "itemDartType": "Color"
+            }
+          ]
+        }
+      ],
+      "tokenBindings": [
+        "colors.accent",
+        "colors.disabled",
+        "colors.primary",
+        "tokens.durations.xl"
+      ]
+    },
+    {
+      "id": "labeled-field",
+      "name": "UtopiaLabeledField",
+      "description": "A read-only field that shares `UtopiaTextField`'s chrome - the same borderless UtopiaFieldWrapper, floating label and height - but displays a picked value instead of an editable input.",
+      "file": "lib/src/widget/wrapper/utopia_labeled_field.dart",
+      "constructors": [
+        {
+          "name": "",
+          "description": "Creates a read-only, label-and-value field.",
+          "props": [
+            {
+              "name": "label",
+              "type": "string",
+              "dartType": "String",
+              "required": true,
+              "description": "The floating label, styled exactly like a `UtopiaTextField` label."
+            },
+            {
+              "name": "value",
+              "type": "string",
+              "dartType": "String?",
+              "required": true,
+              "description": "The current value text. Empty/null keeps the label in its resting position (matching an empty `UtopiaTextField`); a non-empty value floats it."
+            },
+            {
+              "name": "suffix",
+              "type": "widget-slot",
+              "dartType": "Widget?",
+              "required": false,
+              "description": "Trailing affordance (e.g. a dropdown chevron), laid out like a `UtopiaTextField` suffix."
+            }
+          ]
+        }
+      ],
+      "tokenBindings": [
+        "textStyles.text"
+      ],
+      "composes": [
+        "field-wrapper"
+      ]
+    },
+    {
+      "id": "loader",
+      "name": "UtopiaLoader",
+      "description": "A small circular progress indicator, sized and coloured to fit inline in text-scale contexts (e.g. a loading row or a compact overlay).",
+      "file": "lib/src/widget/loading/utopia_loader.dart",
+      "constructors": [
+        {
+          "name": "",
+          "description": "Creates a small inline loading indicator.",
+          "props": [
+            {
+              "name": "color",
+              "type": "color",
+              "dartType": "Color?",
+              "required": false,
+              "description": "Overrides `UtopiaThemeTextStyles.label`'s color."
+            },
+            {
+              "name": "size",
+              "type": "number",
+              "dartType": "double",
+              "required": false,
+              "default": "12",
+              "description": "The square dimension of the indicator."
+            }
+          ]
+        }
+      ],
+      "tokenBindings": [
+        "textStyles.label"
+      ],
+      "states": [
+        "loading"
+      ],
+      "examples": [
+        "example/lib/sections/loading_section.dart"
+      ],
+      "notes": "A small circular progress indicator, sized and coloured to fit inline in text-scale contexts (e.g. a loading row or a compact overlay)."
+    },
+    {
+      "id": "mock-loading-box",
+      "name": "UtopiaMockLoadingBox",
+      "description": "A shimmering rectangle placeholder for text/content that has not loaded yet - a skeleton-loading building block sized to mimic the real content.",
+      "file": "lib/src/widget/loading/utopia_mock_loading_box.dart",
+      "constructors": [
+        {
+          "name": "",
+          "description": "Creates a shimmering skeleton-loading placeholder.",
+          "props": [
+            {
+              "name": "height",
+              "type": "number",
+              "dartType": "double",
+              "required": false,
+              "default": "6",
+              "description": "The placeholder's height."
+            },
+            {
+              "name": "width",
+              "type": "number",
+              "dartType": "double",
+              "required": false,
+              "default": "60",
+              "description": "The placeholder's width."
+            },
+            {
+              "name": "padding",
+              "type": "other",
+              "dartType": "EdgeInsets?",
+              "required": false,
+              "description": "Optional padding around the shimmering box."
+            }
+          ]
+        }
+      ],
+      "tokenBindings": [
+        "colors.canvas",
+        "colors.field"
+      ]
+    },
+    {
+      "id": "multi-widget",
+      "name": "UtopiaMultiWidget",
+      "description": "Builds multiple nested widgets from a flat list, innermost last.",
+      "file": "lib/src/widget/misc/utopia_multi_widget.dart",
+      "constructors": [
+        {
+          "name": "",
+          "description": "Nests widgets without identity keys.",
+          "props": [
+            {
+              "name": "widgets",
+              "type": "list",
+              "dartType": "List<Widget Function(Widget child)>",
+              "required": true,
+              "itemType": "builder-slot",
+              "itemDartType": "Widget Function(Widget child)"
+            }
+          ]
+        },
+        {
+          "name": "keyed",
+          "description": "Nests keyed wrappers, preserving each keyed subtree's state even when wrappers are conditionally added or removed around it.",
+          "props": [
+            {
+              "name": "widgets",
+              "type": "list",
+              "dartType": "List<MapEntry<Object?, Widget Function(Widget child)>>",
+              "required": true,
+              "description": "The wrappers to nest, outermost first, each paired with an optional identity key used to preserve subtree state across rebuilds.",
+              "itemType": "other",
+              "itemDartType": "MapEntry<Object?, Widget Function(Widget child)>"
+            }
+          ]
+        }
+      ],
+      "tokenBindings": []
+    },
+    {
+      "id": "overlay-anchor",
+      "name": "UtopiaOverlayAnchor",
+      "description": "Anchors a dismissible popup beneath a trigger using the framework's OverlayPortal + CompositedTransformFollower - no external portal package.",
+      "file": "lib/src/widget/overlay/utopia_overlay_anchor.dart",
+      "constructors": [
+        {
+          "name": "",
+          "description": "Creates a dismissible popup anchored to a trigger.",
+          "props": [
+            {
+              "name": "triggerBuilder",
+              "type": "builder-slot",
+              "dartType": "Widget Function(BuildContext context, VoidCallback open)",
+              "required": true,
+              "description": "Builds the trigger. Call `open` (e.g. from a tap) to show the popup."
+            },
+            {
+              "name": "overlayBuilder",
+              "type": "builder-slot",
+              "dartType": "Widget Function(BuildContext context, VoidCallback close)",
+              "required": true,
+              "description": "Builds the popup content. Call `close` to dismiss it."
+            },
+            {
+              "name": "maxHeight",
+              "type": "number",
+              "dartType": "double",
+              "required": false,
+              "default": "320",
+              "description": "Hard cap on popup height; content scrolls beyond it."
+            },
+            {
+              "name": "matchTriggerWidth",
+              "type": "bool",
+              "dartType": "bool",
+              "required": false,
+              "default": "true",
+              "description": "Stretch the popup to the trigger's allotted width (else it sizes to content)."
+            }
+          ]
+        }
+      ],
+      "tokenBindings": [
+        "theme.cardBorderDecoration",
+        "theme.cardDecoration",
+        "tokens.spacing.sm"
+      ]
+    },
+    {
+      "id": "page-wrapper",
+      "name": "UtopiaPageWrapper",
+      "description": "Resolves a UtopiaPageType from the available width and exposes it to the subtree both through the builder callback and through `context.pageType`.",
+      "file": "lib/src/widget/layout/utopia_page_wrapper.dart",
+      "constructors": [
+        {
+          "name": "",
+          "description": "Creates a responsive page wrapper.",
+          "props": [
+            {
+              "name": "builder",
+              "type": "builder-slot",
+              "dartType": "Widget Function(BuildContext context, UtopiaPageType pageType)",
+              "required": true,
+              "description": "Builds the subtree, receiving the UtopiaPageType resolved from the available width."
+            },
+            {
+              "name": "isConstrained",
+              "type": "bool",
+              "dartType": "bool",
+              "required": false,
+              "default": "false",
+              "description": "When true, caps the content width and centers it at the top - matching the shell's constrained reading width."
+            }
+          ]
+        }
+      ],
+      "tokenBindings": []
+    },
+    {
+      "id": "remove-icon-button",
+      "name": "UtopiaRemoveIconButton",
+      "description": "A small \"x\" icon button used to remove/clear a value (e.g. a chip or a filled field), styled with `UtopiaThemeColors.text` and tinting to the error colour on hover to signal the destructive action.",
+      "file": "lib/src/widget/button/utopia_remove_icon_button.dart",
+      "constructors": [
+        {
+          "name": "",
+          "description": "Creates the remove/clear icon button.",
+          "props": [
+            {
+              "name": "onPressed",
+              "type": "callback",
+              "dartType": "void Function()",
+              "required": true,
+              "description": "Called when the icon is tapped."
+            }
+          ]
+        }
+      ],
+      "tokenBindings": [
+        "colors.error",
+        "colors.text",
+        "tokens.durations.xs"
+      ]
+    },
+    {
+      "id": "search-field",
+      "name": "UtopiaSearchField",
+      "description": "A prominent, full-width search field: a leading magnifier, a muted hint and no floating label - the search affordance at the top of a `UtopiaTable` card. Shares its field decoration and text state with `UtopiaTextField`.",
+      "file": "lib/src/widget/text_field/utopia_search_field.dart",
+      "constructors": [
+        {
+          "name": "",
+          "description": "Creates a full-width search field.",
+          "props": [
+            {
+              "name": "value",
+              "type": "string",
+              "dartType": "String",
+              "required": true,
+              "description": "Seeds the internal field state on first build; not resynced afterwards."
+            },
+            {
+              "name": "hint",
+              "type": "string",
+              "dartType": "String",
+              "required": true,
+              "description": "Muted placeholder text shown while the field is empty."
+            },
+            {
+              "name": "onChanged",
+              "type": "callback",
+              "dartType": "void Function(String?)",
+              "required": true,
+              "description": "Called with the current text, or `null` when it is empty."
+            },
+            {
+              "name": "formatters",
+              "type": "list",
+              "dartType": "List<TextInputFormatter>?",
+              "required": false,
+              "description": "Optional input formatters applied to keystrokes.",
+              "itemType": "other",
+              "itemDartType": "TextInputFormatter"
+            },
+            {
+              "name": "dense",
+              "type": "bool",
+              "dartType": "bool",
+              "required": false,
+              "default": "false",
+              "description": "Compact chrome matching a dense `UtopiaButton`'s height."
+            }
+          ]
+        }
+      ],
+      "tokenBindings": [
+        "colors.hint",
+        "colors.primary",
+        "textStyles.text",
+        "tokens.spacing.sm"
+      ],
+      "states": [
+        "disabled",
+        "focus"
+      ],
+      "composes": [
+        "field-wrapper"
+      ],
+      "examples": [
+        "example/lib/sections/fields_section.dart",
+        "example/lib/sections/table_section.dart"
+      ],
+      "notes": "A prominent, full-width search field with a leading magnifier and a clear affordance once text is entered. Uncontrolled, like text-field: value seeds the internal state on first build only."
+    },
+    {
+      "id": "sidebar",
+      "name": "UtopiaSidebar",
+      "description": "An adaptive navigation sidebar: a collapsible hover/pin rail on wide screens, a flush full-width drawer body on small screens.",
+      "file": "lib/src/widget/sidebar/utopia_sidebar.dart",
+      "constructors": [
+        {
+          "name": "",
+          "description": "Creates an adaptive sidebar.",
+          "props": [
+            {
+              "name": "items",
+              "type": "list",
+              "dartType": "List<UtopiaSidebarItem>",
+              "required": true,
+              "description": "The entries to render, top to bottom.",
+              "itemType": "model",
+              "itemDartType": "UtopiaSidebarItem",
+              "modelName": "UtopiaSidebarItem"
+            },
+            {
+              "name": "onDestinationPressed",
+              "type": "callback",
+              "dartType": "void Function(UtopiaSidebarDestination destination)",
+              "required": true,
+              "description": "Invoked when a UtopiaSidebarDestination tile is tapped. UtopiaSidebarAction items invoke their own `onPressed` instead."
+            },
+            {
+              "name": "selectedId",
+              "type": "string",
+              "dartType": "String?",
+              "required": false,
+              "description": "The id of the currently active UtopiaSidebarDestination, or `null` if none is selected. Compared with UtopiaSidebarDestination.id."
+            },
+            {
+              "name": "presentation",
+              "type": "enum",
+              "dartType": "UtopiaSidebarPresentation",
+              "required": false,
+              "default": "UtopiaSidebarPresentation.rail",
+              "description": "Whether to render as a collapsible rail or a flush drawer body.",
+              "enumName": "UtopiaSidebarPresentation",
+              "values": [
+                "rail",
+                "drawer"
+              ]
+            },
+            {
+              "name": "style",
+              "type": "model",
+              "dartType": "UtopiaSidebarStyle",
+              "required": false,
+              "default": "const UtopiaSidebarStyle()",
+              "description": "Branding / background configuration.",
+              "modelName": "UtopiaSidebarStyle"
+            }
+          ]
+        }
+      ],
+      "tokenBindings": [
+        "colors.border",
+        "colors.hint",
+        "colors.hover",
+        "colors.onColoredContent",
+        "colors.onColoredHover",
+        "colors.surface",
+        "textStyles.button",
+        "theme.cardBorderWidth",
+        "theme.cardRadius",
+        "theme.cardShadow",
+        "theme.menuShadow",
+        "theme.pageTopPadding",
+        "tokens.durations.lg",
+        "tokens.durations.md",
+        "tokens.radius.mdAll",
+        "tokens.spacing.lg",
+        "tokens.spacing.md",
+        "tokens.spacing.sm",
+        "tokens.spacing.xs",
+        "tokens.spacing.xxs"
+      ],
+      "states": [
+        "expanded",
+        "hover",
+        "selected"
+      ],
+      "composes": [
+        "gradient-background"
+      ],
+      "examples": [
+        "example/lib/sections/sidebar_section.dart"
+      ],
+      "notes": "An adaptive navigation sidebar: a collapsible hover/pin rail on wide screens, a flush full-width drawer body on small screens. selected means only that selectedId matches a destination's id - the sidebar carries no navigation opinions of its own."
+    },
+    {
+      "id": "switch",
+      "name": "UtopiaSwitch",
+      "description": "A themed on/off switch, styled from `UtopiaThemeColors` instead of the ambient `MaterialApp` theme.",
+      "file": "lib/src/widget/switch/utopia_switch.dart",
+      "constructors": [
+        {
+          "name": "",
+          "description": "Creates a themed on/off switch.",
+          "props": [
+            {
+              "name": "value",
+              "type": "bool",
+              "dartType": "bool",
+              "required": true,
+              "description": "Whether the switch renders in its \"on\" position."
+            },
+            {
+              "name": "onChanged",
+              "type": "callback",
+              "dartType": "void Function(bool)?",
+              "required": false,
+              "description": "Called with the new value when toggled; `null` disables interaction."
+            },
+            {
+              "name": "readOnly",
+              "type": "bool",
+              "dartType": "bool",
+              "required": false,
+              "default": "false",
+              "description": "When `true`, blocks interaction while keeping the full-color styling (instead of Flutter's faded disabled look)."
+            }
+          ]
+        }
+      ],
+      "tokenBindings": [
+        "colors.disabled",
+        "colors.primary",
+        "textStyles.button"
+      ],
+      "states": [
+        "readOnly"
+      ],
+      "examples": [
+        "example/lib/sections/selection_section.dart"
+      ],
+      "notes": "A themed on/off switch, styled from UtopiaThemeColors instead of the ambient MaterialApp theme. readOnly blocks interaction while keeping the full-color styling, instead of Flutter's faded disabled look."
+    },
+    {
+      "id": "switch-field",
+      "name": "UtopiaSwitchField",
+      "description": "A titled row pairing a label with a UtopiaSwitch, wrapped in the shared UtopiaFieldWrapper chrome so it lines up with the other utopia_ui fields.",
+      "file": "lib/src/widget/switch/utopia_switch_field.dart",
+      "constructors": [
+        {
+          "name": "",
+          "description": "Creates a titled switch row.",
+          "props": [
+            {
+              "name": "value",
+              "type": "bool",
+              "dartType": "bool",
+              "required": true,
+              "description": "Whether the switch renders in its \"on\" position."
+            },
+            {
+              "name": "title",
+              "type": "string",
+              "dartType": "String",
+              "required": true,
+              "description": "The label shown beside the switch."
+            },
+            {
+              "name": "onChanged",
+              "type": "callback",
+              "dartType": "void Function(bool)?",
+              "required": false,
+              "description": "Called with the new value when toggled; `null` disables interaction."
+            },
+            {
+              "name": "readOnly",
+              "type": "bool",
+              "dartType": "bool",
+              "required": false,
+              "default": "false",
+              "description": "When `true`, blocks interaction while keeping the full-color styling."
+            }
+          ]
+        }
+      ],
+      "tokenBindings": [
+        "textStyles.text"
+      ],
+      "states": [
+        "readOnly"
+      ],
+      "composes": [
+        "field-wrapper",
+        "switch"
+      ],
+      "examples": [
+        "example/lib/sections/selection_section.dart",
+        "example/lib/sections/dialogs_section.dart"
+      ],
+      "notes": "A titled row pairing a label with a switch, wrapped in the shared field-wrapper chrome so it lines up with the other utopia_ui fields."
+    },
+    {
+      "id": "table",
+      "name": "UtopiaTable",
+      "description": "A general-purpose, data-shape-agnostic data table, generic over the row type T. Fully controlled: pass rows, sort state and callbacks; the widget renders and reports interaction, it never owns app state.",
+      "file": "lib/src/widget/table/utopia_table.dart",
+      "generic": true,
+      "constructors": [
+        {
+          "name": "",
+          "props": [
+            {
+              "name": "rows",
+              "type": "list",
+              "dartType": "IList<T>?",
+              "required": true,
+              "description": "The rows to render. `null` renders the loading skeleton instead; an empty list renders emptyWidget.",
+              "itemType": "generic-model",
+              "itemDartType": "T"
+            },
+            {
+              "name": "entries",
+              "type": "list",
+              "dartType": "IList<UtopiaTableEntry<T>>",
+              "required": true,
+              "description": "The table's columns, in display order.",
+              "itemType": "model",
+              "itemDartType": "UtopiaTableEntry<T>",
+              "modelName": "UtopiaTableEntry"
+            },
+            {
+              "name": "rowKey",
+              "type": "callback",
+              "dartType": "Object Function(T row)",
+              "required": true,
+              "description": "Stable identity extractor used for keyed diffing between rebuilds - backs each row's ValueKey and the list's `findItemIndexCallback`."
+            },
+            {
+              "name": "searchPanel",
+              "type": "widget-slot",
+              "dartType": "Widget?",
+              "required": false,
+              "description": "Optional slot pinned above the column headers (e.g. a search field and filters). `null` skips the slot entirely - no reserved space."
+            },
+            {
+              "name": "currentSort",
+              "type": "other",
+              "dartType": "UtopiaTableSort?",
+              "required": false,
+              "description": "The column currently driving sort order, if any."
+            },
+            {
+              "name": "onSortPressed",
+              "type": "callback",
+              "dartType": "void Function(UtopiaTableEntry<T> entry)?",
+              "required": false,
+              "description": "Called when a sortable column without UtopiaTableEntry.sortOptions is pressed - the caller toggles direction and re-sorts/re-fetches."
+            },
+            {
+              "name": "onSortSelected",
+              "type": "callback",
+              "dartType": "void Function(UtopiaTableSort sort)?",
+              "required": false,
+              "description": "Called when an entry is picked from a UtopiaTableEntry.sortOptions dropdown."
+            },
+            {
+              "name": "actionsBuilder",
+              "type": "builder-slot",
+              "dartType": "Widget Function(BuildContext context, T row, int index)?",
+              "required": false,
+              "description": "Builds a trailing actions cell for a row, when the table needs one (e.g. a manage/delete menu). `null` omits the actions column entirely."
+            },
+            {
+              "name": "onRowPressed",
+              "type": "callback",
+              "dartType": "void Function(T row, int index)?",
+              "required": false,
+              "description": "Called when a row is tapped. `null` makes rows non-interactive."
+            },
+            {
+              "name": "emptyWidget",
+              "type": "widget-slot",
+              "dartType": "Widget?",
+              "required": false,
+              "description": "Shown instead of the row list when rows is an empty (non-null) list. Defaults to a plain UtopiaTableEmpty with a \"No items\" title."
+            },
+            {
+              "name": "loaderRowCount",
+              "type": "number",
+              "dartType": "int",
+              "required": false,
+              "default": "12",
+              "description": "Number of placeholder rows rendered while rows is `null`."
+            }
+          ]
+        }
+      ],
+      "tokenBindings": [
+        "colors.surface",
+        "theme.cardRadius"
+      ],
+      "states": [
+        "empty",
+        "hover",
+        "loading"
+      ],
+      "composes": [
+        "divider",
+        "mock-loading-box",
+        "table-empty"
+      ],
+      "examples": [
+        "example/lib/sections/table_section.dart"
+      ],
+      "notes": "A general-purpose, data-shape-agnostic data table, generic over the row type. Fully controlled: rows being null renders the loading skeleton, an empty (non-null) list renders the empty state, and rows hover individually under the pointer. Rendered as a sliver so it composes into a CustomScrollView; columns give way by hidePriority when the table narrows."
+    },
+    {
+      "id": "table-empty",
+      "name": "UtopiaTableEmpty",
+      "description": "The default empty state rendered by `UtopiaTable` when `rows` is an empty list and no `emptyWidget` override is passed: a centered message, optionally preceded by an icon and followed by a subtitle and actions.",
+      "file": "lib/src/widget/table/utopia_table_empty.dart",
+      "constructors": [
+        {
+          "name": "",
+          "props": [
+            {
+              "name": "icon",
+              "type": "widget-slot",
+              "dartType": "Widget?",
+              "required": false,
+              "description": "Optional illustration/icon shown above title."
+            },
+            {
+              "name": "title",
+              "type": "string",
+              "dartType": "String",
+              "required": true,
+              "description": "The primary empty-state message."
+            },
+            {
+              "name": "subtitle",
+              "type": "string",
+              "dartType": "String?",
+              "required": false,
+              "description": "Optional secondary line shown below title."
+            },
+            {
+              "name": "actions",
+              "type": "list",
+              "dartType": "List<Widget>",
+              "required": false,
+              "default": "const []",
+              "description": "Optional actions (e.g. \"Clear filters\", \"Create\") wrapped in a row below the text.",
+              "itemType": "widget-slot",
+              "itemDartType": "Widget"
+            }
+          ]
+        }
+      ],
+      "tokenBindings": [
+        "colors.hint",
+        "textStyles.caption",
+        "textStyles.text",
+        "tokens.spacing.lg",
+        "tokens.spacing.md",
+        "tokens.spacing.sm",
+        "tokens.spacing.xl",
+        "tokens.spacing.xs",
+        "tokens.spacing.xxxl"
+      ]
+    },
+    {
+      "id": "table-search-panel",
+      "name": "UtopiaTableSearchPanel",
+      "description": "The panel pinned above a `UtopiaTable`'s column headers: a search field slot, a row of filter widgets, and trailing actions (refresh, create, ...).",
+      "file": "lib/src/widget/table/utopia_table_search_panel.dart",
+      "constructors": [
+        {
+          "name": "",
+          "props": [
+            {
+              "name": "searchField",
+              "type": "widget-slot",
+              "dartType": "Widget?",
+              "required": false,
+              "description": "The search input slot, if any - typically a `UtopiaSearchField` wired to the caller's own search state."
+            },
+            {
+              "name": "filters",
+              "type": "list",
+              "dartType": "List<Widget>",
+              "required": false,
+              "default": "const []",
+              "description": "Additional filter controls: laid out inline next to the search field on wide layouts, wrapped beneath the search row on narrow ones.",
+              "itemType": "widget-slot",
+              "itemDartType": "Widget"
+            },
+            {
+              "name": "actions",
+              "type": "list",
+              "dartType": "List<Widget>",
+              "required": false,
+              "default": "const []",
+              "description": "Trailing actions (e.g. refresh, create) that stay next to the search field regardless of layout.",
+              "itemType": "widget-slot",
+              "itemDartType": "Widget"
+            }
+          ]
+        }
+      ],
+      "tokenBindings": [
+        "tokens.breakpoints.webMin",
+        "tokens.spacing.lg",
+        "tokens.spacing.md"
+      ]
+    },
+    {
+      "id": "text-field",
+      "name": "UtopiaTextField",
+      "description": "The base editable text field: floating label, optional prefix/suffix and error slot, sharing its chrome with every other utopia_ui field via UtopiaFieldWrapper.",
+      "file": "lib/src/widget/text_field/utopia_text_field.dart",
+      "constructors": [
+        {
+          "name": "",
+          "description": "Creates the base editable text field.",
+          "props": [
+            {
+              "name": "value",
+              "type": "string",
+              "dartType": "String",
+              "required": true,
+              "description": "Seeds the internal field state on first build; not resynced afterwards."
+            },
+            {
+              "name": "onChanged",
+              "type": "callback",
+              "dartType": "void Function(String?)",
+              "required": true,
+              "description": "Called with the current text, or `null` when it is empty."
+            },
+            {
+              "name": "keyboardType",
+              "type": "other",
+              "dartType": "TextInputType?",
+              "required": false,
+              "description": "The keyboard type requested for the underlying `TextField`."
+            },
+            {
+              "name": "obscureText",
+              "type": "bool",
+              "dartType": "bool",
+              "required": false,
+              "default": "false",
+              "description": "When `true`, masks the entered text (e.g. for passwords)."
+            },
+            {
+              "name": "readOnly",
+              "type": "bool",
+              "dartType": "bool",
+              "required": false,
+              "default": "false",
+              "description": "When `true`, blocks editing while keeping the field's normal styling."
+            },
+            {
+              "name": "dense",
+              "type": "bool",
+              "dartType": "bool",
+              "required": false,
+              "default": "false",
+              "description": "Compact chrome matching a dense `UtopiaButton`'s height. No room for a floating label, so label is ignored - use hint."
+            },
+            {
+              "name": "focusNode",
+              "type": "other",
+              "dartType": "FocusNode?",
+              "required": false,
+              "description": "Optional focus node controlling/observing this field's focus."
+            },
+            {
+              "name": "label",
+              "type": "widget-slot",
+              "dartType": "Widget?",
+              "required": false,
+              "description": "The floating label shown above the field."
+            },
+            {
+              "name": "error",
+              "type": "widget-slot",
+              "dartType": "Widget?",
+              "required": false,
+              "description": "Error content shown below the field when non-null; the field chrome simultaneously outlines itself in the error colour."
+            },
+            {
+              "name": "hint",
+              "type": "widget-slot",
+              "dartType": "Widget?",
+              "required": false,
+              "description": "Placeholder shown while the field is empty."
+            },
+            {
+              "name": "prefix",
+              "type": "widget-slot",
+              "dartType": "Widget?",
+              "required": false,
+              "description": "Leading widget shown before the input, inside the field chrome."
+            },
+            {
+              "name": "suffix",
+              "type": "widget-slot",
+              "dartType": "Widget?",
+              "required": false,
+              "description": "Trailing widget shown after the input, inside the field chrome."
+            },
+            {
+              "name": "formatters",
+              "type": "list",
+              "dartType": "List<TextInputFormatter>?",
+              "required": false,
+              "description": "Optional input formatters applied to keystrokes.",
+              "itemType": "other",
+              "itemDartType": "TextInputFormatter"
+            },
+            {
+              "name": "lines",
+              "type": "number",
+              "dartType": "int",
+              "required": false,
+              "default": "1",
+              "description": "Number of visible text lines."
+            },
+            {
+              "name": "maxLength",
+              "type": "number",
+              "dartType": "int?",
+              "required": false,
+              "description": "Maximum number of characters accepted by the field; `null` for no limit."
+            },
+            {
+              "name": "onTap",
+              "type": "callback",
+              "dartType": "void Function()?",
+              "required": false,
+              "description": "Called when the field is tapped."
+            }
+          ]
+        }
+      ],
+      "tokenBindings": [
+        "colors.error",
+        "colors.primary",
+        "textStyles.caption",
+        "textStyles.text",
+        "tokens.spacing.xs",
+        "tokens.x"
+      ],
+      "states": [
+        "disabled",
+        "error",
+        "focus",
+        "readOnly"
+      ],
+      "composes": [
+        "field-wrapper"
+      ],
+      "examples": [
+        "example/lib/sections/fields_section.dart",
+        "example/lib/sections/dialogs_section.dart"
+      ],
+      "notes": "The base editable text field. Uncontrolled: value seeds the internal state on first build only, so changes flow out through onChanged - key the widget to force a new external value. disabled is modeled through readOnly, which keeps the field's normal styling instead of Flutter's faded look."
+    },
+    {
+      "id": "three-bounce",
+      "name": "UtopiaThreeBounce",
+      "description": "Three dots pulsing in a staggered wave - the loading indicator shown inside `UtopiaButton`. Hand-rolled so this package does not depend on `flutter_spinkit`.",
+      "file": "lib/src/widget/loading/utopia_three_bounce.dart",
+      "constructors": [
+        {
+          "name": "",
+          "description": "Creates the staggered three-dot loading indicator.",
+          "props": [
+            {
+              "name": "color",
+              "type": "color",
+              "dartType": "Color?",
+              "required": false,
+              "description": "The dots' color."
+            },
+            {
+              "name": "size",
+              "type": "number",
+              "dartType": "double",
+              "required": false,
+              "default": "20",
+              "description": "The overall height of the indicator; dot size scales with it."
+            }
+          ]
+        }
+      ],
+      "tokenBindings": []
+    },
+    {
+      "id": "title",
+      "name": "UtopiaTitle",
+      "description": "A page/section heading, styled with `UtopiaThemeTextStyles.title`.",
+      "file": "lib/src/widget/text/utopia_title.dart",
+      "constructors": [
+        {
+          "name": "",
+          "description": "Creates a page/section heading.",
+          "props": [
+            {
+              "name": "title",
+              "type": "string",
+              "dartType": "String",
+              "required": true,
+              "description": "The heading text."
+            }
+          ]
+        }
+      ],
+      "tokenBindings": [
+        "textStyles.title"
+      ]
+    },
+    {
+      "id": "demo_consumer:market-tile",
+      "name": "MarketTile",
+      "description": "A stock/instrument quote tile.",
+      "file": "lib/market_tile.dart",
+      "constructors": [
+        {
+          "name": "",
+          "props": []
+        }
+      ],
+      "tokenBindings": []
+    }
+  ],
+  "models": [
+    {
+      "name": "UtopiaSidebarAction",
+      "description": "A fire-and-forget entry: tapping it invokes onPressed and never becomes \"selected\", unlike UtopiaSidebarDestination.",
+      "file": "lib/src/widget/sidebar/utopia_sidebar_item.dart",
+      "kind": "class",
+      "supertype": "UtopiaSidebarItem",
+      "constructors": [
+        {
+          "name": "",
+          "description": "Creates a fire-and-forget entry.",
+          "props": [
+            {
+              "name": "label",
+              "type": "widget-slot",
+              "dartType": "Widget",
+              "required": true,
+              "description": "The label shown next to icon while the sidebar is expanded. Usually a `Text`; styled by the tile via `DefaultTextStyle`."
+            },
+            {
+              "name": "icon",
+              "type": "widget-slot",
+              "dartType": "Widget",
+              "required": true,
+              "description": "The leading glyph, shown at all times."
+            },
+            {
+              "name": "onPressed",
+              "type": "callback",
+              "dartType": "VoidCallback",
+              "required": true,
+              "description": "Invoked when the tile is tapped."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "UtopiaSidebarCustom",
+      "description": "An arbitrary widget slot rendered in place of a tile.",
+      "file": "lib/src/widget/sidebar/utopia_sidebar_item.dart",
+      "kind": "class",
+      "supertype": "UtopiaSidebarItem",
+      "constructors": [
+        {
+          "name": "",
+          "description": "Creates an arbitrary widget slot.",
+          "props": [
+            {
+              "name": "builder",
+              "type": "builder-slot",
+              "dartType": "WidgetBuilder",
+              "required": true,
+              "description": "Builds the slot's content."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "UtopiaSidebarDestination",
+      "description": "A selectable page entry.",
+      "file": "lib/src/widget/sidebar/utopia_sidebar_item.dart",
+      "kind": "class",
+      "supertype": "UtopiaSidebarItem",
+      "constructors": [
+        {
+          "name": "",
+          "description": "Creates a selectable page entry.",
+          "props": [
+            {
+              "name": "id",
+              "type": "string",
+              "dartType": "String",
+              "required": true,
+              "description": "Stable identifier compared against the sidebar's `selectedId`."
+            },
+            {
+              "name": "label",
+              "type": "widget-slot",
+              "dartType": "Widget",
+              "required": true,
+              "description": "The label shown next to icon while the sidebar is expanded. Usually a `Text`; styled by the tile via `DefaultTextStyle`."
+            },
+            {
+              "name": "icon",
+              "type": "widget-slot",
+              "dartType": "Widget",
+              "required": true,
+              "description": "The leading glyph, shown at all times (collapsed rail, expanded rail, drawer)."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "UtopiaSidebarItem",
+      "description": "Base type for entries rendered by `UtopiaSidebar`.",
+      "file": "lib/src/widget/sidebar/utopia_sidebar_item.dart",
+      "kind": "sealed-class",
+      "constructors": [
+        {
+          "name": "",
+          "props": []
+        }
+      ]
+    },
+    {
+      "name": "UtopiaSidebarStyle",
+      "description": "Host-facing sidebar configuration, mirroring core's former `UtopiaWidgetMenuParams` field-for-field.",
+      "file": "lib/src/widget/sidebar/utopia_sidebar.dart",
+      "kind": "class",
+      "constructors": [
+        {
+          "name": "",
+          "description": "Creates a sidebar style. Both fields are opt-in; the defaults render an unbranded plain surface card with no header.",
+          "props": [
+            {
+              "name": "backgroundColors",
+              "type": "list",
+              "dartType": "List<Color>?",
+              "required": false,
+              "description": "Opt-in gradient background colours. When `null` (the default) the sidebar renders as a plain surface card matching the content card (same surface colour, border, shadow, radius).",
+              "itemType": "color",
+              "itemDartType": "Color"
+            },
+            {
+              "name": "headerBuilder",
+              "type": "other",
+              "dartType": "UtopiaSidebarHeaderBuilder?",
+              "required": false,
+              "description": "Builds the header shown at the top of the sidebar. Receives whether the rail is currently collapsed so the host can swap a full lockup for a bare mark. `null` (the default) renders no header."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "UtopiaTableEntry",
+      "description": "Declarative column of a `UtopiaTable`: header, cell renderer and optional sort/search behavior, generic over the row type T.",
+      "file": "lib/src/widget/table/utopia_table_entry.dart",
+      "kind": "class",
+      "constructors": [
+        {
+          "name": "",
+          "props": [
+            {
+              "name": "cellBuilder",
+              "type": "builder-slot",
+              "dartType": "Widget Function(BuildContext context, T row)",
+              "required": true,
+              "description": "Builds the cell content for a row. Keep it cheap - it runs per visible row."
+            },
+            {
+              "name": "id",
+              "type": "string",
+              "dartType": "String?",
+              "required": false,
+              "description": "Stable identifier used in UtopiaTableSort; falls back to title via effectiveId."
+            },
+            {
+              "name": "title",
+              "type": "string",
+              "dartType": "String?",
+              "required": false,
+              "description": "Column header text; `null` renders a blank header cell."
+            },
+            {
+              "name": "tooltip",
+              "type": "string",
+              "dartType": "String?",
+              "required": false,
+              "description": "Optional info tooltip shown next to the header title."
+            },
+            {
+              "name": "flex",
+              "type": "number",
+              "dartType": "int?",
+              "required": false,
+              "default": "2",
+              "description": "The column's share of the row width, like `Expanded.flex`. `null` makes this a fixed-width column sized by width."
+            },
+            {
+              "name": "minWidth",
+              "type": "number",
+              "dartType": "double?",
+              "required": false,
+              "description": "The width a flexing column needs to stay legible - its footprint in the hidePriority fit check. `null` falls back to `UtopiaTable.flexColumnMinWidth`."
+            },
+            {
+              "name": "hidePriority",
+              "type": "number",
+              "dartType": "int",
+              "required": false,
+              "default": "0",
+              "description": "Give-way order when the table is too narrow: the highest value hides first, until the remaining columns fit. `0` (default) never hides."
+            },
+            {
+              "name": "sortBy",
+              "type": "callback",
+              "dartType": "Comparable<Object?>? Function(T row)?",
+              "required": false,
+              "description": "Client-side comparator selector enabling toggle-sort on this column."
+            },
+            {
+              "name": "searchBy",
+              "type": "callback",
+              "dartType": "String? Function(T row)?",
+              "required": false,
+              "description": "Client-side text selector enabling search matching against this column."
+            },
+            {
+              "name": "sortOptions",
+              "type": "list",
+              "dartType": "List<UtopiaTableSortOption<T>>?",
+              "required": false,
+              "description": "When non-empty, the header shows a dropdown of named orderings instead of the plain asc/desc toggle.",
+              "itemType": "model",
+              "itemDartType": "UtopiaTableSortOption<T>",
+              "modelName": "UtopiaTableSortOption"
+            },
+            {
+              "name": "sortable",
+              "type": "bool",
+              "dartType": "bool?",
+              "required": false,
+              "description": "Overrides sortability detection - set `true` for columns whose sorting is executed externally (backend queries) and thus have no sortBy."
+            }
+          ]
+        },
+        {
+          "name": "fixed",
+          "description": "A fixed-width, non-flexing column - for icons, avatars or badges that should not stretch.",
+          "props": [
+            {
+              "name": "cellBuilder",
+              "type": "builder-slot",
+              "dartType": "Widget Function(BuildContext context, T row)",
+              "required": true,
+              "description": "Builds the cell content for a row. Keep it cheap - it runs per visible row."
+            },
+            {
+              "name": "width",
+              "type": "number",
+              "dartType": "double?",
+              "required": true,
+              "description": "Width of a fixed (non-flexing) column; ignored while flex is non-null."
+            },
+            {
+              "name": "id",
+              "type": "string",
+              "dartType": "String?",
+              "required": false,
+              "description": "Stable identifier used in UtopiaTableSort; falls back to title via effectiveId."
+            },
+            {
+              "name": "title",
+              "type": "string",
+              "dartType": "String?",
+              "required": false,
+              "description": "Column header text; `null` renders a blank header cell."
+            },
+            {
+              "name": "tooltip",
+              "type": "string",
+              "dartType": "String?",
+              "required": false,
+              "description": "Optional info tooltip shown next to the header title."
+            },
+            {
+              "name": "hidePriority",
+              "type": "number",
+              "dartType": "int",
+              "required": false,
+              "default": "0",
+              "description": "Give-way order when the table is too narrow: the highest value hides first, until the remaining columns fit. `0` (default) never hides."
+            },
+            {
+              "name": "sortBy",
+              "type": "callback",
+              "dartType": "Comparable<Object?>? Function(T row)?",
+              "required": false,
+              "description": "Client-side comparator selector enabling toggle-sort on this column."
+            },
+            {
+              "name": "searchBy",
+              "type": "callback",
+              "dartType": "String? Function(T row)?",
+              "required": false,
+              "description": "Client-side text selector enabling search matching against this column."
+            },
+            {
+              "name": "sortOptions",
+              "type": "list",
+              "dartType": "List<UtopiaTableSortOption<T>>?",
+              "required": false,
+              "description": "When non-empty, the header shows a dropdown of named orderings instead of the plain asc/desc toggle.",
+              "itemType": "model",
+              "itemDartType": "UtopiaTableSortOption<T>",
+              "modelName": "UtopiaTableSortOption"
+            },
+            {
+              "name": "sortable",
+              "type": "bool",
+              "dartType": "bool?",
+              "required": false,
+              "description": "Overrides sortability detection - set `true` for columns whose sorting is executed externally (backend queries) and thus have no sortBy."
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "name": "UtopiaTableSortOption",
+      "description": "A named sort option for a column that exposes multiple orderings through a dropdown instead of the plain toggle.",
+      "file": "lib/src/widget/table/utopia_table_entry.dart",
+      "kind": "class",
+      "constructors": [
+        {
+          "name": "",
+          "props": [
+            {
+              "name": "id",
+              "type": "string",
+              "dartType": "String",
+              "required": true,
+              "description": "Identifier reported back through `UtopiaTableSort.columnId`."
+            },
+            {
+              "name": "label",
+              "type": "string",
+              "dartType": "String",
+              "required": true,
+              "description": "Human-readable label shown in the sort dropdown."
+            },
+            {
+              "name": "sortBy",
+              "type": "callback",
+              "dartType": "Comparable<Object?>? Function(T row)?",
+              "required": false,
+              "description": "Client-side comparator selector; `null` when sorting is handled externally (e.g. by a backend query)."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "helpers": [
+    {
+      "name": "UtopiaSidebarHeaderBuilder",
+      "kind": "typedef",
+      "description": "Builds the sidebar header (logo / branding), pinned above the items.",
+      "file": "lib/src/widget/sidebar/utopia_sidebar.dart",
+      "signature": "typedef UtopiaSidebarHeaderBuilder = Widget Function(BuildContext context, bool isCollapsed);"
+    },
+    {
+      "name": "UtopiaTableSort",
+      "kind": "typedef",
+      "description": "Sort state of a `UtopiaTable`: which column (by UtopiaTableEntry.effectiveId) and which direction.",
+      "file": "lib/src/widget/table/utopia_table_entry.dart",
+      "signature": "typedef UtopiaTableSort = ({String columnId, bool descending});"
+    },
+    {
+      "name": "useUtopiaTableState",
+      "kind": "hook",
+      "description": "Client-side search/sort convenience for a `UtopiaTable<T>`.",
+      "file": "lib/src/widget/table/utopia_table_state.dart",
+      "signature": "UtopiaTableState<T> useUtopiaTableState<T>({required IList<T>? rows, required IList<UtopiaTableEntry<T>> entries, String? initialSortColumnId})"
+    },
+    {
+      "name": "utopiaCardSliver",
+      "kind": "function",
+      "description": "The sliver counterpart of UtopiaCard: wraps sliver in the card chrome - a filled, rounded, shadowed back layer plus a foreground hairline border.",
+      "file": "lib/src/widget/layout/utopia_card.dart",
+      "signature": "Widget utopiaCardSliver(BuildContext context, {required Widget sliver})"
+    },
+    {
+      "name": "utopiaDatePickerMaterialTheme",
+      "kind": "function",
+      "description": "Maps `UtopiaThemeData` tokens onto a Material ThemeData scoped to the calendar grid, so the (Material-owned) CalendarDatePicker renders in the design system's colors and typography.",
+      "file": "lib/src/widget/date_picker/utopia_date_picker.dart",
+      "signature": "ThemeData utopiaDatePickerMaterialTheme(UtopiaThemeData theme)"
+    },
+    {
+      "name": "utopiaFieldDecoration",
+      "kind": "function",
+      "description": "The shared InputDecoration for every utopia_ui field - the single source of the borderless chrome and the floating-label styling.",
+      "file": "lib/src/widget/wrapper/utopia_field_wrapper.dart",
+      "signature": "InputDecoration utopiaFieldDecoration(BuildContext context, {Widget? label, Widget? hint, FloatingLabelBehavior? floatingLabelBehavior, EdgeInsets? contentPadding, bool alignLabelWithHint = false})"
+    },
+    {
+      "name": "utopiaPlaceholderStyle",
+      "kind": "function",
+      "description": "The single placeholder text style shared by every field's hint and resting label: body size, regular weight, muted colour. Search and text fields use it alike so placeholders never differ in weight between fields.",
+      "file": "lib/src/widget/wrapper/utopia_field_wrapper.dart",
+      "signature": "TextStyle utopiaPlaceholderStyle(BuildContext context)"
+    }
+  ]
+}

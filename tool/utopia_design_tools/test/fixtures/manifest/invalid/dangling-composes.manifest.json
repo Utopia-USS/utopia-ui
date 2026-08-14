@@ -1,0 +1,161 @@
+{
+  "schemaVersion": "0.1.0",
+  "package": "utopia_ui",
+  "packageVersion": "0.1.0",
+  "components": [
+    {
+      "id": "button",
+      "name": "UtopiaButton",
+      "description": "The primary call-to-action button: a gradient-filled, rounded surface with an inline loading state.",
+      "file": "lib/src/widget/button/utopia_button.dart",
+      "constructors": [
+        {
+          "name": "",
+          "description": "Creates the primary call-to-action button.",
+          "props": [
+            {
+              "name": "child",
+              "type": "widget-slot",
+              "dartType": "Widget",
+              "required": true,
+              "description": "The button's content, styled with `UtopiaThemeTextStyles.button`."
+            },
+            {
+              "name": "onTap",
+              "type": "callback",
+              "dartType": "void Function()",
+              "required": true,
+              "description": "Called on tap, while isEnabled is `true`."
+            },
+            {
+              "name": "isEnabled",
+              "type": "bool",
+              "dartType": "bool",
+              "required": false,
+              "default": "true",
+              "description": "Whether the button responds to taps; visually dims via UtopiaGradientBackground when `false`."
+            },
+            {
+              "name": "loading",
+              "type": "bool",
+              "dartType": "bool",
+              "required": false,
+              "default": "false",
+              "description": "Replaces child with a UtopiaThreeBounce indicator while `true`."
+            },
+            {
+              "name": "dense",
+              "type": "bool",
+              "dartType": "bool",
+              "required": false,
+              "default": "false",
+              "description": "Uses a shorter fixed extent (10x instead of 15x the token base - 40 instead of 60 by default) when height is not set."
+            },
+            {
+              "name": "maxWidth",
+              "type": "number",
+              "dartType": "double",
+              "required": false,
+              "default": "300",
+              "description": "Upper bound on the button's width."
+            },
+            {
+              "name": "colors",
+              "type": "list",
+              "dartType": "List<Color>?",
+              "required": false,
+              "description": "Overrides the default primary/accent gradient.",
+              "itemType": "color",
+              "itemDartType": "Color"
+            },
+            {
+              "name": "height",
+              "type": "number",
+              "dartType": "double?",
+              "required": false,
+              "description": "Overrides the fixed square extent (min/max height and min width). Defaults to 10x the token base when dense (40), 15x otherwise (60, matching a resting field's total height). Pair with maxWidth == height for a square icon button."
+            }
+          ]
+        }
+      ],
+      "tokenBindings": [
+        "colors.accent",
+        "colors.onColoredHover",
+        "colors.primary",
+        "textStyles.button",
+        "theme.borderRadius",
+        "tokens.x"
+      ],
+      "states": [
+        "disabled",
+        "hover",
+        "loading"
+      ],
+      "composes": [
+        "no-such-component"
+      ],
+      "examples": [
+        "example/lib/sections/buttons_section.dart",
+        "example/lib/sections/dialogs_section.dart"
+      ],
+      "notes": "The primary call-to-action button. Loading swaps the label for an inline UtopiaThreeBounce indicator while keeping the button's size stable; disabled dims the gradient fill instead of hiding the button."
+    },
+    {
+      "id": "divider",
+      "name": "UtopiaDivider",
+      "description": "A hairline divider drawn in the theme's divider colour.",
+      "file": "lib/src/widget/layout/utopia_divider.dart",
+      "constructors": [
+        {
+          "name": "",
+          "description": "Creates a hairline divider.",
+          "props": []
+        }
+      ],
+      "tokenBindings": [
+        "colors.divider",
+        "colors.surface",
+        "colors.text",
+        "theme.dividerThickness"
+      ],
+      "examples": [
+        "example/lib/sections/surfaces_section.dart",
+        "example/lib/sections/typography_section.dart"
+      ],
+      "notes": "A hairline divider drawn in the theme's divider colour. When UtopiaThemeColors.divider is unset, the colour derives from the theme's text colour over the surface, so it stays visible in any theme."
+    }
+  ],
+  "models": [
+    {
+      "name": "UtopiaSidebarStyle",
+      "description": "Host-facing sidebar configuration, mirroring core's former `UtopiaWidgetMenuParams` field-for-field.",
+      "file": "lib/src/widget/sidebar/utopia_sidebar.dart",
+      "kind": "class",
+      "constructors": [
+        {
+          "name": "",
+          "description": "Creates a sidebar style. Both fields are opt-in; the defaults render an unbranded plain surface card with no header.",
+          "props": [
+            {
+              "name": "backgroundColors",
+              "type": "list",
+              "dartType": "List<Color>?",
+              "required": false,
+              "description": "Opt-in gradient background colours. When `null` (the default) the sidebar renders as a plain surface card matching the content card (same surface colour, border, shadow, radius).",
+              "itemType": "color",
+              "itemDartType": "Color"
+            },
+            {
+              "name": "headerBuilder",
+              "type": "other",
+              "dartType": "UtopiaSidebarHeaderBuilder?",
+              "required": false,
+              "description": "Builds the header shown at the top of the sidebar. Receives whether the rail is currently collapsed so the host can swap a full lockup for a bare mark. `null` (the default) renders no header."
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "helpers": []
+}

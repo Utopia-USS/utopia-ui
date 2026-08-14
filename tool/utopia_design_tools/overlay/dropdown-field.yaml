@@ -1,0 +1,8 @@
+states: [open, focus]
+notes: >-
+  A single-select dropdown presented as a labeled-field trigger with an
+  overlay-anchor popup listing values. null can be a valid selection when it
+  is present in values (e.g. a filter's "All").
+examples:
+  - example/lib/sections/fields_section.dart
+  - example/lib/sections/dialogs_section.dart

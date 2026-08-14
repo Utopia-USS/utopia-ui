@@ -1,0 +1,10 @@
+states: [open]
+notes: >-
+  A tap-to-open date field: displays the picked date through a text-field
+  trigger, opens an anchored calendar popover, and offers a clear affordance.
+  The calendar grid is Material-owned and restyled from the ambient theme via
+  utopiaDatePickerMaterialTheme, so re-theming affects it even though this
+  component's tokenBindings list is empty (it reads no theme member directly).
+examples:
+  - example/lib/sections/fields_section.dart
+  - example/lib/sections/dialogs_section.dart

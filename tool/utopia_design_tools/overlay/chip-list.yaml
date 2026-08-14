@@ -1,0 +1,5 @@
+notes: >-
+  A wrap of chips with a trailing "+N more" overflow chip once maxLength is
+  set and exceeded. An empty labels list renders a muted "-" placeholder.
+examples:
+  - example/lib/sections/chips_text_section.dart

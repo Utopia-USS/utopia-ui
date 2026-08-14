@@ -1,0 +1,37 @@
+{
+  "schemaVersion": "0.2.0",
+  "package": "demo_consumer",
+  "packageVersion": "0.1.0",
+  "utopiaUiVersion": "0.1.0",
+  "merged": true,
+  "components": [
+    {
+      "id": "demo_consumer:market-tile",
+      "name": "MarketTile",
+      "description": "A stock/instrument quote tile.",
+      "file": "lib/market_tile.dart",
+      "constructors": [
+        {
+          "name": "",
+          "props": []
+        }
+      ],
+      "tokenBindings": []
+    }
+  ],
+  "models": [
+    {
+      "name": "Quote",
+      "description": "A stock/instrument quote from the library half.",
+      "file": "lib/src/models/quote.dart",
+      "kind": "class"
+    },
+    {
+      "name": "Quote",
+      "description": "A stock/instrument quote from the project half - name collides with the library model.",
+      "file": "lib/market_tile.dart",
+      "kind": "class"
+    }
+  ],
+  "helpers": []
+}
