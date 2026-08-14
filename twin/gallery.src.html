@@ -37,6 +37,18 @@
   gallery shows DIFFERENTLY from the catalog on purpose (wider fields, demo
   data of their own, a substitute for a component with no styled catalog
   specimen) stay written out by hand below, with no marker.
+
+  The page chrome around those specimens - masthead with the version badge,
+  the numbered table of contents, the numbered section headings and the
+  twin-note value annotations - is hand-authored here and hand-maintained.
+  Three things it repeats have to move together with their source:
+
+  - the badge's two versions (package version in pubspec.yaml, protocol
+    version in protocol/VERSIONING.md and tokens.css's profileVersion);
+  - the section numbering, spelled out in both the contents chips and the
+    section headings, in the section order this file already fixes;
+  - the resolved values in each twin-note, which mirror the DEFAULT theme
+    exactly as the Colors section's hex captions do.
 -->
 <!doctype html>
 <html lang="en">
@@ -59,11 +71,121 @@
       margin: 0 auto;
       padding: var(--utopia-spacing-xxxl) var(--utopia-spacing-xl);
     }
-    .twin-page__intro {
-      margin-bottom: var(--utopia-spacing-xxl);
+    /* Masthead: eyebrow / wordmark / subtitle on the left, the version badge
+       on the right. Page chrome, so it draws on the theme's tokens without
+       claiming to be any component's visual contract. */
+    .twin-masthead {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: flex-start;
+      justify-content: space-between;
+      gap: var(--utopia-spacing-lg);
+      padding-bottom: var(--utopia-spacing-xl);
+      margin-bottom: var(--utopia-spacing-xl);
+      border-bottom: var(--utopia-border-hairline) solid var(--utopia-color-border);
+    }
+    .twin-masthead__eyebrow {
+      font-size: var(--utopia-text-style-caption-font-size);
+      font-weight: var(--utopia-font-weight-semi-bold);
+      /* Uppercase wants POSITIVE tracking: the theme's negative letter-spacing
+         is tuned for mixed-case setting, and caps set solid look cramped
+         without the extra room. em-relative, so it scales with the caption
+         size rather than pinning a px value. */
+      letter-spacing: 0.14em;
+      text-transform: uppercase;
+      color: var(--utopia-color-hint);
+      margin: 0 0 var(--utopia-spacing-sm) 0;
+    }
+    .twin-masthead__title {
+      font-family: var(--utopia-text-style-header-font-family), sans-serif;
+      /* One display step above the header role, derived from the token rather
+         than pinned: a rebrand that moves header size moves the wordmark too. */
+      font-size: calc(var(--utopia-text-style-header-font-size) * 1.5);
+      font-weight: var(--utopia-text-style-header-font-weight);
+      letter-spacing: var(--utopia-text-style-header-letter-spacing);
+      color: var(--utopia-text-style-header-color);
+      line-height: 1.1;
+      margin: 0;
+    }
+    .twin-masthead__subtitle {
+      font-size: var(--utopia-text-style-text-font-size);
+      color: var(--utopia-color-hint);
+      margin: var(--utopia-spacing-sm) 0 0 0;
+      max-width: 560px; /* utopia-literal-ok: gallery page chrome, prose width */
+    }
+    .twin-masthead__badge {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--utopia-spacing-xs);
+      padding: var(--utopia-spacing-xs) var(--utopia-spacing-md);
+      border: var(--utopia-border-hairline) solid var(--utopia-color-border);
+      border-radius: var(--utopia-radius-full);
+      background-color: var(--utopia-color-surface);
+      font-size: var(--utopia-text-style-caption-font-size);
+      font-weight: var(--utopia-font-weight-medium);
+      color: var(--utopia-color-hint);
+      white-space: nowrap;
+    }
+    /* Table of contents: one numbered chip per section, in section order. */
+    .twin-toc {
+      display: flex;
+      flex-wrap: wrap;
+      gap: var(--utopia-spacing-sm);
+      margin-bottom: var(--utopia-spacing-xxxl);
+    }
+    .twin-toc__chip {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--utopia-spacing-sm);
+      padding: var(--utopia-spacing-xs) var(--utopia-spacing-md);
+      border: var(--utopia-border-hairline) solid var(--utopia-color-border);
+      border-radius: var(--utopia-radius-full);
+      background-color: var(--utopia-color-surface);
+      color: var(--utopia-color-text);
+      text-decoration: none;
+      font-size: var(--utopia-text-style-caption-font-size);
+      font-weight: var(--utopia-font-weight-medium);
+      transition: background-color var(--utopia-duration-sm) ease, border-color var(--utopia-duration-sm) ease,
+        color var(--utopia-duration-sm) ease;
+    }
+    .twin-toc__chip:hover {
+      background-color: var(--utopia-color-chip-background);
+      border-color: var(--utopia-color-chip-background);
+      color: var(--utopia-color-chip-foreground);
+    }
+    .twin-toc__index {
+      font-weight: var(--utopia-font-weight-semi-bold);
+      font-variant-numeric: tabular-nums;
+      color: var(--utopia-color-hint);
+    }
+    .twin-toc__chip:hover .twin-toc__index {
+      color: var(--utopia-color-chip-foreground);
     }
     .twin-section {
       margin-bottom: var(--utopia-spacing-xxxl);
+      /* Anchor landing offset for the TOC links. */
+      scroll-margin-top: var(--utopia-spacing-xl);
+    }
+    /* Numbered section heading: index, title, and a rule running out to the
+       measure - the horizontal line is what keeps the numbering readable as a
+       structure rather than as decoration. */
+    .twin-section__head {
+      display: flex;
+      align-items: baseline;
+      gap: var(--utopia-spacing-md);
+      margin-bottom: var(--utopia-spacing-xxs);
+    }
+    .twin-section__index {
+      font-family: var(--utopia-text-style-header-font-family), sans-serif;
+      font-size: var(--utopia-text-style-title-font-size);
+      font-weight: var(--utopia-font-weight-semi-bold);
+      font-variant-numeric: tabular-nums;
+      color: var(--utopia-color-hint);
+    }
+    .twin-section__rule {
+      flex: 1 1 auto;
+      align-self: center;
+      border-top: var(--utopia-border-hairline) solid var(--utopia-color-border);
     }
     .twin-section__name {
       font-family: var(--utopia-text-style-header-font-family), sans-serif;
@@ -71,13 +193,24 @@
       font-weight: var(--utopia-text-style-header-font-weight);
       letter-spacing: var(--utopia-text-style-header-letter-spacing);
       color: var(--utopia-text-style-header-color);
-      margin: 0 0 var(--utopia-spacing-xxs) 0;
+      margin: 0;
     }
     .twin-section__description {
       font-size: var(--utopia-text-style-text-font-size);
       color: var(--utopia-color-hint);
       margin: 0 0 var(--utopia-spacing-xl) 0;
       max-width: 640px; /* utopia-literal-ok: gallery page chrome, prose width */
+    }
+    /* Specimen annotation: the resolved values a specimen is actually drawn
+       with. Content, not styling - see the note above the first one. */
+    .twin-note {
+      font-size: var(--utopia-text-style-caption-font-size);
+      font-variant-numeric: tabular-nums;
+      color: var(--utopia-color-hint);
+      margin: 0;
+    }
+    .twin-note--section {
+      margin: calc(-1 * var(--utopia-spacing-md)) 0 var(--utopia-spacing-xl) 0;
     }
     .twin-specimens {
       display: flex;
@@ -169,18 +302,53 @@
 </head>
 <body>
   <main class="twin-page">
-    <div class="twin-page__intro">
-      <h1 class="twin-section__name">Utopia gallery</h1>
-      <p class="twin-section__description">
-        A static, dependency-free rendering mirroring the example app's Components page,
-        section for section - see twin/components.html for the per-component specimen
-        catalog this gallery composes from.
-      </p>
-    </div>
+    <!--
+      Page masthead. The badge states the two versions this page renders:
+      the package version from pubspec.yaml and the design-protocol version
+      (protocol/VERSIONING.md, mirrored as tokens.css's profileVersion). Both
+      are written out as static text - the gallery is a plain static file with
+      no build step to substitute them - so a release that bumps either has to
+      update this line too.
+    -->
+    <header class="twin-masthead">
+      <div>
+        <p class="twin-masthead__eyebrow">Design system</p>
+        <h1 class="twin-masthead__title">Utopia</h1>
+        <p class="twin-masthead__subtitle">
+          A static, dependency-free rendering mirroring the example app's Components page,
+          section for section - see twin/components.html for the per-component specimen
+          catalog this gallery composes from.
+        </p>
+      </div>
+      <span class="twin-masthead__badge">v0.1.0 &middot; protocol 0.3.0</span>
+    </header>
+
+    <!--
+      Contents. One chip per section, in the section order below - adding,
+      removing or reordering a section means renumbering here and there in the
+      same change (the numbering is written out, not computed).
+    -->
+    <nav class="twin-toc" aria-label="Sections">
+      <a class="twin-toc__chip" href="#colors"><span class="twin-toc__index">01</span><span>Colors</span></a>
+      <a class="twin-toc__chip" href="#typography"><span class="twin-toc__index">02</span><span>Typography</span></a>
+      <a class="twin-toc__chip" href="#surfaces"><span class="twin-toc__index">03</span><span>Surfaces &amp; shape</span></a>
+      <a class="twin-toc__chip" href="#buttons"><span class="twin-toc__index">04</span><span>Buttons</span></a>
+      <a class="twin-toc__chip" href="#selection"><span class="twin-toc__index">05</span><span>Selection</span></a>
+      <a class="twin-toc__chip" href="#fields"><span class="twin-toc__index">06</span><span>Fields</span></a>
+      <a class="twin-toc__chip" href="#chips-text"><span class="twin-toc__index">07</span><span>Chips &amp; text</span></a>
+      <a class="twin-toc__chip" href="#loading"><span class="twin-toc__index">08</span><span>Loading</span></a>
+      <a class="twin-toc__chip" href="#table"><span class="twin-toc__index">09</span><span>Table</span></a>
+      <a class="twin-toc__chip" href="#dialogs"><span class="twin-toc__index">10</span><span>Dialogs</span></a>
+      <a class="twin-toc__chip" href="#sidebar"><span class="twin-toc__index">11</span><span>Sidebar</span></a>
+    </nav>
 
     <!-- mirrors example/lib/sections/colors_section.dart -->
-    <section class="twin-section">
-      <h2 class="twin-section__name">Colors</h2>
+    <section class="twin-section" id="colors">
+      <header class="twin-section__head">
+        <span class="twin-section__index">01</span>
+        <h2 class="twin-section__name">Colors</h2>
+        <span class="twin-section__rule" aria-hidden="true"></span>
+      </header>
       <p class="twin-section__description">
         UtopiaThemeColors - the full token set of the active theme.
       </p>
@@ -208,8 +376,12 @@
     </section>
 
     <!-- mirrors example/lib/sections/typography_section.dart -->
-    <section class="twin-section">
-      <h2 class="twin-section__name">Typography</h2>
+    <section class="twin-section" id="typography">
+      <header class="twin-section__head">
+        <span class="twin-section__index">02</span>
+        <h2 class="twin-section__name">Typography</h2>
+        <span class="twin-section__rule" aria-hidden="true"></span>
+      </header>
       <p class="twin-section__description">
         UtopiaThemeTextStyles - the six roles every component draws from.
       </p>
@@ -246,15 +418,32 @@
     </section>
 
     <!-- mirrors example/lib/sections/surfaces_section.dart -->
-    <section class="twin-section">
-      <h2 class="twin-section__name">Surfaces &amp; shape</h2>
+    <section class="twin-section" id="surfaces">
+      <header class="twin-section__head">
+        <span class="twin-section__index">03</span>
+        <h2 class="twin-section__name">Surfaces &amp; shape</h2>
+        <span class="twin-section__rule" aria-hidden="true"></span>
+      </header>
       <p class="twin-section__description">
         Cards, field chrome, gradients and hairlines - the shells everything else sits in.
+      </p>
+      <!--
+        Specimen annotations (twin-note). Every value written out in one is the
+        value the DEFAULT theme resolves to right now, read off tokens.css and
+        components.css - exactly like the hex captions in the Colors section
+        above. They are prose, not styling, so they do not go through
+        var(--utopia-*) and nothing recomputes them: a rebrand, or any change to
+        a default token value, has to refresh these lines by hand in the same
+        change. The annotation STYLING is tokenised as usual (see .twin-note).
+      -->
+      <p class="twin-note twin-note--section">
+        Radius scale in use: 6px fields, buttons, sidebar tiles &middot; 8px chips &middot; 16px cards, dialogs, sidebar rail
       </p>
       <div class="twin-specimens">
         <div class="twin-specimen">
           <span class="twin-specimen__label">UtopiaCard</span>
           <!-- utopia-specimen: card -->
+          <p class="twin-note">surface #ffffff &middot; radius 16px &middot; border 1.5px #e8eaf0 &middot; shadow sm</p>
         </div>
         <div class="twin-specimen">
           <span class="twin-specimen__label">UtopiaFieldWrapper (field chrome, no visual twin as a standalone)</span>
@@ -268,6 +457,7 @@
               </div>
             </div>
           </div>
+          <p class="twin-note">fill #ededed &middot; border 1px #e8eaf0 &middot; radius 6px &middot; content min-height 44px, padding 10/6</p>
         </div>
         <div class="twin-specimen">
           <span class="twin-specimen__label">UtopiaGradientBackground (no visual twin as a standalone)</span>
@@ -284,13 +474,18 @@
         <div class="twin-specimen">
           <span class="twin-specimen__label">UtopiaDivider</span>
           <!-- utopia-specimen: divider -->
+          <p class="twin-note">1px hairline &middot; text at 12% over surface</p>
         </div>
       </div>
     </section>
 
     <!-- mirrors example/lib/sections/buttons_section.dart -->
-    <section class="twin-section">
-      <h2 class="twin-section__name">Buttons</h2>
+    <section class="twin-section" id="buttons">
+      <header class="twin-section__head">
+        <span class="twin-section__index">04</span>
+        <h2 class="twin-section__name">Buttons</h2>
+        <span class="twin-section__rule" aria-hidden="true"></span>
+      </header>
       <p class="twin-section__description">
         UtopiaButton - the gradient call-to-action, with dense, loading, disabled and icon variants -
         plus UtopiaGhostButton, the quiet secondary action it pairs with in an action row.
@@ -301,6 +496,7 @@
           <button class="utopia-button" data-utopia-id="button" type="button" style="max-width: 200px;">
             <span class="utopia-button__label">Save changes</span>
           </button>
+          <p class="twin-note">fill primary #536dfe -&gt; accent #536dfe &middot; content #ffffff &middot; radius 6px &middot; height 60px</p>
         </div>
         <div class="twin-specimen">
           <span class="twin-specimen__label">Dense</span>
@@ -317,6 +513,7 @@
         <div class="twin-specimen">
           <span class="twin-specimen__label">UtopiaGhostButton</span>
           <!-- utopia-specimen: ghost-button -->
+          <p class="twin-note">no fill &middot; hover #eff1f8 &middot; radius 6px &middot; min-height 40px</p>
         </div>
         <div class="twin-specimen">
           <span class="twin-specimen__label">UtopiaRemoveIconButton</span>
@@ -326,8 +523,12 @@
     </section>
 
     <!-- mirrors example/lib/sections/selection_section.dart -->
-    <section class="twin-section">
-      <h2 class="twin-section__name">Selection</h2>
+    <section class="twin-section" id="selection">
+      <header class="twin-section__head">
+        <span class="twin-section__index">05</span>
+        <h2 class="twin-section__name">Selection</h2>
+        <span class="twin-section__rule" aria-hidden="true"></span>
+      </header>
       <p class="twin-section__description">
         Switches and check rows - the boolean controls.
       </p>
@@ -359,8 +560,12 @@
     </section>
 
     <!-- mirrors example/lib/sections/fields_section.dart -->
-    <section class="twin-section">
-      <h2 class="twin-section__name">Fields</h2>
+    <section class="twin-section" id="fields">
+      <header class="twin-section__head">
+        <span class="twin-section__index">06</span>
+        <h2 class="twin-section__name">Fields</h2>
+        <span class="twin-section__rule" aria-hidden="true"></span>
+      </header>
       <p class="twin-section__description">
         Text inputs, pickers and dropdowns - one shared chrome, one height.
       </p>
@@ -375,6 +580,7 @@
               </div>
             </div>
           </div>
+          <p class="twin-note">label 12px w600 &middot; value 12px w500 &middot; error #ff5252</p>
         </div>
         <div class="twin-specimen">
           <span class="twin-specimen__label">Text - hint</span>
@@ -472,8 +678,12 @@
     </section>
 
     <!-- mirrors example/lib/sections/chips_text_section.dart -->
-    <section class="twin-section">
-      <h2 class="twin-section__name">Chips &amp; text</h2>
+    <section class="twin-section" id="chips-text">
+      <header class="twin-section__head">
+        <span class="twin-section__index">07</span>
+        <h2 class="twin-section__name">Chips &amp; text</h2>
+        <span class="twin-section__rule" aria-hidden="true"></span>
+      </header>
       <p class="twin-section__description">
         Tag pills, overflow collapsing and utility text.
       </p>
@@ -481,6 +691,7 @@
         <div class="twin-specimen">
           <span class="twin-specimen__label">UtopiaChip</span>
           <span class="utopia-chip" data-utopia-id="chip"><span class="utopia-chip__label">Published</span></span>
+          <p class="twin-note">fill #e7eafd &middot; content #536dfe &middot; radius 8px &middot; caption 10px</p>
         </div>
         <div class="twin-specimen">
           <span class="twin-specimen__label">UtopiaChip - leading</span>
@@ -518,8 +729,12 @@
     </section>
 
     <!-- mirrors example/lib/sections/loading_section.dart -->
-    <section class="twin-section">
-      <h2 class="twin-section__name">Loading</h2>
+    <section class="twin-section" id="loading">
+      <header class="twin-section__head">
+        <span class="twin-section__index">08</span>
+        <h2 class="twin-section__name">Loading</h2>
+        <span class="twin-section__rule" aria-hidden="true"></span>
+      </header>
       <p class="twin-section__description">
         Spinners, bouncing dots and shimmer skeletons.
       </p>
@@ -552,8 +767,12 @@
     </section>
 
     <!-- mirrors example/lib/sections/table_section.dart -->
-    <section class="twin-section">
-      <h2 class="twin-section__name">Table</h2>
+    <section class="twin-section" id="table">
+      <header class="twin-section__head">
+        <span class="twin-section__index">09</span>
+        <h2 class="twin-section__name">Table</h2>
+        <span class="twin-section__rule" aria-hidden="true"></span>
+      </header>
       <p class="twin-section__description">
         The flagship component: a sliver table with client-side search, sort and themed cells.
       </p>
@@ -605,13 +824,18 @@
               </span>
             </div>
           </div>
+          <p class="twin-note">row height 58px &middot; alternating rows #f7f8fb &middot; 1px hairline between rows &middot; status cells reuse the chip recipe</p>
         </div>
       </div>
     </section>
 
     <!-- mirrors example/lib/sections/dialogs_section.dart -->
-    <section class="twin-section">
-      <h2 class="twin-section__name">Dialogs</h2>
+    <section class="twin-section" id="dialogs">
+      <header class="twin-section__head">
+        <span class="twin-section__index">10</span>
+        <h2 class="twin-section__name">Dialogs</h2>
+        <span class="twin-section__rule" aria-hidden="true"></span>
+      </header>
       <p class="twin-section__description">
         UtopiaDialog.form composes a scrollable field sliver with a pinned action bar;
         UtopiaConfirmDialog is the confirm/cancel prefab. Bottom sheet on mobile, card on desktop.
@@ -620,6 +844,7 @@
         <div class="twin-specimen">
           <span class="twin-specimen__label">Form dialog (open, desktop card variant)</span>
           <!-- utopia-specimen: dialog -->
+          <p class="twin-note">surface #ffffff &middot; radius 16px &middot; max-width 600px &middot; pinned action bar over a scrolling body</p>
         </div>
         <div class="twin-specimen">
           <span class="twin-specimen__label">Confirm dialog (open)</span>
@@ -629,8 +854,12 @@
     </section>
 
     <!-- mirrors example/lib/sections/sidebar_section.dart -->
-    <section class="twin-section">
-      <h2 class="twin-section__name">Sidebar</h2>
+    <section class="twin-section" id="sidebar">
+      <header class="twin-section__head">
+        <span class="twin-section__index">11</span>
+        <h2 class="twin-section__name">Sidebar</h2>
+        <span class="twin-section__rule" aria-hidden="true"></span>
+      </header>
       <p class="twin-section__description">
         An adaptive rail: 80px collapsed, expands on hover, pins via the toggle. Plain surface or
         opt-in gradient; drawer presentation for small screens.
@@ -669,6 +898,7 @@
               </li>
             </ul>
           </nav>
+          <p class="twin-note">rail 300px expanded / 80px collapsed &middot; radius 16px &middot; tile height 54px, radius 6px</p>
         </div>
       </div>
     </section>
