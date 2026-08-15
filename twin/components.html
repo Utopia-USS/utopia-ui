@@ -8,13 +8,13 @@
   PHASE 2 (A5a completion): every manifest component now has either a styled
   specimen or a "no visual twin" note entry here, so id coverage is 100% both
   directions (H4 contract, ledger/A.md). Styled: button, card, check-row,
-  chip, chip-list, confirm-dialog, dialog, divider, ghost-button, header,
-  labeled-field, loader, mock-loading-box, remove-icon-button, search-field,
-  sidebar, switch, switch-field, table (+ table-empty, table-search-panel
-  composed into it), text-field, three-bounce, title. Note entries (no visual
-  twin): collapsible,
-  copyable-text, date-picker, dropdown-field, field-wrapper, form-layout,
-  gradient-background, multi-widget, overlay-anchor, page-wrapper - see
+  checkbox, chip, chip-list, confirm-dialog, date-picker, dialog, divider,
+  dropdown-field, ghost-button, header, labeled-field, loader,
+  loading-box, radio, remove-icon-button, search-field, sidebar, slider,
+  switch, switch-field, table (+ table-empty, table-search-panel composed into
+  it), text-field, three-bounce, title. Note entries (no visual twin):
+  collapsible, copyable-text, field-wrapper, form-layout, gradient-background,
+  multi-widget, overlay-anchor, page-wrapper - see
   ledger/checkpoints/A5-spec.md for the per-component rationale.
 -->
 <!doctype html>
@@ -349,12 +349,100 @@
       </p>
     </section>
 
-    <!-- data-utopia-id="date-picker" - manifest index 9 (no visual twin) -->
+    <!-- data-utopia-id="date-picker" - manifest index 9 -->
     <section class="twin-section" data-utopia-id="date-picker">
       <h2 class="twin-section__name">Date picker</h2>
-      <p class="twin-note" data-utopia-id="date-picker">
-        No visual twin: the closed trigger state is a plain UtopiaLabeledField (see the labeled-field specimen below for that shared chrome) with a calendar icon suffix; the component's own visual contract is the open popover calendar grid, which composes overlay-anchor and is behavior-heavy (month navigation, day selection) rather than a fixed layout worth a bespoke static specimen. See lib/src/widget/date_picker/utopia_date_picker.dart.
+      <p class="twin-section__description">
+        A tap-to-open date field. The closed trigger is a labeled-field (same chrome, same row - see the labeled-field specimens below) carrying a permanent calendar affordance, plus a clear affordance only when there is a date to clear. The trigger is a real focus stop, so focus and open both render as the shared field focus ring. The open calendar itself has no static specimen: the grid is Material's own CalendarDatePicker, restyled from the theme through utopiaDatePickerMaterialTheme, and mirroring its metrics in CSS would mean inventing values this system does not own.
       </p>
+      <div class="twin-specimens">
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Empty - calendar affordance only</span>
+          <div class="utopia-date-picker" data-utopia-id="date-picker" style="width: 280px;">
+            <div class="utopia-labeled-field">
+              <div class="utopia-text-field__chrome">
+                <div class="utopia-labeled-field__row">
+                  <div class="utopia-text-field__body">
+                    <p class="utopia-text-field__hint">Expires</p>
+                  </div>
+                  <span class="utopia-labeled-field__suffix" aria-hidden="true">
+                    <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="16" y1="3" x2="16" y2="7"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="3" y1="11" x2="21" y2="11"/></svg>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Picked - clear, then calendar</span>
+          <div class="utopia-date-picker" data-utopia-id="date-picker" style="width: 280px;">
+            <div class="utopia-labeled-field">
+              <div class="utopia-text-field__chrome">
+                <div class="utopia-labeled-field__row">
+                  <div class="utopia-text-field__body">
+                    <p class="utopia-text-field__label">Published</p>
+                    <p class="utopia-text-field__value">14 Mar 2026</p>
+                  </div>
+                  <span class="utopia-labeled-field__suffix">
+                    <button class="utopia-remove-icon-button" data-utopia-id="remove-icon-button" type="button" aria-label="Clear">
+                      <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg>
+                    </button>
+                    <span aria-hidden="true">
+                      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="16" y1="3" x2="16" y2="7"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="3" y1="11" x2="21" y2="11"/></svg>
+                    </span>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Focus (is-focus)</span>
+          <div class="utopia-date-picker is-focus" data-utopia-id="date-picker" style="width: 280px;">
+            <div class="utopia-labeled-field">
+              <div class="utopia-text-field__chrome">
+                <div class="utopia-labeled-field__row">
+                  <div class="utopia-text-field__body">
+                    <p class="utopia-text-field__label">Published</p>
+                    <p class="utopia-text-field__value">14 Mar 2026</p>
+                  </div>
+                  <span class="utopia-labeled-field__suffix">
+                    <button class="utopia-remove-icon-button" data-utopia-id="remove-icon-button" type="button" aria-label="Clear">
+                      <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg>
+                    </button>
+                    <span aria-hidden="true">
+                      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="16" y1="3" x2="16" y2="7"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="3" y1="11" x2="21" y2="11"/></svg>
+                    </span>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Open (is-open) - trigger while its calendar is up</span>
+          <div class="utopia-date-picker is-open" data-utopia-id="date-picker" style="width: 280px;">
+            <div class="utopia-labeled-field">
+              <div class="utopia-text-field__chrome">
+                <div class="utopia-labeled-field__row">
+                  <div class="utopia-text-field__body">
+                    <p class="utopia-text-field__label">Published</p>
+                    <p class="utopia-text-field__value">14 Mar 2026</p>
+                  </div>
+                  <span class="utopia-labeled-field__suffix">
+                    <button class="utopia-remove-icon-button" data-utopia-id="remove-icon-button" type="button" aria-label="Clear">
+                      <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg>
+                    </button>
+                    <span aria-hidden="true">
+                      <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="16" rx="2"/><line x1="16" y1="3" x2="16" y2="7"/><line x1="8" y1="3" x2="8" y2="7"/><line x1="3" y1="11" x2="21" y2="11"/></svg>
+                    </span>
+                  </span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
     </section>
 
     <!-- data-utopia-id="dialog" - manifest index 10 -->
@@ -566,9 +654,9 @@
       </div>
     </section>
 
-    <!-- data-utopia-id="mock-loading-box" - manifest index 20 -->
-    <section class="twin-section" data-utopia-id="mock-loading-box">
-      <h2 class="twin-section__name">Mock loading box</h2>
+    <!-- data-utopia-id="loading-box" - manifest index 20 -->
+    <section class="twin-section" data-utopia-id="loading-box">
+      <h2 class="twin-section__name">Loading box</h2>
       <p class="twin-section__description">
         A shimmering rectangle placeholder for text/content that has not loaded yet - a skeleton-loading building block sized to mimic the real content.
       </p>
@@ -576,9 +664,9 @@
         <div class="twin-specimen">
           <span class="twin-specimen__label">Skeleton stack</span>
           <div style="display: flex; flex-direction: column; gap: 12px; width: 220px;">
-            <span class="utopia-mock-loading-box" data-utopia-id="mock-loading-box" style="height: 12px; width: 140px;"></span>
-            <span class="utopia-mock-loading-box" data-utopia-id="mock-loading-box" style="height: 8px; width: 220px;"></span>
-            <span class="utopia-mock-loading-box" data-utopia-id="mock-loading-box" style="height: 8px; width: 180px;"></span>
+            <span class="utopia-loading-box" data-utopia-id="loading-box" style="height: 12px; width: 140px;"></span>
+            <span class="utopia-loading-box" data-utopia-id="loading-box" style="height: 8px; width: 220px;"></span>
+            <span class="utopia-loading-box" data-utopia-id="loading-box" style="height: 8px; width: 180px;"></span>
           </div>
         </div>
       </div>
@@ -835,7 +923,57 @@
       </div>
     </section>
 
-    <!-- data-utopia-id="switch" - manifest index 28 -->
+    <!-- data-utopia-id="slider" - manifest index 28 -->
+    <section class="twin-section" data-utopia-id="slider">
+      <h2 class="twin-section__name">Slider</h2>
+      <p class="twin-section__description">
+        A themed value slider: an x-tall track in the control edge colour, a primary fill up to the value, and the selection family's x*5 thumb - a surface disc defined by its edge, carrying no resting shadow and none of Material's press halo or floating value indicator. The thumb's centre travels between the half-thumb insets. divisions snaps the reported value without drawing tick marks, so a stepped slider looks exactly like this one.
+      </p>
+      <div class="twin-specimens">
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Value at 40%</span>
+          <div class="utopia-slider" data-utopia-id="slider" style="width: 240px; --twin-slider-fraction: 0.4;">
+            <span class="utopia-slider__track"></span>
+            <span class="utopia-slider__fill"></span>
+            <span class="utopia-slider__thumb"></span>
+          </div>
+        </div>
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Hover (is-hover)</span>
+          <div class="utopia-slider is-hover" data-utopia-id="slider" style="width: 240px; --twin-slider-fraction: 0.4;">
+            <span class="utopia-slider__track"></span>
+            <span class="utopia-slider__fill"></span>
+            <span class="utopia-slider__thumb"></span>
+          </div>
+        </div>
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Dragging (--dragging)</span>
+          <div class="utopia-slider utopia-slider--dragging" data-utopia-id="slider" style="width: 240px; --twin-slider-fraction: 0.62;">
+            <span class="utopia-slider__track"></span>
+            <span class="utopia-slider__fill"></span>
+            <span class="utopia-slider__thumb"></span>
+          </div>
+        </div>
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Read only (is-readonly)</span>
+          <div class="utopia-slider is-readonly" data-utopia-id="slider" style="width: 240px; --twin-slider-fraction: 0.7;">
+            <span class="utopia-slider__track"></span>
+            <span class="utopia-slider__fill"></span>
+            <span class="utopia-slider__thumb"></span>
+          </div>
+        </div>
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Disabled (is-disabled)</span>
+          <div class="utopia-slider is-disabled" data-utopia-id="slider" style="width: 240px; --twin-slider-fraction: 0.25;">
+            <span class="utopia-slider__track"></span>
+            <span class="utopia-slider__fill"></span>
+            <span class="utopia-slider__thumb"></span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- data-utopia-id="switch" - manifest index 29 -->
     <section class="twin-section" data-utopia-id="switch">
       <h2 class="twin-section__name">Switch</h2>
       <p class="twin-section__description">
@@ -861,7 +999,7 @@
       </div>
     </section>
 
-    <!-- data-utopia-id="switch-field" - manifest index 29 -->
+    <!-- data-utopia-id="switch-field" - manifest index 30 -->
     <section class="twin-section" data-utopia-id="switch-field">
       <h2 class="twin-section__name">Switch field</h2>
       <p class="twin-section__description">
@@ -892,9 +1030,9 @@
       </div>
     </section>
 
-    <!-- data-utopia-id="table" - manifest index 30 -->
-    <!-- data-utopia-id="table-empty" - manifest index 31 (composed: empty state within this section) -->
-    <!-- data-utopia-id="table-search-panel" - manifest index 32 (composed: search panel within this section) -->
+    <!-- data-utopia-id="table" - manifest index 31 -->
+    <!-- data-utopia-id="table-empty" - manifest index 32 (composed: empty state within this section) -->
+    <!-- data-utopia-id="table-search-panel" - manifest index 33 (composed: search panel within this section) -->
     <section class="twin-section" data-utopia-id="table">
       <h2 class="twin-section__name">Table</h2>
       <p class="twin-section__description">
@@ -1037,7 +1175,7 @@
       </div>
     </section>
 
-    <!-- data-utopia-id="text-field" - manifest index 33 -->
+    <!-- data-utopia-id="text-field" - manifest index 34 -->
     <section class="twin-section" data-utopia-id="text-field">
       <h2 class="twin-section__name">Text field</h2>
       <p class="twin-section__description">
@@ -1134,7 +1272,7 @@
       </div>
     </section>
 
-    <!-- data-utopia-id="three-bounce" - manifest index 34 -->
+    <!-- data-utopia-id="three-bounce" - manifest index 35 -->
     <section class="twin-section" data-utopia-id="three-bounce">
       <h2 class="twin-section__name">Three bounce</h2>
       <p class="twin-section__description">
@@ -1162,7 +1300,7 @@
       </div>
     </section>
 
-    <!-- data-utopia-id="title" - manifest index 35 -->
+    <!-- data-utopia-id="title" - manifest index 36 -->
     <section class="twin-section" data-utopia-id="title">
       <h2 class="twin-section__name">Title</h2>
       <p class="twin-section__description">

@@ -14,6 +14,8 @@ class FieldsSection extends HookWidget {
     final searchState = useState('');
     final roleState = useState<String?>('Editor');
     final publishedState = useState<DateTime?>(DateTime(2026, 3, 14));
+    // The empty picker: label at rest, calendar affordance on, no clear icon.
+    final expiresState = useState<DateTime?>(null);
 
     return SheetSection(
       title: 'Fields',
@@ -102,12 +104,21 @@ class FieldsSection extends HookWidget {
             ),
           ),
           SpecimenTile(
-            label: 'Date picker',
+            label: 'Date picker - picked (clear + calendar)',
             width: 320,
             child: UtopiaDatePicker(
               label: 'Published',
               date: publishedState.value,
               onDateChanged: (value) => publishedState.value = value,
+            ),
+          ),
+          SpecimenTile(
+            label: 'Date picker - empty (calendar only)',
+            width: 320,
+            child: UtopiaDatePicker(
+              label: 'Expires',
+              date: expiresState.value,
+              onDateChanged: (value) => expiresState.value = value,
             ),
           ),
         ],

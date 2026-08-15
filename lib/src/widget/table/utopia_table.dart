@@ -3,7 +3,7 @@ import 'package:utopia_ui/src/util/foundation.dart';
 import 'package:utopia_ui/src/util/utopia_context_extensions.dart';
 import 'package:utopia_ui/src/widget/layout/utopia_card.dart';
 import 'package:utopia_ui/src/widget/layout/utopia_divider.dart';
-import 'package:utopia_ui/src/widget/loading/utopia_mock_loading_box.dart';
+import 'package:utopia_ui/src/widget/loading/utopia_loading_box.dart';
 import 'package:utopia_ui/src/widget/table/utopia_table_cell.dart';
 import 'package:utopia_ui/src/widget/table/utopia_table_empty.dart';
 import 'package:utopia_ui/src/widget/table/utopia_table_entry.dart';
@@ -265,7 +265,7 @@ class UtopiaTable<T> extends HookWidget {
                   alignment: entry.cellAlignment,
                   child: const FractionallySizedBox(
                     widthFactor: 0.6,
-                    child: UtopiaMockLoadingBox(width: double.infinity, height: 12),
+                    child: UtopiaLoadingBox(width: double.infinity, height: 12),
                   ),
                 ),
               ),
@@ -275,7 +275,7 @@ class UtopiaTable<T> extends HookWidget {
               padding: UtopiaTable.itemPadding,
               child: SizedBox(
                 width: UtopiaTable.actionsWidth,
-                child: UtopiaMockLoadingBox(width: double.infinity, height: 12),
+                child: UtopiaLoadingBox(width: double.infinity, height: 12),
               ),
             ),
         ],

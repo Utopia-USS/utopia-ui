@@ -309,7 +309,7 @@ class ThemeCapture {
     // Other slots either alias a token or are plain design decisions (tileHeight) that the
     // Dart theme does NOT rescale with x - stamping them would break surface parity.
     final borderRadiusToken =
-        borderRadius == radius.md ? _aliasDimensionToken('radius.md') : _dimensionToken(borderRadius);
+        borderRadius == radius.lg ? _aliasDimensionToken('radius.lg') : _dimensionToken(borderRadius);
     final cardRadiusToken = cardRadius == radius.xl ? _aliasDimensionToken('radius.xl') : _dimensionToken(cardRadius);
 
     final padding = theme.fieldContentPadding;

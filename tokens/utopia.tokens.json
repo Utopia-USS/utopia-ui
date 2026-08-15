@@ -964,7 +964,7 @@
   "theme": {
     "borderRadius": {
       "$type": "dimension",
-      "$value": "{radius.md}"
+      "$value": "{radius.lg}"
     },
     "cardRadius": {
       "$type": "dimension",

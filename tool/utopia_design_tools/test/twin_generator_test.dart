@@ -57,7 +57,7 @@ void main() {
 
     test('theme.borderRadius emits a var() alias reference', () {
       final css = generateCss(canonicalDocument(), inputPath: 'tokens/utopia.tokens.json', profileVersion: '0.2.0');
-      expect(css, contains('  --utopia-theme-border-radius: var(--utopia-radius-md);'));
+      expect(css, contains('  --utopia-theme-border-radius: var(--utopia-radius-lg);'));
     });
 
     test('shadow.sm emits every layer, comma-joined, with unitless zero components', () {
@@ -161,7 +161,7 @@ void main() {
       expect(tailwind, contains('  /* --utopia-x: 4; */'));
       expect(tailwind, contains('  /* --utopia-border-hairline: 1px; */'));
       expect(tailwind, contains('  /* --utopia-duration-md: 200ms; */'));
-      expect(tailwind, contains('  /* --utopia-theme-border-radius: 8px; */'));
+      expect(tailwind, contains('  /* --utopia-theme-border-radius: 12px; */'));
     });
 
     test('is idempotent', () {

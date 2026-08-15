@@ -1,0 +1,18 @@
+states: [hover, disabled, readOnly]
+notes: >-
+  A themed value slider drawn from UtopiaThemeData instead of the ambient
+  MaterialApp theme, so it carries none of Material's foreign idioms (press
+  halo, floating value indicator, tick marks). The token base drives its
+  geometry: an x-tall track (colors.border) carrying an x*5 thumb (surface
+  fill, borders.thin edge) whose centre travels between the half-thumb insets,
+  with the primary-coloured fill running from the left edge to that centre.
+  hover steps the thumb's edge to hint, the doctrine every control here
+  follows; the drag rendering (a primary thumb edge while the pointer holds
+  the value) is a transient pointer state with no entry in this state
+  vocabulary and is mirrored in the twin as the .utopia-slider--dragging
+  modifier. divisions snaps every reported value to a step but stays
+  deliberately without a visual expression - no tick marks. readOnly blocks
+  interaction while keeping the full-color styling; a null onChanged (without
+  readOnly) is the disabled state and renders faded at 50% opacity.
+examples:
+  - example/lib/sections/selection_section.dart

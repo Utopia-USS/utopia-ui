@@ -796,7 +796,7 @@
     {
       "id": "date-picker",
       "name": "UtopiaDatePicker",
-      "description": "A tap-to-open date field: displays the picked date through a UtopiaTextField, opens an anchored calendar popover and offers a clear affordance via UtopiaRemoveIconButton.",
+      "description": "A tap-to-open date field: displays the picked date through a UtopiaLabeledField trigger, opens an anchored calendar popover, and clears through a UtopiaRemoveIconButton shown only when there is a date to clear.",
       "file": "lib/src/widget/date_picker/utopia_date_picker.dart",
       "constructors": [
         {
@@ -808,7 +808,7 @@
               "type": "date",
               "dartType": "DateTime?",
               "required": true,
-              "description": "The currently picked date; `null` shows the field empty."
+              "description": "The currently picked date; `null` shows the field empty (label at rest, no clear affordance)."
             },
             {
               "name": "label",
@@ -822,7 +822,7 @@
               "type": "callback",
               "dartType": "void Function(DateTime?)?",
               "required": false,
-              "description": "Called with the newly picked date, or `null` when the field is cleared."
+              "description": "Called with the newly picked date, or `null` when the field is cleared. Omitting it also drops the clear affordance - there is nobody to tell."
             },
             {
               "name": "firstDate",
@@ -841,11 +841,24 @@
           ]
         }
       ],
-      "tokenBindings": [],
+      "tokenBindings": [
+        {
+          "path": "textStyles.text",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.xs",
+          "origin": "source"
+        }
+      ],
+      "states": [
+        "focus",
+        "open"
+      ],
       "composes": [
+        "labeled-field",
         "overlay-anchor",
-        "remove-icon-button",
-        "text-field"
+        "remove-icon-button"
       ],
       "twin": {
         "file": "components.html",
@@ -855,7 +868,7 @@
         "example/lib/sections/fields_section.dart",
         "example/lib/sections/dialogs_section.dart"
       ],
-      "notes": "A tap-to-open date field: displays the picked date through a text-field trigger, opens an anchored calendar popover, and offers a clear affordance. The calendar grid is Material-owned and restyled from the ambient theme via utopiaDatePickerMaterialTheme, so re-theming affects it even though this component's tokenBindings list is empty (it reads no theme member directly). Declares no states: the trigger is a readOnly UtopiaTextField, and read-only chrome outranks focus inside UtopiaFieldWrapper, so nothing about the field changes while the popover is up - the open state's entire expression is the popover calendar itself, which is the Material-owned grid this component deliberately does not mirror statically. Restore `open` here the day the trigger gains a chrome of its own (a focus node and a calendar affordance, the way dropdown-field's trigger did)."
+      "notes": "A tap-to-open date field: a labeled-field trigger carrying the picked date, a permanent calendar affordance, a clear affordance shown only when there is a date to clear, and an anchored calendar popover. The trigger is a real focus stop (its own FocusNode, Space/Enter opens), so both declared states have a rendering in Flutter and both are the shared field focus ring painted by UtopiaFieldWrapper - focus is a trigger reached by keyboard, open is a trigger whose calendar is up, and the ring outlives the pick because focus is handed back. The trigger deliberately does NOT use the read-only chrome: its value is uneditable by construction (a Text, not a TextField), and read-only outranks focus inside the wrapper, which would leave an open picker looking dead. The popover's calendar grid is Material-owned (CalendarDatePicker) and restyled from the ambient theme via utopiaDatePickerMaterialTheme - a full DatePickerThemeData derivation built from scratch rather than from the host ThemeData, so the grid stays utopian under any MaterialApp. That grid is the one part with no static twin: its metrics belong to Material and mirroring them in CSS would mean inventing values."
     },
     {
       "id": "dialog",
@@ -1615,10 +1628,10 @@
       "notes": "A small circular progress indicator, sized and coloured to fit inline in text-scale contexts (e.g. a loading row or a compact overlay). Declares no states on purpose: the loader has no not-loading rendering to contrast a \"loading\" state with - it spins from the moment it is mounted, and its absence is the other half of that pair, so loading is this component's identity rather than a state of it (the state belongs to the components that can be either way, e.g. button's loading). Colour defaults to colors.primary - a running indicator reports activity, and activity is the brand colour here - and is overridable per instance for coloured grounds."
     },
     {
-      "id": "mock-loading-box",
-      "name": "UtopiaMockLoadingBox",
+      "id": "loading-box",
+      "name": "UtopiaLoadingBox",
       "description": "A shimmering rectangle placeholder for text/content that has not loaded yet - a skeleton-loading building block sized to mimic the real content.",
-      "file": "lib/src/widget/loading/utopia_mock_loading_box.dart",
+      "file": "lib/src/widget/loading/utopia_loading_box.dart",
       "constructors": [
         {
           "name": "",
@@ -1662,7 +1675,7 @@
       ],
       "twin": {
         "file": "components.html",
-        "selector": "[data-utopia-id=\"mock-loading-box\"]"
+        "selector": "[data-utopia-id=\"loading-box\"]"
       }
     },
     {
@@ -2184,6 +2197,120 @@
       "notes": "An adaptive navigation sidebar: a collapsible hover/pin rail on wide screens, a flush full-width drawer body on small screens. selected means only that selectedId matches a destination's id - the sidebar carries no navigation opinions of its own."
     },
     {
+      "id": "slider",
+      "name": "UtopiaSlider",
+      "description": "A themed value slider, drawn entirely from `UtopiaThemeData` - no Material `Slider` underneath, so it carries none of Material's foreign idioms (the press halo, the floating value indicator, the tick marks) and its track, fill and thumb follow the token scale instead of Material's fixed geometry.",
+      "file": "lib/src/widget/slider/utopia_slider.dart",
+      "constructors": [
+        {
+          "name": "",
+          "description": "Creates a themed value slider.",
+          "props": [
+            {
+              "name": "value",
+              "type": "number",
+              "dartType": "double",
+              "required": true,
+              "description": "The value the slider renders, in `min, max`."
+            },
+            {
+              "name": "onChanged",
+              "type": "callback",
+              "dartType": "void Function(double)?",
+              "required": false,
+              "description": "Called with the value under the pointer on a tap or a drag; `null` disables interaction."
+            },
+            {
+              "name": "min",
+              "type": "number",
+              "dartType": "double",
+              "required": false,
+              "default": "0",
+              "description": "The lower end of the range, rendered at the left edge of the track."
+            },
+            {
+              "name": "max",
+              "type": "number",
+              "dartType": "double",
+              "required": false,
+              "default": "1",
+              "description": "The upper end of the range, rendered at the right edge of the track. Must be greater than min."
+            },
+            {
+              "name": "divisions",
+              "type": "number",
+              "dartType": "int?",
+              "required": false,
+              "description": "When set, the number of equal steps the range is divided into: the values reported through onChanged snap to `min + n * (max - min) / divisions`."
+            },
+            {
+              "name": "readOnly",
+              "type": "bool",
+              "dartType": "bool",
+              "required": false,
+              "default": "false",
+              "description": "When `true`, blocks interaction while keeping the full-color styling (instead of a faded disabled look)."
+            }
+          ]
+        }
+      ],
+      "tokenBindings": [
+        {
+          "path": "colors.border",
+          "origin": "source"
+        },
+        {
+          "path": "colors.disabled",
+          "origin": "source"
+        },
+        {
+          "path": "colors.hint",
+          "origin": "source"
+        },
+        {
+          "path": "colors.primary",
+          "origin": "source"
+        },
+        {
+          "path": "colors.surface",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.borders.thin",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.durations.sm",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.durations.xs",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.radius.fullAll",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.x",
+          "origin": "source"
+        }
+      ],
+      "states": [
+        "disabled",
+        "hover",
+        "readOnly"
+      ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"slider\"]"
+      },
+      "examples": [
+        "example/lib/sections/selection_section.dart"
+      ],
+      "notes": "A themed value slider drawn from UtopiaThemeData instead of the ambient MaterialApp theme, so it carries none of Material's foreign idioms (press halo, floating value indicator, tick marks). The token base drives its geometry: an x-tall track (colors.border) carrying an x*5 thumb (surface fill, borders.thin edge) whose centre travels between the half-thumb insets, with the primary-coloured fill running from the left edge to that centre. hover steps the thumb's edge to hint, the doctrine every control here follows; the drag rendering (a primary thumb edge while the pointer holds the value) is a transient pointer state with no entry in this state vocabulary and is mirrored in the twin as the .utopia-slider--dragging modifier. divisions snaps every reported value to a step but stays deliberately without a visual expression - no tick marks. readOnly blocks interaction while keeping the full-color styling; a null onChanged (without readOnly) is the disabled state and renders faded at 50% opacity."
+    },
+    {
       "id": "switch",
       "name": "UtopiaSwitch",
       "description": "A themed on/off switch, drawn entirely from `UtopiaThemeData` - no Material `Switch` underneath, so the track and thumb corners follow `radius.full` (a stadium in round themes, square when the theme flattens radii to zero) instead of Material's hard-coded pill.",
@@ -2437,7 +2564,7 @@
       ],
       "composes": [
         "divider",
-        "mock-loading-box",
+        "loading-box",
         "table-empty"
       ],
       "twin": {
@@ -3264,7 +3391,7 @@
     {
       "name": "utopiaDatePickerMaterialTheme",
       "kind": "function",
-      "description": "Maps `UtopiaThemeData` tokens onto a Material ThemeData scoped to the calendar grid, so the (Material-owned) CalendarDatePicker renders in the design system's colors and typography.",
+      "description": "Maps `UtopiaThemeData` tokens onto a Material ThemeData scoped to Flutter's own date pickers, so the (Material-owned) CalendarDatePicker, `showDatePicker` dialog and `showDateRangePicker` dialog render in the design system's colors, type and shape.",
       "file": "lib/src/widget/date_picker/utopia_date_picker.dart",
       "signature": "ThemeData utopiaDatePickerMaterialTheme(UtopiaThemeData theme)"
     },

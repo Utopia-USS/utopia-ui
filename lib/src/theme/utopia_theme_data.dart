@@ -73,7 +73,11 @@ abstract class UtopiaThemeData with _$UtopiaThemeData {
       tokens: tokens,
       colors: colors,
       textStyles: textStyles,
-      borderRadius: radius.mdAll,
+      // Controls sit on radius.lg (12): a visible step of softness on a 48px
+      // control while the ladder stays monotonic - chip (6) < controls (12) <
+      // cards (16). radius.md (8) read stiff next to the reference input bars
+      // this scale is calibrated against.
+      borderRadius: radius.lgAll,
       cardRadius: radius.xlAll,
       // Vertically biased on purpose: the text stack is box-symmetric inside
       // the chrome, but the value line reserves descender space below the
@@ -108,8 +112,9 @@ abstract class UtopiaThemeData with _$UtopiaThemeData {
   /// Thickness of row / header dividers.
   double get dividerThickness => tokens.borders.hairline;
 
-  /// Corner radius of a `UtopiaChip` - one step below [borderRadius], so a
-  /// badge never reads as rounder than the control it sits in.
+  /// Corner radius of a `UtopiaChip` - the smallest usable tier, well below
+  /// [borderRadius], so a badge never reads as rounder than the control it
+  /// sits in.
   double get chipRadius => tokens.radius.sm;
 
   /// Field chrome at rest: fill, radius and the quiet hairline edge.

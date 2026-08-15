@@ -47,18 +47,18 @@ class LoadingSection extends StatelessWidget {
             ),
           ),
           const SpecimenTile(
-            label: 'Skeleton (UtopiaMockLoadingBox)',
+            label: 'Skeleton (UtopiaLoadingBox)',
             child: SizedBox(
               width: 280,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  UtopiaMockLoadingBox(height: 12, width: 140),
+                  UtopiaLoadingBox(height: 12, width: 140),
                   SizedBox(height: 12),
-                  UtopiaMockLoadingBox(height: 8, width: 220),
+                  UtopiaLoadingBox(height: 8, width: 220),
                   SizedBox(height: 8),
-                  UtopiaMockLoadingBox(height: 8, width: 180),
+                  UtopiaLoadingBox(height: 8, width: 180),
                 ],
               ),
             ),

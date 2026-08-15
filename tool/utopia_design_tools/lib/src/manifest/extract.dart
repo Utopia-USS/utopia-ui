@@ -858,6 +858,16 @@ List<ExtractedHelper> _extractHelpers(SourceModel model) {
       if (typedefNode is! GenericTypeAlias) continue;
       final name = typedefNode.name.lexeme;
       if (!isPublicName(name)) continue;
+      // A deprecated alias (`@Deprecated('Renamed to X') typedef Old = X;`) is
+      // a source-level migration shim, not offered API. The manifest schema
+      // has no way to mark an entry deprecated, so publishing one would
+      // advertise the retired name as live and hand agents two names for one
+      // widget with nothing to choose between them; the analyzer's
+      // deprecation warning is where a consumer should meet it instead. The
+      // rule is scoped to typedefs on purpose: a deprecated COMPONENT class
+      // dropping out of the manifest would turn its twin section into a stale
+      // id error rather than a clean removal.
+      if (_isDeprecated(typedefNode)) continue;
       helpers.add(
         ExtractedHelper(
           name: name,
@@ -888,6 +898,13 @@ List<ExtractedHelper> _extractHelpers(SourceModel model) {
   helpers.sort((a, b) => a.name.compareTo(b.name));
   return helpers;
 }
+
+/// Whether [node] carries a deprecation annotation (`@Deprecated('...')` or
+/// the bare `@deprecated`), including prefixed forms (`@meta.deprecated`).
+bool _isDeprecated(AnnotatedNode node) => node.metadata.any((annotation) {
+  final name = annotation.name.name.split('.').last;
+  return name == 'Deprecated' || name == 'deprecated';
+});
 
 /// Verbatim declaration signature of a named extension, up to (not including)
 /// its body: `extension <name><typeParams> on <extendedType>`.

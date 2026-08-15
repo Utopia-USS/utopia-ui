@@ -438,7 +438,7 @@
         change. The annotation STYLING is tokenised as usual (see .twin-note).
       -->
       <p class="twin-note twin-note--section">
-        Radius scale in use: 6px chips &middot; 8px fields, buttons, sidebar tiles &middot; 16px cards, dialogs, sidebar rail
+        Radius scale in use: 6px chips &middot; 12px fields, buttons, sidebar tiles &middot; 16px cards, dialogs, sidebar rail
       </p>
       <div class="twin-specimens">
         <div class="twin-specimen">
@@ -458,7 +458,7 @@
               </div>
             </div>
           </div>
-          <p class="twin-note">fill #f8f9fd &middot; border 1px #d8dceb &middot; radius 8px &middot; content min-height 34px, padding 8/4 - 48px total</p>
+          <p class="twin-note">fill #f8f9fd &middot; border 1px #d8dceb &middot; radius 12px &middot; content min-height 34px, padding 8/4 - 48px total</p>
         </div>
         <div class="twin-specimen">
           <span class="twin-specimen__label">UtopiaGradientBackground (no visual twin as a standalone)</span>
@@ -497,7 +497,7 @@
           <button class="utopia-button" data-utopia-id="button" type="button" style="max-width: 200px;">
             <span class="utopia-button__label">Save changes</span>
           </button>
-          <p class="twin-note">fill primary #3f51e5 -&gt; mid-sweep to accent #4a5ce9 &middot; content #ffffff &middot; radius 8px &middot; height 48px (matches a resting field)</p>
+          <p class="twin-note">fill primary #3f51e5 -&gt; mid-sweep to accent #4a5ce9 &middot; content #ffffff &middot; radius 12px &middot; height 48px (matches a resting field)</p>
         </div>
         <div class="twin-specimen">
           <span class="twin-specimen__label">Dense</span>
@@ -522,7 +522,7 @@
         <div class="twin-specimen">
           <span class="twin-specimen__label">UtopiaGhostButton</span>
           <!-- utopia-specimen: ghost-button -->
-          <p class="twin-note">no fill &middot; hover #edf0fa &middot; radius 8px &middot; min-height 40px</p>
+          <p class="twin-note">no fill &middot; hover #edf0fa &middot; radius 12px &middot; min-height 40px</p>
         </div>
         <div class="twin-specimen">
           <span class="twin-specimen__label">UtopiaRemoveIconButton</span>
@@ -539,7 +539,7 @@
         <span class="twin-section__rule" aria-hidden="true"></span>
       </header>
       <p class="twin-section__description">
-        Switches, check boxes, radios and check rows - the selection controls.
+        Switches, check boxes, radios, sliders and check rows - the selection controls.
       </p>
       <div class="twin-specimens">
         <div class="twin-specimen">
@@ -585,6 +585,29 @@
         <div class="twin-specimen">
           <span class="twin-specimen__label">UtopiaCheckRow</span>
           <!-- utopia-specimen: check-row #2 -->
+        </div>
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">UtopiaSlider</span>
+          <!-- utopia-specimen: slider #1 -->
+          <p class="twin-note">track 4px #d8dceb &middot; fill #3f51e5 &middot; thumb 20px #ffffff, edge 1.5px #b9becf &middot; no resting shadow</p>
+        </div>
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">UtopiaSlider - hover</span>
+          <!-- utopia-specimen: slider #2 -->
+          <p class="twin-note">the edge takes the step: thumb border #6e748b</p>
+        </div>
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">UtopiaSlider - dragging</span>
+          <!-- utopia-specimen: slider #3 -->
+          <p class="twin-note">thumb border #3f51e5 while the pointer holds the value &middot; the drag itself is unanimated, a tap animates over 150ms</p>
+        </div>
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">UtopiaSlider - read only</span>
+          <!-- utopia-specimen: slider #4 -->
+        </div>
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">UtopiaSlider - disabled</span>
+          <!-- utopia-specimen: slider #5 -->
         </div>
       </div>
     </section>
@@ -701,19 +724,17 @@
           </div>
         </div>
         <div class="twin-specimen">
-          <span class="twin-specimen__label">Date picker (trigger: a read-only text field)</span>
-          <div class="utopia-text-field is-readonly" data-utopia-id="date-picker" style="width: 320px;">
-            <div class="utopia-text-field__chrome">
-              <div class="utopia-text-field__body">
-                <p class="utopia-text-field__label">Published</p>
-                <p class="utopia-text-field__value">Mar 14, 2026</p>
-              </div>
-              <button class="utopia-remove-icon-button" data-utopia-id="remove-icon-button" type="button" aria-label="Clear">
-                <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg>
-              </button>
-            </div>
-          </div>
-          <p class="twin-note">read-only chrome &middot; clear affordance only &middot; the open calendar is Material-owned and has no static twin</p>
+          <span class="twin-specimen__label">Date picker - empty (calendar affordance only)</span>
+          <!-- utopia-specimen: date-picker #1 -->
+        </div>
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Date picker - picked (clear appears next to the calendar)</span>
+          <!-- utopia-specimen: date-picker #2 -->
+        </div>
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Date picker - open trigger (rings while its calendar is up)</span>
+          <!-- utopia-specimen: date-picker #4 -->
+          <p class="twin-note">focus stop like the dropdown &middot; ring 2px #3f51e5 inset 1px &middot; suffix icons 18px, 4px apart &middot; value formatted dd MMM yyyy &middot; the open calendar grid is Material-owned and has no static twin</p>
         </div>
       </div>
     </section>
@@ -798,11 +819,11 @@
           <p class="twin-note">20px row &middot; 10px dots &middot; 1400ms cycle, staggered per dot &middot; on filled grounds see the button's loading specimen</p>
         </div>
         <div class="twin-specimen">
-          <span class="twin-specimen__label">Skeleton (UtopiaMockLoadingBox)</span>
+          <span class="twin-specimen__label">Skeleton (UtopiaLoadingBox)</span>
           <div style="display: flex; flex-direction: column; gap: 12px; width: 280px;">
-            <!-- utopia-specimen: mock-loading-box #1 -->
-            <!-- utopia-specimen: mock-loading-box #2 -->
-            <!-- utopia-specimen: mock-loading-box #3 -->
+            <!-- utopia-specimen: loading-box #1 -->
+            <!-- utopia-specimen: loading-box #2 -->
+            <!-- utopia-specimen: loading-box #3 -->
           </div>
           <p class="twin-note">base hover #edf0fa &middot; sweep up to surface #ffffff &middot; 1400ms, same cadence as the dots</p>
         </div>
@@ -868,7 +889,7 @@
         An adaptive rail: 80px collapsed, expands on hover, pins via the toggle. Plain surface or
         opt-in gradient; drawer presentation for small screens.
       </p>
-      <p class="twin-note twin-note--section">rail 300px expanded / 80px collapsed &middot; radius 16px &middot; tile height 54px, radius 8px &middot; hover fill #edf0fa, selected fill #e9edfd</p>
+      <p class="twin-note twin-note--section">rail 300px expanded / 80px collapsed &middot; radius 16px &middot; tile height 54px, radius 12px &middot; hover fill #edf0fa, selected fill #e9edfd</p>
       <div class="twin-specimens">
         <div class="twin-specimen">
           <span class="twin-specimen__label">Rail - surface (expanded, second tile hovered)</span>

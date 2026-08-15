@@ -437,7 +437,7 @@ chrome used by dropdowns).
 `UtopiaCollapsible` (axis-collapse animation wrapper), `UtopiaMultiWidget` (flattens deeply nested wrapper widgets).
 
 **Loading**
-`UtopiaLoader`, `UtopiaMockLoadingBox` (skeleton placeholder), `UtopiaThreeBounce` (the indicator inside `UtopiaButton`).
+`UtopiaLoader`, `UtopiaLoadingBox` (skeleton placeholder), `UtopiaThreeBounce` (the indicator inside `UtopiaButton`).
 
 **Overlay**
 `UtopiaOverlayAnchor` - an anchored popup/dropdown follower built on native Flutter, no extra dependency.

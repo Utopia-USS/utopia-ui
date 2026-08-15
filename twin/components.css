@@ -9,7 +9,7 @@
    chip, chip-list, confirm-dialog, dialog, divider, labeled-field, loader,
    search-field, sidebar, switch, table (+ table-empty, table-search-panel),
    text-field, title) plus the small tier-2 components that reuse existing
-   chrome (switch-field, remove-icon-button, three-bounce, mock-loading-box).
+   chrome (switch-field, remove-icon-button, three-bounce, loading-box).
    Rules are grouped by component, in manifest order; each group's header
    comment names the component's Dart source under lib/src/widget/. */
 
@@ -754,11 +754,15 @@
   min-width: 0;
 }
 
+/* The suffix slot paints on the body text colour, not on the hint colour:
+   Flutter draws the dropdown chevron and the date picker's calendar icon with
+   textStyles.text.color, so the affordance reads as part of the value it sits
+   next to rather than as placeholder furniture. */
 .utopia-labeled-field__suffix {
   flex: 0 0 auto;
   display: inline-flex;
   align-items: center;
-  color: var(--utopia-color-hint);
+  color: var(--utopia-text-style-text-color);
 }
 
 /* ---------------------------------------------------------------------- */
@@ -771,6 +775,44 @@
    so both states take the shared field focus ring - one rule, two names. */
 .utopia-dropdown-field.is-focus .utopia-text-field__chrome,
 .utopia-dropdown-field.is-open .utopia-text-field__chrome {
+  background-color: var(--utopia-color-surface);
+  border-color: var(--utopia-color-primary);
+  outline: var(--utopia-border-thick) solid var(--utopia-color-primary);
+  outline-offset: calc(-1 * var(--utopia-border-hairline));
+}
+
+/* ---------------------------------------------------------------------- */
+/* .utopia-date-picker - lib/src/widget/date_picker/utopia_date_picker.dart */
+/* The closed trigger IS a .utopia-labeled-field (same chrome, same row,   */
+/* same suffix slot); only the trigger's own states live here. The open    */
+/* calendar has no static twin - the grid is Material-owned.               */
+/* ---------------------------------------------------------------------- */
+
+/* State carrier only: the trigger's box comes from the .utopia-labeled-field
+   nested inside it. It is a separate element on purpose - the coverage gate
+   attributes an .is-* class to the LONGEST component id matching in the same
+   class attribute, and `labeled-field` is longer than `date-picker`, so the
+   two classes must never share one class attribute. */
+.utopia-date-picker {
+  display: block;
+  width: 100%;
+  box-sizing: border-box;
+}
+
+/* The only trigger in the system with TWO affordances in its suffix (clear +
+   calendar), so it is the only one that needs the gap between them; Flutter
+   puts a spacing.xs SizedBox in exactly the same place. Scoped here rather
+   than added to the shared .utopia-labeled-field__suffix rule, which every
+   single-affordance trigger uses. */
+.utopia-date-picker .utopia-labeled-field__suffix {
+  gap: var(--utopia-spacing-xs);
+}
+
+/* Focused, and open: an open calendar means its trigger is the active
+   control, so both states take the shared field focus ring - one rule, two
+   names, exactly as on .utopia-dropdown-field. */
+.utopia-date-picker.is-focus .utopia-text-field__chrome,
+.utopia-date-picker.is-open .utopia-text-field__chrome {
   background-color: var(--utopia-color-surface);
   border-color: var(--utopia-color-primary);
   outline: var(--utopia-border-thick) solid var(--utopia-color-primary);
@@ -827,13 +869,13 @@
 }
 
 /* ---------------------------------------------------------------------- */
-/* .utopia-mock-loading-box - lib/src/widget/loading/utopia_mock_loading_box.dart */
+/* .utopia-loading-box - lib/src/widget/loading/utopia_loading_box.dart     */
 /* ---------------------------------------------------------------------- */
 
 /* Shimmer.fromColors(baseColor: colors.field, highlightColor: colors.field at
    20% alpha) sweeping over a colors.canvas box - approximated with a CSS
    gradient sweep animation (shimmer package itself is not vendored here). */
-.utopia-mock-loading-box {
+.utopia-loading-box {
   display: block;
   background-color: var(--utopia-color-hover);
   background-image: linear-gradient(
@@ -843,10 +885,10 @@
     var(--utopia-color-hover) 60%
   );
   background-size: 200% 100%;
-  animation: utopia-mock-loading-shimmer 1400ms ease-in-out infinite; /* utopia-literal-ok: mirrors Dart constant Shimmer default period (package default 1500ms, matched to the twin's three-bounce cadence for a consistent loading rhythm) */
+  animation: utopia-loading-box-shimmer 1400ms ease-in-out infinite; /* utopia-literal-ok: mirrors Dart constant Shimmer default period (package default 1500ms, matched to the twin's three-bounce cadence for a consistent loading rhythm) */
 }
 
-@keyframes utopia-mock-loading-shimmer {
+@keyframes utopia-loading-box-shimmer {
   0% { background-position: 100% 0; }
   100% { background-position: -100% 0; }
 }
@@ -1260,6 +1302,103 @@
 }
 
 /* ---------------------------------------------------------------------- */
+/* .utopia-slider - lib/src/widget/slider/utopia_slider.dart               */
+/* ---------------------------------------------------------------------- */
+
+/* The Dart resolves one number - (value - min) / (max - min) - and lays the
+   fill and the thumb out from it. The twin takes that same fraction from the
+   specimen as --twin-slider-fraction (0..1) and runs the identical
+   arithmetic in calc(): the thumb's centre travels between the half-thumb
+   insets, and the fill runs from the left edge to that centre. The custom
+   property is page-local (--twin-*, like the .twin-* page chrome), not a
+   token: it carries a specimen's value, not a design decision. */
+
+.utopia-slider {
+  box-sizing: border-box;
+  position: relative;
+  display: block;
+  height: 20px; /* utopia-literal-ok: mirrors UtopiaSlider thumb extent = tokens.x*5, which is the control's full height */
+  cursor: pointer;
+}
+
+.utopia-slider__track {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  right: 0;
+  height: 4px; /* utopia-literal-ok: mirrors UtopiaSlider track height = tokens.x */
+  transform: translateY(-50%);
+  border-radius: var(--utopia-radius-full);
+  background-color: var(--utopia-color-border);
+}
+
+/* The resting track is the control-class edge colour, not the divider: a
+   slider is a control, and its unfilled remainder is that control's outline
+   laid flat. */
+.utopia-slider__fill {
+  position: absolute;
+  top: 50%;
+  left: 0;
+  width: calc(10px + var(--twin-slider-fraction, 0) * (100% - 20px)); /* utopia-literal-ok: 10px = half thumb (tokens.x*2.5), 20px = thumb extent (tokens.x*5) - the Dart's centre = thumbRadius + fraction * (width - thumbExtent) */
+  height: 4px; /* utopia-literal-ok: mirrors UtopiaSlider track height = tokens.x */
+  transform: translateY(-50%);
+  border-radius: var(--utopia-radius-full);
+  background-color: var(--utopia-color-primary);
+  transition: width var(--utopia-duration-sm) ease;
+}
+
+/* No resting shadow: controls in this system are defined by their edge, and
+   the thumb is no exception (Material's would carry both a shadow and a press
+   halo). */
+.utopia-slider__thumb {
+  box-sizing: border-box;
+  position: absolute;
+  top: 0;
+  left: calc(10px + var(--twin-slider-fraction, 0) * (100% - 20px)); /* utopia-literal-ok: 10px = half thumb (tokens.x*2.5), 20px = thumb extent (tokens.x*5) - same centre as the fill's end */
+  width: 20px; /* utopia-literal-ok: mirrors UtopiaSlider thumb extent = tokens.x*5 */
+  height: 20px; /* utopia-literal-ok: mirrors UtopiaSlider thumb extent = tokens.x*5 */
+  transform: translateX(-50%);
+  border: var(--utopia-border-thin) solid var(--utopia-color-disabled);
+  border-radius: var(--utopia-radius-full);
+  background-color: var(--utopia-color-surface);
+  transition: left var(--utopia-duration-sm) ease, border-color var(--utopia-duration-xs) ease;
+}
+
+/* The edge takes the step, exactly as on the fields and the selection
+   controls: hint under the cursor. */
+.utopia-slider:hover .utopia-slider__thumb,
+.utopia-slider.is-hover .utopia-slider__thumb {
+  border-color: var(--utopia-color-hint);
+}
+
+/* The drag rendering: the thumb's edge goes primary while the pointer holds
+   the value. A BEM modifier rather than an .is-* class - dragging is a
+   transient pointer state with no entry in the manifest's closed state
+   vocabulary, and validate_twin's state-parity gate warns about any .is-*
+   class with no matching manifest state (same reasoning as
+   .utopia-checkbox--indeterminate). */
+.utopia-slider.utopia-slider--dragging .utopia-slider__thumb,
+.utopia-slider.utopia-slider--dragging:hover .utopia-slider__thumb {
+  border-color: var(--utopia-color-primary);
+}
+
+/* Neither an inert slider nor a faded one is interactive, so neither takes
+   the hover step - the Dart gates it on `interactive && hovering`. */
+.utopia-slider.is-readonly,
+.utopia-slider.is-disabled {
+  cursor: default;
+}
+
+.utopia-slider.is-readonly:hover .utopia-slider__thumb,
+.utopia-slider.is-disabled:hover .utopia-slider__thumb {
+  border-color: var(--utopia-color-disabled);
+}
+
+.utopia-slider.is-disabled {
+  opacity: 0.5; /* mirrors UtopiaSlider disabled fade (onChanged == null, not readOnly) */
+}
+
+/* ---------------------------------------------------------------------- */
 /* .utopia-switch - lib/src/widget/switch/utopia_switch.dart               */
 /* ---------------------------------------------------------------------- */
 
@@ -1552,7 +1691,7 @@
 }
 
 .utopia-table__skeleton-bar {
-  height: 12px; /* utopia-literal-ok: specimen skeleton bar height; UtopiaMockLoadingBox size is caller-supplied */
+  height: 12px; /* utopia-literal-ok: specimen skeleton bar height; UtopiaLoadingBox size is caller-supplied */
   width: 60%;
   border-radius: var(--utopia-radius-xs);
   background-color: var(--utopia-color-field);

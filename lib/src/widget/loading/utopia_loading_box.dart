@@ -4,7 +4,7 @@ import 'package:utopia_ui/src/util/utopia_context_extensions.dart';
 
 /// A shimmering rectangle placeholder for text/content that has not loaded
 /// yet - a skeleton-loading building block sized to mimic the real content.
-class UtopiaMockLoadingBox extends StatelessWidget {
+class UtopiaLoadingBox extends StatelessWidget {
   /// The placeholder's height.
   final double height;
 
@@ -15,7 +15,7 @@ class UtopiaMockLoadingBox extends StatelessWidget {
   final EdgeInsets? padding;
 
   /// Creates a shimmering skeleton-loading placeholder.
-  const UtopiaMockLoadingBox({super.key, this.height = 6, this.width = 60, this.padding});
+  const UtopiaLoadingBox({super.key, this.height = 6, this.width = 60, this.padding});
 
   @override
   Widget build(BuildContext context) {
@@ -42,3 +42,12 @@ class UtopiaMockLoadingBox extends StatelessWidget {
     );
   }
 }
+
+/// The former name of [UtopiaLoadingBox]. "Mock" read as a test double - the
+/// widget is a production skeleton placeholder, so the name was corrected.
+///
+/// The alias is deliberately kept out of `manifest/utopia.manifest.json`: the
+/// manifest schema has no way to mark an entry deprecated, so publishing it
+/// would advertise the old name as live API.
+@Deprecated('Renamed to UtopiaLoadingBox')
+typedef UtopiaMockLoadingBox = UtopiaLoadingBox;

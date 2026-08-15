@@ -265,7 +265,7 @@ String _emitReturn(ThemeSpec spec) {
   // Replicate UtopiaThemeData.fromTokens' arithmetic on the resolved spec so
   // we can tell exactly which slots a copyWith needs to override (protocol
   // SPEC section 5 / A6-spec.md "fromTokens arithmetic").
-  final derivedBorderRadius = spec.radiusMd;
+  final derivedBorderRadius = spec.radiusLg;
   final derivedCardRadius = spec.radiusXl;
   final derivedFieldContentPaddingTop = spec.x * 2;
   final derivedFieldContentPaddingBottom = spec.x * 1;

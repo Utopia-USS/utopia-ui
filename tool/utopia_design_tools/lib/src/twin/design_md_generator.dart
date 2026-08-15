@@ -180,6 +180,7 @@ One line per tier-1 component; anchors point at `data-utopia-id` on the componen
 - Check row - `data-utopia-id="check-row"`
 - Switch - `data-utopia-id="switch"`
 - Switch field - `data-utopia-id="switch-field"`
+- Slider - `data-utopia-id="slider"`
 - Text field - `data-utopia-id="text-field"`
 - Search field - `data-utopia-id="search-field"`
 - Field wrapper - `data-utopia-id="field-wrapper"`
@@ -188,7 +189,7 @@ One line per tier-1 component; anchors point at `data-utopia-id` on the componen
 - Date picker - `data-utopia-id="date-picker"`
 - Loader - `data-utopia-id="loader"`
 - Three bounce - `data-utopia-id="three-bounce"`
-- Mock loading box - `data-utopia-id="mock-loading-box"`
+- Loading box - `data-utopia-id="loading-box"`
 - Divider - `data-utopia-id="divider"`
 - Card gradient background - `data-utopia-id="gradient-background"`
 - Header - `data-utopia-id="header"`

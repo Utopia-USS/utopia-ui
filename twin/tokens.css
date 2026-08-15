@@ -83,7 +83,7 @@
   --utopia-text-style-button-font-weight: 600;
   --utopia-text-style-button-letter-spacing: -0.1px;
   --utopia-text-style-button-color: #ffffff;
-  --utopia-theme-border-radius: var(--utopia-radius-md);
+  --utopia-theme-border-radius: var(--utopia-radius-lg);
   --utopia-theme-card-radius: var(--utopia-radius-xl);
   --utopia-theme-field-content-padding-top: 8px;
   --utopia-theme-field-content-padding-right: var(--utopia-spacing-lg);
