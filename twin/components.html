@@ -388,9 +388,12 @@
               </div>
             </div>
             <div class="utopia-dialog__bottom">
-              <button class="utopia-button" type="button">
-                <span class="utopia-button__label">Done</span>
-              </button>
+              <div class="utopia-dialog__actions">
+                <button class="utopia-ghost-button" type="button">Cancel</button>
+                <button class="utopia-button utopia-button--dense utopia-dialog__confirm" type="button">
+                  <span class="utopia-button__label">Done</span>
+                </button>
+              </div>
             </div>
           </div>
         </div>
@@ -549,11 +552,11 @@
     <section class="twin-section" data-utopia-id="loader">
       <h2 class="twin-section__name">Loader</h2>
       <p class="twin-section__description">
-        A small circular progress indicator, sized and coloured to fit inline in text-scale contexts (e.g. a loading row or a compact overlay).
+        A small circular progress indicator, sized and coloured to fit inline in text-scale contexts (e.g. a loading row or a compact overlay). Colour defaults to colors.primary; it declares no states - the loader has no not-loading rendering to contrast with.
       </p>
       <div class="twin-specimens">
         <div class="twin-specimen">
-          <span class="twin-specimen__label">12 / 20 / 32 (loading)</span>
+          <span class="twin-specimen__label">12 / 20 / 32</span>
           <div style="display: flex; align-items: center; gap: 24px;">
             <span class="utopia-loader" data-utopia-id="loader"><span class="utopia-loader__spinner"></span></span>
             <span class="utopia-loader utopia-loader--md" data-utopia-id="loader"><span class="utopia-loader__spinner"></span></span>
@@ -722,8 +725,8 @@
       </p>
       <div class="twin-specimens">
         <div class="twin-specimen">
-          <span class="twin-specimen__label">Rail, expanded (plain surface)</span>
-          <nav class="utopia-sidebar" data-utopia-id="sidebar">
+          <span class="twin-specimen__label">Rail, expanded (is-expanded) - second tile hovered (is-hover)</span>
+          <nav class="utopia-sidebar is-expanded" data-utopia-id="sidebar">
             <div class="utopia-sidebar__toolbar">
               <span class="utopia-sidebar__toggle">
                 <button class="utopia-sidebar__toggle-btn" type="button" aria-label="Collapse menu">
@@ -739,7 +742,7 @@
                 </button>
               </li>
               <li>
-                <button class="utopia-sidebar-tile" type="button">
+                <button class="utopia-sidebar-tile is-hover" type="button">
                   <span class="utopia-sidebar-tile__icon" aria-hidden="true"><svg viewBox="0 0 24 24"><path d="M4 4h16v16H4z"/><line x1="8" y1="9" x2="16" y2="9"/><line x1="8" y1="13" x2="16" y2="13"/></svg></span>
                   <span class="utopia-sidebar-tile__label">Content</span>
                 </button>
@@ -798,8 +801,8 @@
           </nav>
         </div>
         <div class="twin-specimen">
-          <span class="twin-specimen__label">Rail, expanded (gradient + header)</span>
-          <nav class="utopia-sidebar utopia-sidebar--gradient" data-utopia-id="sidebar">
+          <span class="twin-specimen__label">Rail, expanded (is-expanded) - gradient + header</span>
+          <nav class="utopia-sidebar utopia-sidebar--gradient is-expanded" data-utopia-id="sidebar">
             <div class="utopia-sidebar__toolbar">
               <span class="utopia-sidebar__toggle">
                 <button class="utopia-sidebar__toggle-btn" type="button" aria-label="Collapse menu">
@@ -900,7 +903,7 @@
       <div class="twin-specimens">
         <div class="twin-specimen">
           <span class="twin-specimen__label">Default (with rows) - composes table-search-panel</span>
-          <div class="utopia-table" data-utopia-id="table" style="width: 560px;">
+          <div class="utopia-table" data-utopia-id="table" style="width: 720px;">
             <div class="utopia-table-search-panel" data-utopia-id="table-search-panel">
               <div class="utopia-table-search-panel__search">
                 <div class="utopia-search-field utopia-search-field--dense">
@@ -912,15 +915,30 @@
               </div>
             </div>
             <div class="utopia-table__header">
-              <span class="utopia-table__header-cell utopia-table__header-cell--id">Id</span>
-              <span class="utopia-table__header-cell utopia-table__header-cell--customer utopia-table__header-cell--active">Customer</span>
-              <span class="utopia-table__header-cell utopia-table__header-cell--amount">Amount</span>
-              <span class="utopia-table__header-cell utopia-table__header-cell--status">Status</span>
+              <span class="utopia-table__header-cell utopia-table__header-cell--id"><span class="utopia-table__header-label">Id</span></span>
+              <span class="utopia-table__header-cell utopia-table__header-cell--customer utopia-table__header-cell--sortable utopia-table__header-cell--active">
+                <span class="utopia-table__header-label">Customer</span>
+                <span class="utopia-table__sort-caret" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V5M5 12l7-7 7 7"/></svg>
+                </span>
+              </span>
+              <span class="utopia-table__header-cell utopia-table__header-cell--amount utopia-table__header-cell--sortable utopia-table__header-cell--numeric">
+                <span class="utopia-table__header-label">Amount</span>
+                <span class="utopia-table__sort-caret" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V5M5 12l7-7 7 7"/></svg>
+                </span>
+              </span>
+              <span class="utopia-table__header-cell utopia-table__header-cell--status utopia-table__header-cell--sortable">
+                <span class="utopia-table__header-label">Status</span>
+                <span class="utopia-table__sort-caret" aria-hidden="true">
+                  <svg viewBox="0 0 24 24" width="14" height="14" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20V5M5 12l7-7 7 7"/></svg>
+                </span>
+              </span>
             </div>
             <div class="utopia-table__row">
               <span class="utopia-table__cell utopia-table__cell--id">INV-1042</span>
               <span class="utopia-table__cell utopia-table__cell--customer">Northwind Traders</span>
-              <span class="utopia-table__cell utopia-table__cell--amount">$1,280.00</span>
+              <span class="utopia-table__cell utopia-table__cell--amount utopia-table__cell--numeric">$1,280.00</span>
               <span class="utopia-table__cell utopia-table__cell--status">
                 <span class="utopia-chip utopia-chip--accent"><span class="utopia-chip__label">Paid</span></span>
               </span>
@@ -929,7 +947,7 @@
             <div class="utopia-table__row utopia-table__row--alt">
               <span class="utopia-table__cell utopia-table__cell--id">INV-1043</span>
               <span class="utopia-table__cell utopia-table__cell--customer">Blue Harbor Studio</span>
-              <span class="utopia-table__cell utopia-table__cell--amount">$640.50</span>
+              <span class="utopia-table__cell utopia-table__cell--amount utopia-table__cell--numeric">$640.50</span>
               <span class="utopia-table__cell utopia-table__cell--status">
                 <span class="utopia-chip"><span class="utopia-chip__label">Pending</span></span>
               </span>
@@ -938,7 +956,7 @@
             <div class="utopia-table__row">
               <span class="utopia-table__cell utopia-table__cell--id">INV-1044</span>
               <span class="utopia-table__cell utopia-table__cell--customer">Cedar &amp; Finch</span>
-              <span class="utopia-table__cell utopia-table__cell--amount">$2,310.00</span>
+              <span class="utopia-table__cell utopia-table__cell--amount utopia-table__cell--numeric">$2,310.00</span>
               <span class="utopia-table__cell utopia-table__cell--status">
                 <span class="utopia-chip utopia-chip--danger"><span class="utopia-chip__label">Overdue</span></span>
               </span>
@@ -946,23 +964,50 @@
           </div>
         </div>
         <div class="twin-specimen">
+          <span class="twin-specimen__label">Row states: rest / alternating tint / hover (is-hover)</span>
+          <div class="utopia-table" data-utopia-id="table" style="width: 520px;">
+            <div class="utopia-table__header">
+              <span class="utopia-table__header-cell utopia-table__header-cell--id"><span class="utopia-table__header-label">Id</span></span>
+              <span class="utopia-table__header-cell utopia-table__header-cell--customer"><span class="utopia-table__header-label">Customer</span></span>
+              <span class="utopia-table__header-cell utopia-table__header-cell--amount utopia-table__header-cell--numeric"><span class="utopia-table__header-label">Amount</span></span>
+            </div>
+            <div class="utopia-table__row">
+              <span class="utopia-table__cell utopia-table__cell--id">INV-1042</span>
+              <span class="utopia-table__cell utopia-table__cell--customer">Northwind Traders</span>
+              <span class="utopia-table__cell utopia-table__cell--amount utopia-table__cell--numeric">$1,280.00</span>
+            </div>
+            <hr class="utopia-divider" />
+            <div class="utopia-table__row utopia-table__row--alt">
+              <span class="utopia-table__cell utopia-table__cell--id">INV-1043</span>
+              <span class="utopia-table__cell utopia-table__cell--customer">Blue Harbor Studio</span>
+              <span class="utopia-table__cell utopia-table__cell--amount utopia-table__cell--numeric">$640.50</span>
+            </div>
+            <hr class="utopia-divider" />
+            <div class="utopia-table__row is-hover">
+              <span class="utopia-table__cell utopia-table__cell--id">INV-1044</span>
+              <span class="utopia-table__cell utopia-table__cell--customer">Cedar &amp; Finch</span>
+              <span class="utopia-table__cell utopia-table__cell--amount utopia-table__cell--numeric">$2,310.00</span>
+            </div>
+          </div>
+        </div>
+        <div class="twin-specimen">
           <span class="twin-specimen__label">Loading (is-loading skeleton rows)</span>
           <div class="utopia-table is-loading" data-utopia-id="table" style="width: 420px;">
             <div class="utopia-table__header">
-              <span class="utopia-table__header-cell utopia-table__header-cell--id">Id</span>
-              <span class="utopia-table__header-cell utopia-table__header-cell--customer">Customer</span>
-              <span class="utopia-table__header-cell utopia-table__header-cell--amount">Amount</span>
+              <span class="utopia-table__header-cell utopia-table__header-cell--id"><span class="utopia-table__header-label">Id</span></span>
+              <span class="utopia-table__header-cell utopia-table__header-cell--customer"><span class="utopia-table__header-label">Customer</span></span>
+              <span class="utopia-table__header-cell utopia-table__header-cell--amount utopia-table__header-cell--numeric"><span class="utopia-table__header-label">Amount</span></span>
             </div>
             <div class="utopia-table__row utopia-table__row--loading">
               <span class="utopia-table__cell utopia-table__cell--id"><span class="utopia-table__skeleton-bar" style="width: 70%;"></span></span>
               <span class="utopia-table__cell utopia-table__cell--customer"><span class="utopia-table__skeleton-bar"></span></span>
-              <span class="utopia-table__cell utopia-table__cell--amount"><span class="utopia-table__skeleton-bar" style="width: 50%;"></span></span>
+              <span class="utopia-table__cell utopia-table__cell--amount utopia-table__cell--numeric"><span class="utopia-table__skeleton-bar" style="width: 50%;"></span></span>
             </div>
             <hr class="utopia-divider" />
             <div class="utopia-table__row utopia-table__row--loading utopia-table__row--alt">
               <span class="utopia-table__cell utopia-table__cell--id"><span class="utopia-table__skeleton-bar" style="width: 70%;"></span></span>
               <span class="utopia-table__cell utopia-table__cell--customer"><span class="utopia-table__skeleton-bar"></span></span>
-              <span class="utopia-table__cell utopia-table__cell--amount"><span class="utopia-table__skeleton-bar" style="width: 50%;"></span></span>
+              <span class="utopia-table__cell utopia-table__cell--amount utopia-table__cell--numeric"><span class="utopia-table__skeleton-bar" style="width: 50%;"></span></span>
             </div>
           </div>
         </div>
@@ -970,9 +1015,9 @@
           <span class="twin-specimen__label">Empty (is-empty) - composes table-empty</span>
           <div class="utopia-table is-empty" data-utopia-id="table" style="width: 420px;">
             <div class="utopia-table__header">
-              <span class="utopia-table__header-cell utopia-table__header-cell--id">Id</span>
-              <span class="utopia-table__header-cell utopia-table__header-cell--customer">Customer</span>
-              <span class="utopia-table__header-cell utopia-table__header-cell--amount">Amount</span>
+              <span class="utopia-table__header-cell utopia-table__header-cell--id"><span class="utopia-table__header-label">Id</span></span>
+              <span class="utopia-table__header-cell utopia-table__header-cell--customer"><span class="utopia-table__header-label">Customer</span></span>
+              <span class="utopia-table__header-cell utopia-table__header-cell--amount utopia-table__header-cell--numeric"><span class="utopia-table__header-label">Amount</span></span>
             </div>
             <div class="utopia-table-empty" data-utopia-id="table-empty">
               <p class="utopia-table-empty__title">No items</p>
@@ -1097,7 +1142,7 @@
       </p>
       <div class="twin-specimens">
         <div class="twin-specimen">
-          <span class="twin-specimen__label">Default</span>
+          <span class="twin-specimen__label">Default (colors.primary)</span>
           <span class="utopia-three-bounce" data-utopia-id="three-bounce">
             <span class="utopia-three-bounce__dot"></span>
             <span class="utopia-three-bounce__dot"></span>
@@ -1105,11 +1150,13 @@
           </span>
         </div>
         <div class="twin-specimen">
-          <span class="twin-specimen__label">Primary color</span>
-          <span class="utopia-three-bounce utopia-three-bounce--primary" data-utopia-id="three-bounce">
-            <span class="utopia-three-bounce__dot"></span>
-            <span class="utopia-three-bounce__dot"></span>
-            <span class="utopia-three-bounce__dot"></span>
+          <span class="twin-specimen__label">On a filled ground (button content colour)</span>
+          <span style="display: inline-flex; align-items: center; padding: var(--utopia-spacing-md) var(--utopia-spacing-lg); border-radius: var(--utopia-theme-border-radius); background: var(--utopia-color-primary);">
+            <span class="utopia-three-bounce utopia-three-bounce--on-colored" data-utopia-id="three-bounce">
+              <span class="utopia-three-bounce__dot"></span>
+              <span class="utopia-three-bounce__dot"></span>
+              <span class="utopia-three-bounce__dot"></span>
+            </span>
           </span>
         </div>
       </div>

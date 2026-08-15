@@ -99,6 +99,9 @@ void main() {
       'colors.text',
       'theme.dialogDecoration',
       'theme.cardBorderDecoration',
+      // The .form action bar rules itself off from the scrolling body with a
+      // hairline, so the closure now reads the divider thickness too.
+      'theme.dividerThickness',
       'tokens.spacing.xxxl',
       'tokens.radius.xl',
       'tokens.durations.sm',
@@ -155,9 +158,14 @@ void main() {
   });
 
   test('components with no theme/token reads produce an empty binding set', () {
+    // three-bounce left this list when its dots gained a colors.primary
+    // default (a null colour used to paint nothing at all).
     expect(bindingsOf('lib/src/widget/layout/utopia_form_layout.dart'), isEmpty);
     expect(bindingsOf('lib/src/widget/misc/utopia_collapsible.dart'), isEmpty);
     expect(bindingsOf('lib/src/widget/misc/utopia_multi_widget.dart'), isEmpty);
-    expect(bindingsOf('lib/src/widget/loading/utopia_three_bounce.dart'), isEmpty);
+  });
+
+  test('three-bounce: the primary-dot default is its only theme read', () {
+    expect(bindingsOf('lib/src/widget/loading/utopia_three_bounce.dart'), {'colors.primary'});
   });
 }

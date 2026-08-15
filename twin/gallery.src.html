@@ -701,20 +701,19 @@
           </div>
         </div>
         <div class="twin-specimen">
-          <span class="twin-specimen__label">Date picker (no visual twin - see labeled-field trigger)</span>
-          <div class="utopia-labeled-field" data-utopia-id="date-picker" style="width: 320px;">
+          <span class="twin-specimen__label">Date picker (trigger: a read-only text field)</span>
+          <div class="utopia-text-field is-readonly" data-utopia-id="date-picker" style="width: 320px;">
             <div class="utopia-text-field__chrome">
-              <div class="utopia-labeled-field__row">
-                <div class="utopia-text-field__body">
-                  <p class="utopia-text-field__label">Published</p>
-                  <p class="utopia-text-field__value">Mar 14, 2026</p>
-                </div>
-                <span class="utopia-labeled-field__suffix" aria-hidden="true">
-                  <svg viewBox="0 0 24 24" width="18" height="18"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
-                </span>
+              <div class="utopia-text-field__body">
+                <p class="utopia-text-field__label">Published</p>
+                <p class="utopia-text-field__value">Mar 14, 2026</p>
               </div>
+              <button class="utopia-remove-icon-button" data-utopia-id="remove-icon-button" type="button" aria-label="Clear">
+                <svg viewBox="0 0 24 24"><path d="M6 6l12 12M18 6 6 18"/></svg>
+              </button>
             </div>
           </div>
+          <p class="twin-note">read-only chrome &middot; clear affordance only &middot; the open calendar is Material-owned and has no static twin</p>
         </div>
       </div>
     </section>
@@ -748,16 +747,19 @@
           <!-- utopia-specimen: chip-list #1 -->
         </div>
         <div class="twin-specimen">
-          <span class="twin-specimen__label">UtopiaChipList - empty</span>
+          <span class="twin-specimen__label">UtopiaChipList - empty (dash fallback)</span>
           <!-- utopia-specimen: chip-list #2 -->
+          <p class="twin-note">an empty list renders a hint-toned dash, not an empty box</p>
         </div>
         <div class="twin-specimen">
           <span class="twin-specimen__label">UtopiaCopyableText (no visual twin)</span>
-          <p class="utopia-text-field__value" data-utopia-id="copyable-text" style="margin: 0; width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">550e8400-e29b-41d4-a716-446655440000</p>
+          <p class="utopia-text-field__value" data-utopia-id="copyable-text" style="margin: 0; width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">550e8400-e29b-41d4</p>
+          <p class="twin-note">text 12px &middot; tap copies to the clipboard &middot; ellipsizes when the value overflows its box</p>
         </div>
         <div class="twin-specimen">
-          <span class="twin-specimen__label">UtopiaCopyableText - null (no visual twin)</span>
+          <span class="twin-specimen__label">UtopiaCopyableText - null (dash fallback)</span>
           <p class="utopia-text-field__hint" data-utopia-id="copyable-text" style="margin: 0; width: 200px;">-</p>
+          <p class="twin-note">null renders the same hint-toned dash as an empty chip list</p>
         </div>
         <div class="twin-specimen">
           <span class="twin-specimen__label">UtopiaTitle</span>
@@ -788,14 +790,12 @@
             <!-- utopia-specimen: loader #2 -->
             <!-- utopia-specimen: loader #3 -->
           </div>
+          <p class="twin-note">colors.primary #3f51e5 &middot; stroke = size / 6 &middot; 400ms linear sweep</p>
         </div>
         <div class="twin-specimen">
-          <span class="twin-specimen__label">UtopiaThreeBounce</span>
+          <span class="twin-specimen__label">UtopiaThreeBounce (colors.primary)</span>
           <!-- utopia-specimen: three-bounce #1 -->
-        </div>
-        <div class="twin-specimen">
-          <span class="twin-specimen__label">UtopiaThreeBounce - primary</span>
-          <!-- utopia-specimen: three-bounce #2 -->
+          <p class="twin-note">20px row &middot; 10px dots &middot; 1400ms cycle, staggered per dot &middot; on filled grounds see the button's loading specimen</p>
         </div>
         <div class="twin-specimen">
           <span class="twin-specimen__label">Skeleton (UtopiaMockLoadingBox)</span>
@@ -804,6 +804,7 @@
             <!-- utopia-specimen: mock-loading-box #2 -->
             <!-- utopia-specimen: mock-loading-box #3 -->
           </div>
+          <p class="twin-note">base hover #edf0fa &middot; sweep up to surface #ffffff &middot; 1400ms, same cadence as the dots</p>
         </div>
       </div>
     </section>
@@ -821,52 +822,12 @@
       <div class="twin-specimens">
         <div class="twin-specimen" style="width: 100%;">
           <span class="twin-specimen__label">Invoices</span>
-          <div class="utopia-table" data-utopia-id="table" style="width: 560px;">
-            <div class="utopia-table-search-panel" data-utopia-id="table-search-panel">
-              <div class="utopia-table-search-panel__search">
-                <div class="utopia-search-field utopia-search-field--dense">
-                  <span class="utopia-search-field__icon" aria-hidden="true">
-                    <svg viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.3-4.3"/></svg>
-                  </span>
-                  <input class="utopia-search-field__input" type="text" placeholder="Search by customer" />
-                </div>
-              </div>
-            </div>
-            <div class="utopia-table__header">
-              <span class="utopia-table__header-cell utopia-table__header-cell--id">Id</span>
-              <span class="utopia-table__header-cell utopia-table__header-cell--customer utopia-table__header-cell--active">Customer</span>
-              <span class="utopia-table__header-cell utopia-table__header-cell--amount">Amount</span>
-              <span class="utopia-table__header-cell utopia-table__header-cell--status">Status</span>
-            </div>
-            <hr class="utopia-divider" data-utopia-id="divider" />
-            <div class="utopia-table__row">
-              <span class="utopia-table__cell utopia-table__cell--id">INV-1042</span>
-              <span class="utopia-table__cell utopia-table__cell--customer">Northwind Traders</span>
-              <span class="utopia-table__cell utopia-table__cell--amount">$1,280.00</span>
-              <span class="utopia-table__cell utopia-table__cell--status">
-                <span class="utopia-chip utopia-chip--accent" data-utopia-id="chip"><span class="utopia-chip__label">Paid</span></span>
-              </span>
-            </div>
-            <hr class="utopia-divider" />
-            <div class="utopia-table__row utopia-table__row--alt">
-              <span class="utopia-table__cell utopia-table__cell--id">INV-1043</span>
-              <span class="utopia-table__cell utopia-table__cell--customer">Blue Harbor Studio</span>
-              <span class="utopia-table__cell utopia-table__cell--amount">$640.50</span>
-              <span class="utopia-table__cell utopia-table__cell--status">
-                <span class="utopia-chip" data-utopia-id="chip"><span class="utopia-chip__label">Pending</span></span>
-              </span>
-            </div>
-            <hr class="utopia-divider" />
-            <div class="utopia-table__row">
-              <span class="utopia-table__cell utopia-table__cell--id">INV-1044</span>
-              <span class="utopia-table__cell utopia-table__cell--customer">Cedar &amp; Finch</span>
-              <span class="utopia-table__cell utopia-table__cell--amount">$2,310.00</span>
-              <span class="utopia-table__cell utopia-table__cell--status">
-                <span class="utopia-chip utopia-chip--danger" data-utopia-id="chip"><span class="utopia-chip__label">Overdue</span></span>
-              </span>
-            </div>
-          </div>
-          <p class="twin-note">row height 58px &middot; alternating rows #f6f7fc &middot; 1px #e6e9f2 hairline between rows, #d8dceb under the header &middot; status cells reuse the chip recipe</p>
+          <!-- utopia-specimen: table #1 -->
+          <p class="twin-note">row height 58px &middot; alternating rows #f6f7fc &middot; 1px #e6e9f2 hairline between rows, #d8dceb under the header &middot; status cells reuse the chip recipe &middot; column inset 32px (16 row + 16 cell), search field on the same line &middot; numeric columns right-aligned with tabular figures &middot; sorted column carries an accent caret, sortable ones only on hover</p>
+        </div>
+        <div class="twin-specimen">
+          <span class="twin-specimen__label">Row states - rest / alternating / hover</span>
+          <!-- utopia-specimen: table #2 -->
         </div>
       </div>
     </section>
@@ -891,6 +852,7 @@
         <div class="twin-specimen">
           <span class="twin-specimen__label">Confirm dialog (open)</span>
           <!-- utopia-specimen: confirm-dialog #2 -->
+          <p class="twin-note">surface #ffffff &middot; radius 16px &middot; max-width 400px &middot; shadow lg &middot; actions bottom-right, ghost + dense confirm</p>
         </div>
       </div>
     </section>
@@ -906,13 +868,14 @@
         An adaptive rail: 80px collapsed, expands on hover, pins via the toggle. Plain surface or
         opt-in gradient; drawer presentation for small screens.
       </p>
+      <p class="twin-note twin-note--section">rail 300px expanded / 80px collapsed &middot; radius 16px &middot; tile height 54px, radius 8px &middot; hover fill #edf0fa, selected fill #e9edfd</p>
       <div class="twin-specimens">
         <div class="twin-specimen">
-          <span class="twin-specimen__label">Rail - surface</span>
+          <span class="twin-specimen__label">Rail - surface (expanded, second tile hovered)</span>
           <!-- utopia-specimen: sidebar #1 -->
         </div>
         <div class="twin-specimen">
-          <span class="twin-specimen__label">Rail - gradient + header</span>
+          <span class="twin-specimen__label">Rail - gradient + header (opt-in host branding)</span>
           <!-- utopia-specimen: sidebar #3 -->
         </div>
         <div class="twin-specimen">
@@ -940,7 +903,6 @@
               </li>
             </ul>
           </nav>
-          <p class="twin-note">rail 300px expanded / 80px collapsed &middot; radius 16px &middot; tile height 54px, radius 8px</p>
         </div>
       </div>
     </section>

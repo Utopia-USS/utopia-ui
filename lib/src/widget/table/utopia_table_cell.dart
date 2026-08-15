@@ -20,4 +20,12 @@ extension UtopiaTableEntryCellExtension on UtopiaTableEntry<dynamic> {
   Widget wrapTableCell(Widget child) => flex == null
       ? SizedBox(width: width ?? defaultFixedColumnWidth, child: child)
       : Expanded(flex: flex!, child: child);
+
+  /// Where the column's content sits inside its cell box: the trailing edge
+  /// for a [UtopiaTableEntry.numeric] column (digits are read from their last
+  /// place, so they line up on the right), the leading edge otherwise.
+  ///
+  /// Shared by the header and the row cells, so a numeric column's label
+  /// stands over its own values instead of drifting to the other side.
+  Alignment get cellAlignment => numeric ? Alignment.centerRight : Alignment.centerLeft;
 }

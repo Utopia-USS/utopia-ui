@@ -10,8 +10,9 @@ import 'package:utopia_ui/src/widget/table/utopia_table_entry.dart';
 /// above the divider and the rows. Columns line up with `UtopiaTableItem`'s
 /// cells via the shared [UtopiaTableEntryCellExtension.wrapTableCell] sizing.
 ///
-/// Sortable columns without [UtopiaTableEntry.sortOptions] show a plain toggle
-/// indicator and report taps via [onSortPressed]; columns with
+/// Sortable columns without [UtopiaTableEntry.sortOptions] carry a direction
+/// caret - shown for the sorted column, faded in on hover for the rest - and
+/// report taps via [onSortPressed]; columns with
 /// [UtopiaTableEntry.sortOptions] show a dropdown (built on [UtopiaOverlayAnchor])
 /// listing each option ascending/descending and report the pick via
 /// [onSortSelected]. [UtopiaTableEntry.tooltip] renders as an info icon next to
@@ -52,10 +53,7 @@ class UtopiaTableHeader<T> extends StatelessWidget {
     // The style's own colour (the body tone) is kept on purpose - a column
     // label carrying the heading tone outweighs the data it labels.
     final body = context.textStyles.text;
-    final style = body.copyWith(
-      fontWeight: context.tokens.fontWeights.medium,
-      fontSize: (body.fontSize ?? 14) + 1,
-    );
+    final style = body.copyWith(fontWeight: context.tokens.fontWeights.medium, fontSize: (body.fontSize ?? 14) + 1);
     return DecoratedBox(
       // The header owns the rule under itself, drawn in `colors.border` rather
       // than the lighter divider the rows separate with: search panel, headers
@@ -89,13 +87,22 @@ class UtopiaTableHeader<T> extends StatelessWidget {
     final isActiveColumn = entry.effectiveId != null && entry.effectiveId == currentSort?.columnId;
     final titleStyle = isActiveColumn ? style.copyWith(color: context.colors.accent) : style;
 
-    final titleRow = Row(
+    // Built per pointer state: the sort caret of a column that is merely
+    // sortable stays invisible until the pointer arrives (see [_buildSortCaret]).
+    //
+    // On a numeric column the caret leads instead of trails, so the label's own
+    // trailing edge stays flush with the digits underneath it - the caret would
+    // otherwise push the label a caret's width off its column.
+    Widget buildTitleRow(BuildContext context, {required bool hovering}) => Row(
       mainAxisSize: MainAxisSize.min,
       children: [
-        if (entry.isSortable && !hasOptions) _buildSortIndicator(context, entry),
+        if (entry.isSortable && !hasOptions && entry.numeric)
+          _buildSortCaret(context, active: isActiveColumn, hovering: hovering, leading: true),
         Flexible(
           child: Text(entry.title ?? '', style: titleStyle, overflow: TextOverflow.ellipsis),
         ),
+        if (entry.isSortable && !hasOptions && !entry.numeric)
+          _buildSortCaret(context, active: isActiveColumn, hovering: hovering, leading: false),
         if (hasOptions) _buildDropdownIndicator(context, active: isActiveColumn),
         if (entry.tooltip != null) _buildTooltip(context, entry.tooltip!),
       ],
@@ -104,33 +111,46 @@ class UtopiaTableHeader<T> extends StatelessWidget {
     if (hasOptions) {
       return UtopiaOverlayAnchor(
         matchTriggerWidth: false,
-        triggerBuilder: (context, open) => _buildHeaderTrigger(context, onTap: open, child: titleRow),
+        triggerBuilder: (context, open) =>
+            _buildHeaderTrigger(context, entry, onTap: open, childBuilder: buildTitleRow),
         overlayBuilder: (context, close) => _buildSortOptionsMenu(context, entry, close),
       );
     }
-    if (!entry.isSortable) return Padding(padding: UtopiaTable.itemPadding, child: titleRow);
-    return _buildHeaderTrigger(context, onTap: () => onSortPressed?.call(entry), child: titleRow);
+    if (!entry.isSortable) {
+      return Padding(
+        padding: UtopiaTable.itemPadding,
+        child: Align(alignment: entry.cellAlignment, heightFactor: 1, child: buildTitleRow(context, hovering: false)),
+      );
+    }
+    return _buildHeaderTrigger(context, entry, onTap: () => onSortPressed?.call(entry), childBuilder: buildTitleRow);
   }
 
   /// Wraps a sortable column title as a click target with a hover pill that
   /// hugs the title + indicator instead of stretching across the whole cell
   /// (the cell wrap hands the header a tight width, so the pill must be
-  /// shrink-wrapped through an [Align]). The pill's own side padding is pulled
-  /// out of the cell inset so the title keeps lining up with the row cells.
-  Widget _buildHeaderTrigger(BuildContext context, {required VoidCallback onTap, required Widget child}) {
+  /// shrink-wrapped through an [Align]). The pill sits on the same side as the
+  /// column's data ([UtopiaTableEntryCellExtension.cellAlignment]), and its own
+  /// side padding is pulled out of the cell inset so the title keeps lining up
+  /// with the row cells.
+  Widget _buildHeaderTrigger(
+    BuildContext context,
+    UtopiaTableEntry<T> entry, {
+    required VoidCallback onTap,
+    required Widget Function(BuildContext context, {required bool hovering}) childBuilder,
+  }) {
     final pillInset = context.spacing.sm;
     final sideInset = (UtopiaTable.itemPadding.left - pillInset).clamp(0.0, double.infinity);
     return Padding(
       padding: EdgeInsets.symmetric(horizontal: sideInset),
       child: Align(
-        alignment: Alignment.centerLeft,
+        alignment: entry.cellAlignment,
         heightFactor: 1,
         child: GestureDetector(
           onTap: onTap,
           child: _HoverHighlight(
-            child: Padding(
+            childBuilder: (context, {required hovering}) => Padding(
               padding: EdgeInsets.symmetric(horizontal: pillInset),
-              child: child,
+              child: childBuilder(context, hovering: hovering),
             ),
           ),
         ),
@@ -138,28 +158,33 @@ class UtopiaTableHeader<T> extends StatelessWidget {
     );
   }
 
-  Widget _buildSortIndicator(BuildContext context, UtopiaTableEntry<T> entry) {
-    final isCurrent = entry.effectiveId != null && entry.effectiveId == currentSort?.columnId;
-    final activeColor = context.colors.text;
-    final inactiveColor = context.colors.hint;
-    final upActive = isCurrent && currentSort!.descending;
-    final downActive = isCurrent && !currentSort!.descending;
-
-    Widget arrow(IconData icon, Alignment alignment, {required bool active}) => Align(
-      alignment: alignment,
-      child: Icon(icon, size: 16, color: active ? activeColor : inactiveColor),
-    );
-
+  /// Sort affordance for a plain toggle column: a single caret stating which
+  /// way the column is ordered - up for ascending, down for descending.
+  ///
+  /// Only the sorted column speaks at rest, in the accent tone that already
+  /// marks its label; a column that is merely sortable stays silent and fades a
+  /// muted caret in under the pointer, so a table of sortable columns is a row
+  /// of labels rather than a row of arrows. The slot keeps its width in every
+  /// state, so nothing shifts when the caret appears.
+  Widget _buildSortCaret(BuildContext context, {required bool active, required bool hovering, required bool leading}) {
+    final tokens = context.tokens;
+    // Off-scale on purpose: a caret at the next step up (x*4) outweighs the
+    // 13px label it sits next to.
+    final size = tokens.x * 3.5;
+    final descending = active && (currentSort?.descending ?? false);
     return Padding(
-      padding: EdgeInsets.only(right: context.spacing.sm),
+      padding: leading ? EdgeInsets.only(right: context.spacing.xxs) : EdgeInsets.only(left: context.spacing.xxs),
       child: SizedBox(
-        width: 16,
-        height: 22,
-        child: Stack(
-          children: [
-            arrow(Icons.keyboard_arrow_up_rounded, const Alignment(0, -0.6), active: upActive),
-            arrow(Icons.keyboard_arrow_down_rounded, const Alignment(0, 0.6), active: downActive),
-          ],
+        width: size,
+        height: size,
+        child: AnimatedOpacity(
+          duration: tokens.durations.xs,
+          opacity: active || hovering ? 1 : 0,
+          child: Icon(
+            descending ? Icons.arrow_downward_rounded : Icons.arrow_upward_rounded,
+            size: size,
+            color: active ? context.colors.accent : context.colors.hint,
+          ),
         ),
       ),
     );
@@ -234,10 +259,14 @@ class UtopiaTableHeader<T> extends StatelessWidget {
 
 /// Hover chrome for a sortable column-header trigger: a soft themed fill
 /// (rounded like the sidebar's icon button) plus the click cursor.
+///
+/// The pointer state is handed back to [childBuilder] as well, so the column's
+/// sort caret fades in with the same gesture that lights the pill instead of
+/// needing a second [MouseRegion] of its own.
 class _HoverHighlight extends HookWidget {
-  final Widget child;
+  final Widget Function(BuildContext context, {required bool hovering}) childBuilder;
 
-  const _HoverHighlight({required this.child});
+  const _HoverHighlight({required this.childBuilder});
 
   @override
   Widget build(BuildContext context) {
@@ -256,7 +285,7 @@ class _HoverHighlight extends HookWidget {
           color: hovering.value ? hover : hover.withValues(alpha: 0),
           borderRadius: context.radius.mdAll,
         ),
-        child: child,
+        child: childBuilder(context, hovering: hovering.value),
       ),
     );
   }

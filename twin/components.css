@@ -281,7 +281,8 @@
    `:hover` pseudo-class ONLY, with no `.is-hover` counterpart: the manifest
    does not (yet) declare `hover` among the field's states, and a `.is-*` class
    with no manifest entry is state drift in the other direction. */
-.utopia-text-field:hover .utopia-text-field__chrome {
+.utopia-text-field:hover .utopia-text-field__chrome,
+.utopia-text-field.is-hover .utopia-text-field__chrome {
   border-color: color-mix(in srgb, var(--utopia-color-border) 65%, var(--utopia-color-hint) 35%);
 }
 
@@ -369,7 +370,11 @@
   transition: background-color var(--utopia-duration-xs) ease;
 }
 
-.utopia-check-row:hover {
+/* Hover fill mirrors UtopiaCheckRow's colors.hover ground. The `.is-hover`
+   twin of the pseudo-class is what the manifest's `hover` state is checked
+   against, and what lets the gallery show the state without a cursor. */
+.utopia-check-row:hover,
+.utopia-check-row.is-hover {
   background-color: var(--utopia-color-hover);
 }
 
@@ -542,9 +547,12 @@
   width: 100%;
   max-width: 400px; /* utopia-literal-ok: mirrors Dart constant UtopiaConfirmDialog ConstrainedBox maxWidth (literal 400) */
   background-color: var(--utopia-color-surface);
-  border-radius: var(--utopia-theme-border-radius);
+  /* Card chrome at the overlay tier, mirroring UtopiaThemeData.dialogDecoration:
+     the card radius (not the control radius) because this is a surface, and the
+     overlay shadow because the prompt floats above a barrier. */
+  border-radius: var(--utopia-theme-card-radius);
   border: var(--utopia-border-thin) solid var(--utopia-color-border);
-  box-shadow: var(--utopia-shadow-sm);
+  box-shadow: var(--utopia-shadow-lg);
   padding: var(--utopia-spacing-xl);
   font-family: var(--utopia-text-style-text-font-family), sans-serif;
 }
@@ -682,8 +690,28 @@
 
 .utopia-dialog__bottom {
   box-sizing: border-box;
+  /* Mirrors the rule UtopiaDialog.form draws above its action bar: the actions
+     are a structural zone of the dialog, so the caesura is colors.border - the
+     same strength the table uses under its column labels. */
   border-top: var(--utopia-border-hairline) solid var(--utopia-color-border);
   padding: var(--utopia-spacing-md) var(--utopia-spacing-xl) var(--utopia-spacing-xl) var(--utopia-spacing-xl);
+}
+
+/* Action bar: a quiet dismissal then the confirming action sized to its own
+   label, both pinned to the trailing edge - the idiom UtopiaConfirmDialog uses
+   and UtopiaDialog.form's dartdoc recommends for `bottom`. */
+.utopia-dialog__actions {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: var(--utopia-spacing-md);
+}
+
+/* The confirming action sizes to its label (IntrinsicWidth) instead of
+   stretching to the bar, exactly as in the confirm dialog. */
+.utopia-dialog__confirm {
+  width: auto;
+  min-width: 0;
 }
 
 /* ---------------------------------------------------------------------- */
@@ -769,9 +797,9 @@
   /* strokeWidth = size/6: at the default 12px size this is 2px. Track uses a
      faint tint of the same color; CircularProgressIndicator paints only the
      active arc, approximated here by transparent-on-two-sides. */
-  border: 2px solid color-mix(in srgb, var(--utopia-text-style-label-color) 20%, transparent); /* utopia-literal-ok: mirrors Dart constant UtopiaLoader strokeWidth = size/6 at default size=12 */
-  border-top-color: var(--utopia-text-style-label-color);
-  border-right-color: var(--utopia-text-style-label-color);
+  border: 2px solid color-mix(in srgb, var(--utopia-color-primary) 20%, transparent); /* utopia-literal-ok: mirrors Dart constant UtopiaLoader strokeWidth = size/6 at default size=12 */
+  border-top-color: var(--utopia-color-primary);
+  border-right-color: var(--utopia-color-primary);
   animation: utopia-loader-spin var(--utopia-duration-xl) linear infinite;
 }
 
@@ -807,12 +835,12 @@
    gradient sweep animation (shimmer package itself is not vendored here). */
 .utopia-mock-loading-box {
   display: block;
-  background-color: var(--utopia-color-canvas);
+  background-color: var(--utopia-color-hover);
   background-image: linear-gradient(
     100deg,
-    var(--utopia-color-field) 40%,
-    color-mix(in srgb, var(--utopia-color-field) 20%, transparent) 50%,
-    var(--utopia-color-field) 60%
+    var(--utopia-color-hover) 40%,
+    var(--utopia-color-surface) 50%,
+    var(--utopia-color-hover) 60%
   );
   background-size: 200% 100%;
   animation: utopia-mock-loading-shimmer 1400ms ease-in-out infinite; /* utopia-literal-ok: mirrors Dart constant Shimmer default period (package default 1500ms, matched to the twin's three-bounce cadence for a consistent loading rhythm) */
@@ -942,7 +970,8 @@
 /* Hover and focus: the search field carries its own copy of the wrapper
    chrome, so it restates the shared state rules rather than inheriting them
    (see .utopia-text-field__chrome). */
-.utopia-search-field:hover {
+.utopia-search-field:hover,
+.utopia-search-field.is-hover {
   border-color: color-mix(in srgb, var(--utopia-color-border) 65%, var(--utopia-color-hint) 35%);
 }
 
@@ -1162,7 +1191,8 @@
   transition: background-color var(--utopia-duration-xs) ease;
 }
 
-.utopia-sidebar-tile:hover {
+.utopia-sidebar-tile:hover,
+.utopia-sidebar-tile.is-hover {
   background-color: var(--utopia-color-hover);
 }
 
@@ -1175,7 +1205,8 @@
   color: var(--utopia-color-on-colored-content);
 }
 
-.utopia-sidebar--gradient .utopia-sidebar-tile:hover {
+.utopia-sidebar--gradient .utopia-sidebar-tile:hover,
+.utopia-sidebar--gradient .utopia-sidebar-tile.is-hover {
   background-color: var(--utopia-color-on-colored-hover);
 }
 
@@ -1334,8 +1365,11 @@
   display: flex;
   align-items: center;
   gap: var(--utopia-spacing-md);
-  /* Matches EdgeInsets.fromLTRB(spacing.lg, spacing.lg, spacing.lg, spacing.md). */
-  padding: var(--utopia-spacing-lg) var(--utopia-spacing-lg) var(--utopia-spacing-md) var(--utopia-spacing-lg);
+  /* Matches EdgeInsets.fromLTRB(columnInset, spacing.lg, columnInset, spacing.md):
+     the side inset is the table's own column inset (row padding + cell padding),
+     so the search field's edge falls on the same line as the column labels and
+     the values under them instead of hanging a cell inset further out. */
+  padding: var(--utopia-spacing-lg) var(--utopia-spacing-xxl) var(--utopia-spacing-md) var(--utopia-spacing-xxl);
 }
 
 .utopia-table-search-panel__search {
@@ -1367,18 +1401,72 @@
   box-sizing: border-box;
   display: flex;
   align-items: center;
-  gap: var(--utopia-spacing-xxs);
-  padding: 0 var(--utopia-spacing-sm);
-  font-size: var(--utopia-text-style-text-font-size);
+  /* The cell inset, mirroring UtopiaTable.itemPadding (16 either side) on top of
+     the header's own 16 - so a column label stands exactly over its values. */
+  padding: 0 var(--utopia-spacing-lg);
+  /* A column label sits one hair above the body size it labels - off the type scale on purpose. */
+  font-size: calc(var(--utopia-text-style-text-font-size) + 1px); /* utopia-literal-ok: mirrors Dart `(body.fontSize ?? 14) + 1` in UtopiaTableHeader.build */
   font-weight: var(--utopia-font-weight-medium);
+  letter-spacing: var(--utopia-text-style-text-letter-spacing);
   /* Body tone, not the heading tone: a column label must not outweigh the data it labels */
   color: var(--utopia-text-style-text-color);
   white-space: nowrap;
+  overflow: hidden;
+}
+
+/* The label itself carries the ellipsis: the cell is a flex container (label +
+   sort caret), and text-overflow does not reach an anonymous flex item. */
+.utopia-table__header-label {
+  min-width: 0;
   overflow: hidden;
   text-overflow: ellipsis;
 }
 
 .utopia-table__header-cell--active {
+  color: var(--utopia-color-accent);
+}
+
+/* A numeric column's label sits over its own digits, on the trailing edge -
+   mirrors UtopiaTableEntryCellExtension.cellAlignment. Its caret leads rather
+   than trails (row-reverse packs the DOM's label-then-caret against the right
+   edge in reverse), so the label's trailing edge stays flush with the digits
+   underneath instead of being pushed off by a caret's width. */
+.utopia-table__header-cell--numeric {
+  flex-direction: row-reverse;
+  justify-content: flex-start;
+}
+
+.utopia-table__header-cell--numeric .utopia-table__sort-caret {
+  margin-left: 0;
+  margin-right: var(--utopia-spacing-xxs);
+}
+
+.utopia-table__header-cell--sortable {
+  cursor: pointer;
+}
+
+/* Direction caret (UtopiaTableHeader._buildSortCaret): up for ascending, down
+   for descending. Only the sorted column states its direction at rest; a merely
+   sortable column stays silent and fades a muted caret in under the pointer,
+   so a table of sortable columns is a row of labels, not a row of arrows. The
+   slot keeps its width in every state, so nothing shifts when it appears. */
+.utopia-table__sort-caret {
+  flex: 0 0 auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  margin-left: var(--utopia-spacing-xxs);
+  color: var(--utopia-color-hint);
+  opacity: 0;
+  transition: opacity var(--utopia-duration-xs) ease;
+}
+
+.utopia-table__header-cell--sortable:hover .utopia-table__sort-caret {
+  opacity: 1;
+}
+
+.utopia-table__header-cell--active .utopia-table__sort-caret {
+  opacity: 1;
   color: var(--utopia-color-accent);
 }
 
@@ -1407,17 +1495,38 @@
   background-color: var(--utopia-color-row-alt);
 }
 
-.utopia-table__row:hover {
+/* Hover replaces the alternating tint outright rather than blending with it -
+   utopiaTableRowShell takes one `color`, and takes it without a transition, so
+   the row is lit the instant the pointer lands. `.is-hover` is the static
+   twin's stand-in for that live state (both selectors outrank `--alt`). */
+.utopia-table__row:hover,
+.utopia-table__row.is-hover {
   background-color: var(--utopia-color-hover);
 }
 
 .utopia-table__cell {
   box-sizing: border-box;
-  padding: 0 var(--utopia-spacing-sm);
+  /* Mirrors UtopiaTable.itemPadding (16), inside the row's own 16 inset. */
+  padding: 0 var(--utopia-spacing-lg);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+  /* The full body role, not just its colour: a cell inherits the page's own
+     font size otherwise, and renders a size and a half above the 12px the
+     Flutter table's cells actually carry. */
+  font-size: var(--utopia-text-style-text-font-size);
+  font-weight: var(--utopia-text-style-text-font-weight);
+  letter-spacing: var(--utopia-text-style-text-letter-spacing);
   color: var(--utopia-text-style-text-color);
+}
+
+/* Numbers align on their last place and use tabular (fixed-advance) figures, so
+   a column of amounts can be compared by shape alone - mirrors the trailing
+   Align plus FontFeature.tabularFigures UtopiaTableItem applies to a
+   UtopiaTableEntry declared numeric. */
+.utopia-table__cell--numeric {
+  text-align: right;
+  font-feature-settings: "tnum";
 }
 
 .utopia-table__cell--id { flex: 0 0 110px; } /* utopia-literal-ok: specimen column width */
@@ -1433,6 +1542,13 @@
 .utopia-table__row--loading .utopia-table__cell {
   display: flex;
   align-items: center;
+}
+
+/* The placeholder sits where the value will: UtopiaTable's loader row aligns
+   its bar by the same cellAlignment the real cell uses, so a numeric column's
+   skeleton does not jump sides once the rows arrive. */
+.utopia-table__row--loading .utopia-table__cell--numeric {
+  justify-content: flex-end;
 }
 
 .utopia-table__skeleton-bar {
@@ -1495,12 +1611,14 @@
   width: 10px; /* utopia-literal-ok: mirrors Dart constant UtopiaThreeBounce dotSize = size*0.5, size=20 default */
   height: 10px; /* utopia-literal-ok: mirrors Dart constant UtopiaThreeBounce dotSize = size*0.5, size=20 default */
   border-radius: var(--utopia-radius-full);
-  background: var(--utopia-color-text);
+  /* UtopiaThreeBounce's default colour is colors.primary, the same activity
+     reading UtopiaLoader carries. */
+  background: var(--utopia-color-primary);
   animation: utopia-three-bounce 1400ms ease-in-out infinite; /* utopia-literal-ok: mirrors Dart constant UtopiaThreeBounce controller duration (1400ms) */
 }
 
-.utopia-three-bounce--primary .utopia-three-bounce__dot {
-  background: var(--utopia-color-primary);
+.utopia-three-bounce--on-colored .utopia-three-bounce__dot {
+  background: var(--utopia-text-style-button-color);
 }
 
 .utopia-three-bounce__dot:nth-child(2) {

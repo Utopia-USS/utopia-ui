@@ -1,6 +1,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:utopia_ui/src/theme/utopia_tokens.dart';
 import 'package:utopia_ui/src/util/utopia_context_extensions.dart';
+import 'package:utopia_ui/src/widget/table/utopia_table.dart';
 
 /// The panel pinned above a `UtopiaTable`'s column headers: a search field slot,
 /// a row of filter widgets, and trailing actions (refresh, create, ...).
@@ -23,6 +24,12 @@ class UtopiaTableSearchPanel extends StatelessWidget {
 
   const UtopiaTableSearchPanel({super.key, this.searchField, this.filters = const [], this.actions = const []});
 
+  /// Side inset of the panel: the table's own column inset (a row's content
+  /// padding plus a cell's), derived rather than restated so the search field's
+  /// edge keeps falling on the same line as the column labels and the values
+  /// under them if either padding is ever retuned.
+  static final double columnInset = UtopiaTable.contentPadding.left + UtopiaTable.itemPadding.left;
+
   @override
   Widget build(BuildContext context) {
     final spacing = context.spacing;
@@ -33,7 +40,7 @@ class UtopiaTableSearchPanel extends StatelessWidget {
         // search + actions row.
         final inline = constraints.maxWidth >= context.tokens.breakpoints.webMin;
         return Padding(
-          padding: EdgeInsets.fromLTRB(spacing.lg, spacing.lg, spacing.lg, spacing.md),
+          padding: EdgeInsets.fromLTRB(columnInset, spacing.lg, columnInset, spacing.md),
           child: inline ? _buildInlineRow(spacing) : _buildStacked(spacing),
         );
       },

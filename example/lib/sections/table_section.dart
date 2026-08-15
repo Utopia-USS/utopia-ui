@@ -130,6 +130,7 @@ final IList<UtopiaTableEntry<_Invoice>> _invoiceEntries = IList([
     id: 'amount',
     title: 'Amount',
     width: 130,
+    numeric: true,
     sortBy: (row) => row.amount,
     cellBuilder: (context, row) => Text('\$${row.amount.toStringAsFixed(2)}', style: context.textStyles.text),
   ),

@@ -52,6 +52,17 @@ class UtopiaTableEntry<T> {
   /// first, until the remaining columns fit. `0` (default) never hides.
   final int hidePriority;
 
+  /// Declares the column as holding numbers, which the table presents its own
+  /// way: cells *and* the column label align to the trailing edge, and cell
+  /// text renders with tabular figures, so digits line up place-by-place and
+  /// a column of amounts can be scanned vertically.
+  ///
+  /// Presentational only - it changes neither sorting nor searching. Set it on
+  /// amounts, counts, percentages and dates-as-digits; leave it `false` for
+  /// identifiers that merely happen to contain digits (an invoice number reads
+  /// as a word, not as a quantity).
+  final bool numeric;
+
   /// Builds the cell content for a row. Keep it cheap - it runs per visible row.
   final Widget Function(BuildContext context, T row) cellBuilder;
 
@@ -77,6 +88,7 @@ class UtopiaTableEntry<T> {
     this.flex = 2,
     this.minWidth,
     this.hidePriority = 0,
+    this.numeric = false,
     this.sortBy,
     this.searchBy,
     this.sortOptions,
@@ -92,6 +104,7 @@ class UtopiaTableEntry<T> {
     this.title,
     this.tooltip,
     this.hidePriority = 0,
+    this.numeric = false,
     this.sortBy,
     this.searchBy,
     this.sortOptions,

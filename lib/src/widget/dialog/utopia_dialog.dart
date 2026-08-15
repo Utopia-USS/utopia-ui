@@ -51,7 +51,16 @@ class UtopiaDialog extends StatelessWidget {
   /// the token scale (`spacing.xl` on the outer edges - the dialog inset -
   /// and `spacing.md` gaps around the fade bar), so callers pass bare
   /// content and every form dialog lines up with the title row. For custom
-  /// insets use the raw constructor instead.
+  /// insets use the raw constructor instead. The bar is also ruled off from
+  /// the content by a hairline, so the actions read as the dialog's footer
+  /// rather than as the last field.
+  ///
+  /// Recommended shape for [bottom]: the actions right-aligned in a `Row`
+  /// (`MainAxisAlignment.end`) - a quiet `UtopiaGhostButton` to dismiss, then
+  /// an `IntrinsicWidth(UtopiaButton(dense: true))` to submit, `spacing.md`
+  /// apart - the same idiom `UtopiaConfirmDialog` uses. A single full-width
+  /// button slab reads as a page-level call to action, not as a dialog's
+  /// confirm.
   ///
   /// Internally this stores [sliver] and [bottom] as a closure over the same
   /// [builder] field the raw constructor takes, so `build` never needs to
@@ -75,11 +84,23 @@ class UtopiaDialog extends StatelessWidget {
                ),
              ],
            ),
-           bottom: SafeArea(
-             top: false,
-             child: Padding(
-               padding: EdgeInsets.fromLTRB(spacing.xl, spacing.md, spacing.xl, spacing.xl),
-               child: bottom,
+           bottom: DecoratedBox(
+             // The action bar is a structural zone of the dialog, not a peer of
+             // the fields above it, so it is ruled off in `colors.border` - the
+             // same caesura strength the table draws under its column labels.
+             // UtopiaFormLayout's fade bar cannot carry that job here: it fades
+             // into a transparent background and vanishes.
+             decoration: BoxDecoration(
+               border: Border(
+                 top: BorderSide(color: context.colors.border, width: context.theme.dividerThickness),
+               ),
+             ),
+             child: SafeArea(
+               top: false,
+               child: Padding(
+                 padding: EdgeInsets.fromLTRB(spacing.xl, spacing.md, spacing.xl, spacing.xl),
+                 child: bottom,
+               ),
              ),
            ),
          );

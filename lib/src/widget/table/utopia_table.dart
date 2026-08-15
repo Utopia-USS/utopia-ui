@@ -257,11 +257,13 @@ class UtopiaTable<T> extends HookWidget {
         children: [
           for (final entry in visibleEntries)
             entry.wrapTableCell(
-              const Padding(
+              Padding(
                 padding: UtopiaTable.itemPadding,
+                // Aligned like the real cell, so a numeric column's placeholder
+                // sits under its own header instead of jumping sides on load.
                 child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: FractionallySizedBox(
+                  alignment: entry.cellAlignment,
+                  child: const FractionallySizedBox(
                     widthFactor: 0.6,
                     child: UtopiaMockLoadingBox(width: double.infinity, height: 12),
                   ),

@@ -47,8 +47,9 @@ class DialogsSection extends StatelessWidget {
 }
 
 /// The `UtopiaDialog.form` demo: a workspace name field, a role dropdown, a date
-/// picker and a switch in the scrollable sliver, one `UtopiaButton` in the
-/// pinned bottom bar that just pops - a mock form has nothing to submit to.
+/// picker and a switch in the scrollable sliver, a right-aligned cancel/confirm
+/// pair in the pinned bottom bar that just pops - a mock form has nothing to
+/// submit to.
 /// (Lightweight-tier HookWidget: the dropdown/date/switch values are this
 /// dialog's only state.)
 class _SettingsDialog extends HookWidget {
@@ -88,7 +89,26 @@ class _SettingsDialog extends HookWidget {
           ),
         ],
       ),
-      bottom: UtopiaButton(onTap: () => Navigator.of(context).maybePop(), child: const Text('Done')),
+      // The action-bar idiom UtopiaDialog.form recommends and
+      // UtopiaConfirmDialog already uses: quiet dismissal, then the confirming
+      // action sized to its own label, both pinned to the trailing edge.
+      bottom: Row(
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          UtopiaGhostButton(label: 'Cancel', onTap: () => Navigator.of(context).maybePop()),
+          SizedBox(width: context.spacing.md),
+          IntrinsicWidth(
+            child: UtopiaButton(
+              dense: true,
+              onTap: () => Navigator.of(context).maybePop(),
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: context.spacing.xl),
+                child: const Text('Done'),
+              ),
+            ),
+          ),
+        ],
+      ),
     );
   }
 }

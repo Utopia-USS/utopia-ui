@@ -68,10 +68,16 @@ class UtopiaTableItem<T> extends HookWidget {
                   Padding(
                     padding: UtopiaTable.itemPadding,
                     // Cell text that doesn't set its own overflow ellipsizes instead of wrapping.
+                    // A numeric column additionally gets tabular figures and trailing
+                    // alignment here rather than in every cellBuilder: a cell style set by
+                    // the caller still inherits both (TextStyle.merge keeps the ambient
+                    // fontFeatures a Text's own style leaves unset).
                     child: DefaultTextStyle.merge(
                       softWrap: false,
                       overflow: TextOverflow.ellipsis,
-                      child: Align(alignment: Alignment.centerLeft, child: entry.cellBuilder(context, row)),
+                      textAlign: entry.numeric ? TextAlign.right : null,
+                      style: entry.numeric ? _numericCellStyle : null,
+                      child: Align(alignment: entry.cellAlignment, child: entry.cellBuilder(context, row)),
                     ),
                   ),
                 ),
@@ -87,6 +93,12 @@ class UtopiaTableItem<T> extends HookWidget {
     );
   }
 }
+
+/// Figure style for a [UtopiaTableEntry.numeric] column: tabular (fixed-advance)
+/// digits, so every row's digits sit in the same vertical tracks and a column of
+/// amounts can be compared by shape alone. Carries nothing else, so it merges
+/// onto whatever style the cell's own text brings.
+const TextStyle _numericCellStyle = TextStyle(fontFeatures: [FontFeature.tabularFigures()]);
 
 /// The one place the row chrome is defined - alternating tint, min-height
 /// (rows grow with content), row content padding and last-row corner rounding

@@ -23,6 +23,34 @@
 - `UtopiaButton`: the sub-perceptual white hover overlay is gone. Hover slides the whole
   gradient sweep half a step down the primary -> accent axis, press scales to 98%, and focus
   draws a solid primary ring with a gap. The `focus` state joins the manifest.
+- New selection controls: `UtopiaCheckbox` (with an `indeterminate` rendering) and the
+  generic `UtopiaRadio<T>`, both fully controlled and drawn from the tokens - a 20px box
+  (radius 4) whose edge leads while empty and fills primary once it carries a value.
+  `UtopiaCheckRow` no longer draws its own box: it composes a read-only `UtopiaCheckbox`,
+  so its box moves from accent fill / radius 6 to primary fill / radius 4.
+- `UtopiaTableEntry.numeric` declares a column as holding numbers: its cells and its own
+  label align to the trailing edge and render with tabular figures. The example app's
+  Amount column uses it.
+- Table sort affordance: the sorted column states its direction with an accent caret
+  (up ascending, down descending - descending used to light the ascending arrow); merely
+  sortable columns fade a muted caret in on hover. The search panel sits on the column
+  inset, so the search field's edge lines up with the column labels.
+- `UtopiaDialog.form` rules its action bar off from the scrolling body with a hairline,
+  and its dartdoc now recommends the right-aligned ghost + dense-confirm idiom for
+  `bottom` (the example app and the twin specimen follow it). `UtopiaConfirmDialog` takes
+  the overlay elevation (`dialogDecoration`) instead of the resting card elevation.
+- Loading reads as activity in the brand colour: `UtopiaLoader` spins in `colors.primary`
+  (the `color` override is unchanged), `UtopiaThreeBounce` defaults its dots to
+  `colors.primary` (a null colour used to paint nothing at all), and `UtopiaMockLoadingBox`
+  shimmers on the cool family - base `colors.hover`, sweep up to `colors.surface`.
+- `UtopiaDropdownField`'s trigger is a real focus stop: tapping (or Tab plus Space/Enter)
+  focuses it, so the shared field chrome rings while the popup is open.
+- Manifest overlays: `text-field` and `search-field` declare the `hover` state; `loader`
+  and `date-picker` declare none (a loader has no not-loading rendering, and the date
+  picker's read-only trigger does not change while its calendar is up).
+- HTML twin drift fixes: table cells and column labels carry the real cell inset and body
+  type, the confirm dialog the real card radius (16) and overlay shadow, and the gallery's
+  table specimen is composed from `components.html` instead of a hand-maintained copy.
 - Protocol 0.3.0: manifest `tokenBindings` entries carry their provenance
   (`{ "path": ..., "origin": "source" | "overlay" }`) and every component the HTML twin
   renders carries its `twin` binding. `validate_manifest` can now verify a shipped manifest's

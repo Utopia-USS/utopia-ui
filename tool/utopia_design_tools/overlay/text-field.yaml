@@ -1,4 +1,4 @@
-states: [error, readOnly, focus, disabled]
+states: [error, readOnly, focus, hover, disabled]
 notes: >-
   The base editable text field. Uncontrolled: value seeds the internal state
   on first build only, so changes flow out through onChanged - key the widget

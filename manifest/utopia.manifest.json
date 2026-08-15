@@ -628,7 +628,7 @@
     {
       "id": "confirm-dialog",
       "name": "UtopiaConfirmDialog",
-      "description": "A themed confirm/cancel prompt drawn with the utopia card chrome - the same surface, border, shadow and radius as every other card - rather than a Material AlertDialog.",
+      "description": "A themed confirm/cancel prompt drawn with the utopia card chrome - the same surface, border and radius as every other card, lifted to the overlay elevation a modal above a barrier takes - rather than a Material AlertDialog.",
       "file": "lib/src/widget/dialog/utopia_confirm_dialog.dart",
       "constructors": [
         {
@@ -710,7 +710,7 @@
           "origin": "source"
         },
         {
-          "path": "theme.cardDecoration",
+          "path": "theme.dialogDecoration",
           "origin": "source"
         },
         {
@@ -842,9 +842,6 @@
         }
       ],
       "tokenBindings": [],
-      "states": [
-        "open"
-      ],
       "composes": [
         "overlay-anchor",
         "remove-icon-button",
@@ -858,7 +855,7 @@
         "example/lib/sections/fields_section.dart",
         "example/lib/sections/dialogs_section.dart"
       ],
-      "notes": "A tap-to-open date field: displays the picked date through a text-field trigger, opens an anchored calendar popover, and offers a clear affordance. The calendar grid is Material-owned and restyled from the ambient theme via utopiaDatePickerMaterialTheme, so re-theming affects it even though this component's tokenBindings list is empty (it reads no theme member directly)."
+      "notes": "A tap-to-open date field: displays the picked date through a text-field trigger, opens an anchored calendar popover, and offers a clear affordance. The calendar grid is Material-owned and restyled from the ambient theme via utopiaDatePickerMaterialTheme, so re-theming affects it even though this component's tokenBindings list is empty (it reads no theme member directly). Declares no states: the trigger is a readOnly UtopiaTextField, and read-only chrome outranks focus inside UtopiaFieldWrapper, so nothing about the field changes while the popover is up - the open state's entire expression is the popover calendar itself, which is the Material-owned grid this component deliberately does not mirror statically. Restore `open` here the day the trigger gains a chrome of its own (a focus node and a calendar affordance, the way dropdown-field's trigger did)."
     },
     {
       "id": "dialog",
@@ -971,6 +968,10 @@
         },
         {
           "path": "theme.dialogDecoration",
+          "origin": "source"
+        },
+        {
+          "path": "theme.dividerThickness",
           "origin": "source"
         },
         {
@@ -1585,7 +1586,7 @@
               "type": "color",
               "dartType": "Color?",
               "required": false,
-              "description": "Overrides `UtopiaThemeTextStyles.label`'s color."
+              "description": "Overrides the indicator's colour. Defaults to `UtopiaThemeColors.primary`: a running indicator reports activity, and activity is the brand colour in this system - the same reading `UtopiaThreeBounce(color: colors.primary)` carries. Pass a colour explicitly when the spinner sits on a coloured ground (e.g. `textStyles.button.color` inside a filled button)."
             },
             {
               "name": "size",
@@ -1600,12 +1601,9 @@
       ],
       "tokenBindings": [
         {
-          "path": "textStyles.label",
+          "path": "colors.primary",
           "origin": "source"
         }
-      ],
-      "states": [
-        "loading"
       ],
       "twin": {
         "file": "components.html",
@@ -1614,7 +1612,7 @@
       "examples": [
         "example/lib/sections/loading_section.dart"
       ],
-      "notes": "A small circular progress indicator, sized and coloured to fit inline in text-scale contexts (e.g. a loading row or a compact overlay)."
+      "notes": "A small circular progress indicator, sized and coloured to fit inline in text-scale contexts (e.g. a loading row or a compact overlay). Declares no states on purpose: the loader has no not-loading rendering to contrast a \"loading\" state with - it spins from the moment it is mounted, and its absence is the other half of that pair, so loading is this component's identity rather than a state of it (the state belongs to the components that can be either way, e.g. button's loading). Colour defaults to colors.primary - a running indicator reports activity, and activity is the brand colour here - and is overridable per instance for coloured grounds."
     },
     {
       "id": "mock-loading-box",
@@ -1654,11 +1652,11 @@
       ],
       "tokenBindings": [
         {
-          "path": "colors.canvas",
+          "path": "colors.hover",
           "origin": "source"
         },
         {
-          "path": "colors.field",
+          "path": "colors.surface",
           "origin": "source"
         }
       ],
@@ -2011,7 +2009,8 @@
       ],
       "states": [
         "disabled",
-        "focus"
+        "focus",
+        "hover"
       ],
       "composes": [
         "field-wrapper"
@@ -2755,6 +2754,7 @@
         "disabled",
         "error",
         "focus",
+        "hover",
         "readOnly"
       ],
       "composes": [
@@ -2785,7 +2785,7 @@
               "type": "color",
               "dartType": "Color?",
               "required": false,
-              "description": "The dots' color."
+              "description": "The dots' color. Defaults to `UtopiaThemeColors.primary`, the same activity colour `UtopiaLoader` rests on. Pass the content colour of the ground instead when the dots sit on a filled surface - which is what `UtopiaButton` does with its own label colour."
             },
             {
               "name": "size",
@@ -2798,7 +2798,12 @@
           ]
         }
       ],
-      "tokenBindings": [],
+      "tokenBindings": [
+        {
+          "path": "colors.primary",
+          "origin": "source"
+        }
+      ],
       "twin": {
         "file": "components.html",
         "selector": "[data-utopia-id=\"three-bounce\"]"
@@ -3034,6 +3039,14 @@
               "description": "Give-way order when the table is too narrow: the highest value hides first, until the remaining columns fit. `0` (default) never hides."
             },
             {
+              "name": "numeric",
+              "type": "bool",
+              "dartType": "bool",
+              "required": false,
+              "default": "false",
+              "description": "Declares the column as holding numbers, which the table presents its own way: cells *and* the column label align to the trailing edge, and cell text renders with tabular figures, so digits line up place-by-place and a column of amounts can be scanned vertically."
+            },
+            {
               "name": "sortBy",
               "type": "callback",
               "dartType": "Comparable<Object?>? Function(T row)?",
@@ -3112,6 +3125,14 @@
               "required": false,
               "default": "0",
               "description": "Give-way order when the table is too narrow: the highest value hides first, until the remaining columns fit. `0` (default) never hides."
+            },
+            {
+              "name": "numeric",
+              "type": "bool",
+              "dartType": "bool",
+              "required": false,
+              "default": "false",
+              "description": "Declares the column as holding numbers, which the table presents its own way: cells *and* the column label align to the trailing edge, and cell text renders with tabular figures, so digits line up place-by-place and a column of amounts can be scanned vertically."
             },
             {
               "name": "sortBy",

@@ -19,12 +19,25 @@ class UtopiaMockLoadingBox extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+    final colors = context.colors;
+    // The skeleton is a placeholder, so it rests one step INTO the page rather
+    // than above it: `hover` is the cool tint that reads on both grounds a
+    // skeleton ever lands on (a white surface card, e.g. `UtopiaTable`'s loader
+    // rows, and the canvas), while `field` - the previous base - sits lighter
+    // than the canvas and made the bar disappear into it. The sweep then runs
+    // UP to `surface`, so the shimmer brightens like every other skeleton in
+    // the reference systems instead of dimming. Both colours are opaque: an
+    // alpha highlight composites against the child and inverted the sweep's
+    // direction, which is what flattened the animation before.
     return Padding(
       padding: padding ?? EdgeInsets.zero,
       child: Shimmer.fromColors(
-        baseColor: context.colors.field,
-        highlightColor: context.colors.field.withValues(alpha: 0.2),
-        child: Container(height: height, width: width, color: context.colors.canvas),
+        baseColor: colors.hover,
+        highlightColor: colors.surface,
+        // Shimmer masks the child (srcATop), so the child only supplies the
+        // silhouette - painted in the base colour so the box still reads as a
+        // skeleton in the frame before the first sweep.
+        child: Container(height: height, width: width, color: colors.hover),
       ),
     );
   }
