@@ -37,8 +37,11 @@ abstract class UtopiaThemeData with _$UtopiaThemeData {
 
     /// Minimum height of the content area inside a field's chrome (the
     /// `UtopiaFieldWrapper` floor). Total resting field height is this plus
-    /// the vertical [fieldContentPadding].
-    @Default(44.0) double fieldMinHeight,
+    /// the vertical [fieldContentPadding] and the two hairline borders, and
+    /// that total is pinned to a resting `UtopiaButton`'s extent (48 at the
+    /// default 4-based scale): a field and a button standing side by side in
+    /// a toolbar row must be exactly as tall as each other.
+    @Default(34.0) double fieldMinHeight,
 
     /// Vertical padding above page-level content (and the sidebar rail).
     required double pageTopPadding,
@@ -76,8 +79,8 @@ abstract class UtopiaThemeData with _$UtopiaThemeData {
       // the chrome, but the value line reserves descender space below the
       // baseline that digits/caps never fill, which reads as extra bottom gap.
       // Shifting the content down 0.5x rebalances the *visual* gaps.
-      fieldContentPadding: EdgeInsets.fromLTRB(spacing.lg, tokens.x * 2.5, spacing.lg, tokens.x * 1.5),
-      fieldMinHeight: tokens.x * 11,
+      fieldContentPadding: EdgeInsets.fromLTRB(spacing.lg, tokens.x * 2, spacing.lg, tokens.x * 1),
+      fieldMinHeight: tokens.x * 8.5,
       pageTopPadding: spacing.xxxl,
     );
   }
@@ -109,7 +112,59 @@ abstract class UtopiaThemeData with _$UtopiaThemeData {
   /// badge never reads as rounder than the control it sits in.
   double get chipRadius => tokens.radius.sm;
 
-  BoxDecoration get fieldDecoration => BoxDecoration(borderRadius: borderRadius, color: colors.field);
+  /// Field chrome at rest: fill, radius and the quiet hairline edge.
+  ///
+  /// The border belongs to the decoration rather than the widget so every
+  /// state below is one `copyWith` away from it and the stroke width is
+  /// identical in all of them - focus and error change colour, never
+  /// geometry.
+  BoxDecoration get fieldDecoration => BoxDecoration(
+    borderRadius: borderRadius,
+    color: colors.field,
+    border: Border.all(color: colors.border, width: tokens.borders.hairline),
+  );
+
+  /// Hovered field chrome: the edge steps toward [UtopiaThemeColors.hint].
+  /// The fill is unchanged - a field should acknowledge the pointer, not
+  /// light up.
+  BoxDecoration get fieldHoverDecoration => fieldDecoration.copyWith(
+    border: Border.all(
+      color: Color.lerp(colors.border, colors.hint, 0.35)!,
+      width: tokens.borders.hairline,
+    ),
+  );
+
+  /// Focused field chrome: the edge turns [UtopiaThemeColors.primary] and
+  /// thickens to `borders.thick` in total - one hairline inward (the border
+  /// itself) plus one hairline outward (an unblurred shadow, so the ring has
+  /// a hard edge). That composition is the Flutter equivalent of the twin's
+  /// `outline: 2px solid primary; outline-offset: -1px`, which Flutter has no
+  /// primitive for. The fill lifts to [UtopiaThemeColors.surface] so the
+  /// field reads as live.
+  ///
+  /// Geometry note: the outward half is a shadow, so focusing never shifts
+  /// layout.
+  BoxDecoration get fieldFocusDecoration => fieldDecoration.copyWith(
+    color: colors.surface,
+    border: Border.all(color: colors.primary, width: tokens.borders.hairline),
+    boxShadow: [BoxShadow(color: colors.primary, spreadRadius: tokens.borders.hairline)],
+  );
+
+  /// Errored field chrome: the resting shape in the error hue.
+  BoxDecoration get fieldErrorDecoration =>
+      fieldDecoration.copyWith(border: Border.all(color: colors.error, width: tokens.borders.hairline));
+
+  /// Errored *and* focused field chrome: the focus ring in the error hue, so
+  /// a field being corrected keeps signalling the error instead of reverting
+  /// to the neutral focus look.
+  BoxDecoration get fieldErrorFocusDecoration => fieldErrorDecoration.copyWith(
+    boxShadow: [BoxShadow(color: colors.error, spreadRadius: tokens.borders.hairline)],
+  );
+
+  /// Read-only / inert field chrome: recessed to the page colour, no ring,
+  /// edge left quiet - the field reads as a value on the page rather than a
+  /// control waiting for input.
+  BoxDecoration get fieldReadOnlyDecoration => fieldDecoration.copyWith(color: colors.canvas);
 
   /// Fill + radius + shadow for the table card (the back layer of the card).
   BoxDecoration get cardDecoration =>

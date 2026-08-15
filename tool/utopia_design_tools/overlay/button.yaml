@@ -1,8 +1,11 @@
-states: [hover, loading, disabled]
+states: [hover, focus, loading, disabled]
 notes: >-
-  The primary call-to-action button. Loading swaps the label for an inline
-  UtopiaThreeBounce indicator while keeping the button's size stable; disabled
-  dims the gradient fill instead of hiding the button.
+  The primary call-to-action button. Hover slides the whole gradient sweep half
+  a step down the primary -> accent axis (a colour step, not a translucent
+  overlay) and press answers with a 2% scale-down; focus draws a solid ring in
+  the primary colour with a gap the width of borders.thick. Loading swaps the
+  label for an inline UtopiaThreeBounce indicator while keeping the button's
+  size stable; disabled dims the gradient fill instead of hiding the button.
 examples:
   - example/lib/sections/buttons_section.dart
   - example/lib/sections/dialogs_section.dart

@@ -267,11 +267,11 @@ String _emitReturn(ThemeSpec spec) {
   // SPEC section 5 / A6-spec.md "fromTokens arithmetic").
   final derivedBorderRadius = spec.radiusMd;
   final derivedCardRadius = spec.radiusXl;
-  final derivedFieldContentPaddingTop = spec.x * 2.5;
-  final derivedFieldContentPaddingBottom = spec.x * 1.5;
+  final derivedFieldContentPaddingTop = spec.x * 2;
+  final derivedFieldContentPaddingBottom = spec.x * 1;
   final derivedFieldContentPaddingLeft = spec.spacingLg;
   final derivedFieldContentPaddingRight = spec.spacingLg;
-  final derivedFieldMinHeight = spec.x * 11;
+  final derivedFieldMinHeight = spec.x * 8.5;
   final derivedPageTopPadding = spec.spacingXxxl;
   const derivedTileHeight = dartDefaultTileHeight;
 

@@ -49,7 +49,7 @@
               "dartType": "bool",
               "required": false,
               "default": "false",
-              "description": "Uses a shorter fixed extent (10x instead of 15x the token base - 40 instead of 60 by default) when height is not set."
+              "description": "Uses a shorter fixed extent (10x instead of 12x the token base - 40 instead of 48 by default) when height is not set."
             },
             {
               "name": "maxWidth",
@@ -73,7 +73,7 @@
               "type": "number",
               "dartType": "double?",
               "required": false,
-              "description": "Overrides the fixed square extent (min/max height and min width). Defaults to 10x the token base when dense (40), 15x otherwise (60, matching a resting field's total height). Pair with maxWidth == height for a square icon button."
+              "description": "Overrides the fixed square extent (min/max height and min width). Defaults to 10x the token base when dense (40, matching a dense field), 12x otherwise (48, matching a resting field's total height - content floor, vertical padding and both hairline borders). Pair with maxWidth == height for a square icon button."
             }
           ]
         }
@@ -84,11 +84,11 @@
           "origin": "source"
         },
         {
-          "path": "colors.onColoredHover",
+          "path": "colors.primary",
           "origin": "source"
         },
         {
-          "path": "colors.primary",
+          "path": "colors.surface",
           "origin": "source"
         },
         {
@@ -100,12 +100,25 @@
           "origin": "source"
         },
         {
+          "path": "tokens.borders.thick",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.durations.sm",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.durations.xs",
+          "origin": "source"
+        },
+        {
           "path": "tokens.x",
           "origin": "source"
         }
       ],
       "states": [
         "disabled",
+        "focus",
         "hover",
         "loading"
       ],
@@ -121,7 +134,7 @@
         "example/lib/sections/buttons_section.dart",
         "example/lib/sections/dialogs_section.dart"
       ],
-      "notes": "The primary call-to-action button. Loading swaps the label for an inline UtopiaThreeBounce indicator while keeping the button's size stable; disabled dims the gradient fill instead of hiding the button."
+      "notes": "The primary call-to-action button. Hover slides the whole gradient sweep half a step down the primary -> accent axis (a colour step, not a translucent overlay) and press answers with a 2% scale-down; focus draws a solid ring in the primary colour with a gap the width of borders.thick. Loading swaps the label for an inline UtopiaThreeBounce indicator while keeping the button's size stable; disabled dims the gradient fill instead of hiding the button."
     },
     {
       "id": "card",
@@ -219,31 +232,11 @@
       ],
       "tokenBindings": [
         {
-          "path": "colors.accent",
-          "origin": "source"
-        },
-        {
-          "path": "colors.disabled",
-          "origin": "source"
-        },
-        {
           "path": "colors.hover",
           "origin": "source"
         },
         {
           "path": "textStyles.text",
-          "origin": "source"
-        },
-        {
-          "path": "tokens.borders.thin",
-          "origin": "source"
-        },
-        {
-          "path": "tokens.durations.xs",
-          "origin": "source"
-        },
-        {
-          "path": "tokens.radius.smAll",
           "origin": "source"
         },
         {
@@ -255,6 +248,9 @@
         "hover",
         "selected"
       ],
+      "composes": [
+        "checkbox"
+      ],
       "twin": {
         "file": "components.html",
         "selector": "[data-utopia-id=\"check-row\"]"
@@ -263,6 +259,110 @@
         "example/lib/sections/selection_section.dart"
       ],
       "notes": "A non-Material selectable row: a label preceded by a check box, used inside dropdown popups. Styled from the Utopia theme, with no ink splash."
+    },
+    {
+      "id": "checkbox",
+      "name": "UtopiaCheckbox",
+      "description": "A themed check box, drawn entirely from `UtopiaThemeData` - no Material `Checkbox` underneath, so its extent, corner radius and stroke widths follow the token scale (a rebranded base unit rescales the box with every other control) instead of Material's fixed 18px geometry.",
+      "file": "lib/src/widget/select/utopia_checkbox.dart",
+      "constructors": [
+        {
+          "name": "",
+          "description": "Creates a themed check box.",
+          "props": [
+            {
+              "name": "value",
+              "type": "bool",
+              "dartType": "bool",
+              "required": true,
+              "description": "Whether the box renders as checked."
+            },
+            {
+              "name": "onChanged",
+              "type": "callback",
+              "dartType": "void Function(bool)?",
+              "required": false,
+              "description": "Called with the flipped value when tapped; `null` disables interaction."
+            },
+            {
+              "name": "readOnly",
+              "type": "bool",
+              "dartType": "bool",
+              "required": false,
+              "default": "false",
+              "description": "When `true`, blocks interaction while keeping the full-color styling (instead of a faded disabled look)."
+            },
+            {
+              "name": "indeterminate",
+              "type": "bool",
+              "dartType": "bool",
+              "required": false,
+              "default": "false",
+              "description": "Renders the mixed (\"some, not all\") state: a horizontal bar instead of the check glyph, drawn on the same filled ground as a checked box."
+            }
+          ]
+        }
+      ],
+      "tokenBindings": [
+        {
+          "path": "colors.disabled",
+          "origin": "source"
+        },
+        {
+          "path": "colors.field",
+          "origin": "source"
+        },
+        {
+          "path": "colors.hint",
+          "origin": "source"
+        },
+        {
+          "path": "colors.primary",
+          "origin": "source"
+        },
+        {
+          "path": "textStyles.button",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.borders.thick",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.borders.thin",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.durations.xs",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.radius.fullAll",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.radius.xsAll",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.x",
+          "origin": "source"
+        }
+      ],
+      "states": [
+        "disabled",
+        "hover",
+        "readOnly",
+        "selected"
+      ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"checkbox\"]"
+      },
+      "examples": [
+        "example/lib/sections/selection_section.dart"
+      ],
+      "notes": "A themed check box, styled from UtopiaThemeData instead of the ambient MaterialApp theme; the token base drives its extent (x*5 square), its check glyph (x*3.5) and its mixed-state bar (x*2.5 wide, borders.thick tall). selected is the checked rendering (value: true) - a primary fill with the button-coloured glyph; unchecked is a field-coloured box whose disabled- coloured edge steps to hint on hover. indeterminate is a separate presentational flag rather than a state in this vocabulary: it swaps the check glyph for a bar on the same filled ground, independent of value, and reports the semantics mixed state (the twin mirrors it as .is-indeterminate). readOnly blocks interaction while keeping the full-color styling; a null onChanged (without readOnly) is the disabled state and renders faded at 50% opacity."
     },
     {
       "id": "chip",
@@ -1057,7 +1157,7 @@
     {
       "id": "field-wrapper",
       "name": "UtopiaFieldWrapper",
-      "description": "Shared borderless chrome and interactive-height floor for every utopia_ui field.",
+      "description": "Shared chrome and interactive-height floor for every utopia_ui field.",
       "file": "lib/src/widget/wrapper/utopia_field_wrapper.dart",
       "constructors": [
         {
@@ -1080,6 +1180,14 @@
               "description": "When `true`, outlines the chrome in the theme's error colour - the field-level half of the error state (`UtopiaTextField` renders the message below the field)."
             },
             {
+              "name": "readOnly",
+              "type": "bool",
+              "dartType": "bool",
+              "required": false,
+              "default": "false",
+              "description": "When `true`, renders the inert chrome (recessed to the page colour, no focus ring) so a field that cannot be edited reads as a displayed value rather than an empty control. Outranks every other state."
+            },
+            {
               "name": "dense",
               "type": "bool",
               "dartType": "bool",
@@ -1092,19 +1200,11 @@
       ],
       "tokenBindings": [
         {
-          "path": "colors.border",
-          "origin": "source"
-        },
-        {
-          "path": "colors.error",
-          "origin": "source"
-        },
-        {
           "path": "colors.hint",
           "origin": "source"
         },
         {
-          "path": "textStyles.label",
+          "path": "textStyles.caption",
           "origin": "source"
         },
         {
@@ -1120,7 +1220,27 @@
           "origin": "source"
         },
         {
+          "path": "theme.fieldErrorDecoration",
+          "origin": "source"
+        },
+        {
+          "path": "theme.fieldErrorFocusDecoration",
+          "origin": "source"
+        },
+        {
+          "path": "theme.fieldFocusDecoration",
+          "origin": "source"
+        },
+        {
+          "path": "theme.fieldHoverDecoration",
+          "origin": "source"
+        },
+        {
           "path": "theme.fieldMinHeight",
+          "origin": "source"
+        },
+        {
+          "path": "theme.fieldReadOnlyDecoration",
           "origin": "source"
         },
         {
@@ -1684,6 +1804,102 @@
         "file": "components.html",
         "selector": "[data-utopia-id=\"page-wrapper\"]"
       }
+    },
+    {
+      "id": "radio",
+      "name": "UtopiaRadio",
+      "description": "A themed radio button, drawn entirely from `UtopiaThemeData` - no Material `Radio` underneath, so its extent and stroke widths follow the token scale and its chrome matches `UtopiaCheckbox` exactly (same square extent, same resting border, same hover step), differing only in shape and glyph.",
+      "file": "lib/src/widget/select/utopia_radio.dart",
+      "generic": true,
+      "constructors": [
+        {
+          "name": "",
+          "description": "Creates a themed radio button for one option of a group.",
+          "props": [
+            {
+              "name": "value",
+              "type": "generic-model",
+              "dartType": "T",
+              "required": true,
+              "description": "The option this button stands for."
+            },
+            {
+              "name": "groupValue",
+              "type": "generic-model",
+              "dartType": "T?",
+              "required": false,
+              "description": "The group's currently selected option; the button renders as selected while it equals value."
+            },
+            {
+              "name": "onChanged",
+              "type": "callback",
+              "dartType": "void Function(T)?",
+              "required": false,
+              "description": "Called with value when tapped; `null` disables interaction."
+            },
+            {
+              "name": "readOnly",
+              "type": "bool",
+              "dartType": "bool",
+              "required": false,
+              "default": "false",
+              "description": "When `true`, blocks interaction while keeping the full-color styling (instead of a faded disabled look)."
+            }
+          ]
+        }
+      ],
+      "tokenBindings": [
+        {
+          "path": "colors.disabled",
+          "origin": "source"
+        },
+        {
+          "path": "colors.field",
+          "origin": "source"
+        },
+        {
+          "path": "colors.hint",
+          "origin": "source"
+        },
+        {
+          "path": "colors.primary",
+          "origin": "source"
+        },
+        {
+          "path": "textStyles.button",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.borders.thin",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.durations.xs",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.radius.fullAll",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.x",
+          "origin": "source"
+        }
+      ],
+      "states": [
+        "disabled",
+        "hover",
+        "readOnly",
+        "selected"
+      ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"radio\"]"
+      },
+      "examples": [
+        "example/lib/sections/selection_section.dart"
+      ],
+      "notes": "A themed radio button for one option of a group, generic over the option type and styled from UtopiaThemeData instead of the ambient MaterialApp theme. It shares UtopiaCheckbox's chrome exactly (x*5 extent, field fill, disabled-coloured edge stepping to hint on hover) and differs only in shape (radius.full) and glyph. selected is `value == groupValue`: a primary fill carrying a button-coloured x*1.5 dot. Every tap reports value, including a tap on the already-selected option, so the owner of the group decides whether re-selecting is a no-op. readOnly blocks interaction while keeping the full-color styling; a null onChanged (without readOnly) is the disabled state and renders faded at 50% opacity."
     },
     {
       "id": "remove-icon-button",
@@ -2423,7 +2639,7 @@
               "dartType": "bool",
               "required": false,
               "default": "false",
-              "description": "When `true`, blocks editing while keeping the field's normal styling."
+              "description": "When `true`, blocks editing and recesses the chrome to the inert read-only look (see `UtopiaFieldWrapper.readOnly`), so a displayed value never poses as an empty control."
             },
             {
               "name": "dense",
@@ -3034,7 +3250,7 @@
     {
       "name": "utopiaFieldDecoration",
       "kind": "function",
-      "description": "The shared InputDecoration for every utopia_ui field - the single source of the borderless chrome and the floating-label styling.",
+      "description": "The shared InputDecoration for every utopia_ui field - the single source of the field chrome and the floating-label styling.",
       "file": "lib/src/widget/wrapper/utopia_field_wrapper.dart",
       "signature": "InputDecoration utopiaFieldDecoration(BuildContext context, {Widget? label, Widget? hint, FloatingLabelBehavior? floatingLabelBehavior, EdgeInsets? contentPadding, bool alignLabelWithHint = false})"
     },

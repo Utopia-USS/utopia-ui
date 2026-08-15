@@ -1,5 +1,28 @@
 # Unreleased
 
+- **Breaking (visual):** `UtopiaThemeData.fieldDecoration` now carries the field's hairline
+  border. It used to be fill + radius only, with `UtopiaFieldWrapper` adding the border on
+  top; consumers that painted their own chrome with `context.fieldDecoration` will see the
+  border appear. Five sibling getters join it - `fieldHoverDecoration`, `fieldFocusDecoration`,
+  `fieldErrorDecoration`, `fieldErrorFocusDecoration` and `fieldReadOnlyDecoration` - so every
+  field state resolves from the theme rather than from widget code.
+- **Breaking (metrics):** a resting field and a resting `UtopiaButton` are now 48 logical
+  pixels tall, down from 62 and 60 respectively - they were never equal, and the resting
+  variant had no test pinning them. `fieldContentPadding` moves to `(x*2, x*1)` = (8, 4),
+  `fieldMinHeight` to `x*8.5` = 34 (the raw constructor's default follows), and
+  `UtopiaButton`'s default extent to `x*12` = 48. The dense variants are unchanged at 40.
+  Layouts that hard-coded 60 or 62 need adjusting.
+- Fields gained hover, focus and read-only chrome. `UtopiaFieldWrapper` observes pointer
+  hover and descendant focus itself (precedence: read-only, error + focus, error, focus,
+  hover, rest) and takes a new `readOnly` flag, which `UtopiaTextField` forwards. Every state
+  keeps the same stroke width and paints its ring as an outward shadow, so no state change
+  shifts layout.
+- The floated field label is now `textStyles.caption` in the hint colour, pre-divided by
+  Flutter's 0.75 floated-label scale so it lands at the themed size - it used to render at 9px
+  in Flutter against the twin's 12px.
+- `UtopiaButton`: the sub-perceptual white hover overlay is gone. Hover slides the whole
+  gradient sweep half a step down the primary -> accent axis, press scales to 98%, and focus
+  draws a solid primary ring with a gap. The `focus` state joins the manifest.
 - Protocol 0.3.0: manifest `tokenBindings` entries carry their provenance
   (`{ "path": ..., "origin": "source" | "overlay" }`) and every component the HTML twin
   renders carries its `twin` binding. `validate_manifest` can now verify a shipped manifest's

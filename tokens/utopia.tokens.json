@@ -974,12 +974,12 @@
       "top": {
         "$type": "dimension",
         "$value": {
-          "value": 10,
+          "value": 8,
           "unit": "px"
         },
         "$extensions": {
           "io.utopiasoft.design": {
-            "derivation": "x*2.5"
+            "derivation": "x*2"
           }
         }
       },
@@ -990,12 +990,12 @@
       "bottom": {
         "$type": "dimension",
         "$value": {
-          "value": 6,
+          "value": 4,
           "unit": "px"
         },
         "$extensions": {
           "io.utopiasoft.design": {
-            "derivation": "x*1.5"
+            "derivation": "x*1"
           }
         }
       },
@@ -1007,12 +1007,12 @@
     "fieldMinHeight": {
       "$type": "dimension",
       "$value": {
-        "value": 44,
+        "value": 34,
         "unit": "px"
       },
       "$extensions": {
         "io.utopiasoft.design": {
-          "derivation": "x*11"
+          "derivation": "x*8.5"
         }
       }
     },

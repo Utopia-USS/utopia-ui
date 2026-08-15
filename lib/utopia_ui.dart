@@ -42,6 +42,8 @@ export 'src/widget/misc/utopia_collapsible.dart';
 export 'src/widget/misc/utopia_multi_widget.dart';
 export 'src/widget/overlay/utopia_overlay_anchor.dart';
 export 'src/widget/select/utopia_check_row.dart';
+export 'src/widget/select/utopia_checkbox.dart';
+export 'src/widget/select/utopia_radio.dart';
 export 'src/widget/sidebar/utopia_sidebar.dart';
 export 'src/widget/sidebar/utopia_sidebar_item.dart';
 export 'src/widget/switch/utopia_switch.dart';

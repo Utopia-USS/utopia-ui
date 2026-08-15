@@ -85,11 +85,11 @@
   --utopia-text-style-button-color: #ffffff;
   --utopia-theme-border-radius: var(--utopia-radius-md);
   --utopia-theme-card-radius: var(--utopia-radius-xl);
-  --utopia-theme-field-content-padding-top: 10px;
+  --utopia-theme-field-content-padding-top: 8px;
   --utopia-theme-field-content-padding-right: var(--utopia-spacing-lg);
-  --utopia-theme-field-content-padding-bottom: 6px;
+  --utopia-theme-field-content-padding-bottom: 4px;
   --utopia-theme-field-content-padding-left: var(--utopia-spacing-lg);
-  --utopia-theme-field-min-height: 44px;
+  --utopia-theme-field-min-height: 34px;
   --utopia-theme-page-top-padding: var(--utopia-spacing-xxxl);
   --utopia-theme-tile-height: 58px;
 }

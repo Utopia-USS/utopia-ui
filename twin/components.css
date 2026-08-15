@@ -55,10 +55,12 @@
 /* ---------------------------------------------------------------------- */
 
 .utopia-button {
-  /* Resting extent mirrors UtopiaButton's `height ?? (dense ? x*10 : x*15)`:
-     x*15 = 60px at the default base unit. Not a token itself (x is), so the
-     resolved product is a Dart literal in the component's own math. */
-  --utopia-button-extent: 60px; /* utopia-literal-ok: mirrors Dart constant UtopiaButton x*15 (default, non-dense extent) */
+  /* Resting extent mirrors UtopiaButton's `height ?? (dense ? x*10 : x*12)`:
+     x*12 = 48px at the default base unit, which is exactly a resting field's
+     total height (content floor + vertical padding + both hairlines). Not a
+     token itself (x is), so the resolved product is a Dart literal in the
+     component's own math. */
+  --utopia-button-extent: 48px; /* utopia-literal-ok: mirrors Dart constant UtopiaButton x*12 (default, non-dense extent) */
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -79,12 +81,36 @@
   font-size: var(--utopia-text-style-button-font-size);
   font-weight: var(--utopia-text-style-button-font-weight);
   letter-spacing: var(--utopia-text-style-button-letter-spacing);
-  transition: background var(--utopia-duration-xl) ease;
+  /* No resting shadow: the button is a flat coloured surface, and press is
+     answered with geometry rather than elevation. */
+  transition: background var(--utopia-duration-sm) ease,
+              transform var(--utopia-duration-xs) ease,
+              outline-color var(--utopia-duration-sm) ease;
 }
 
+/* Hover slides the WHOLE sweep half a step down the primary -> accent axis:
+   the resting sweep runs primary -> midpoint, the hovered one midpoint ->
+   accent. A real colour step, mirroring UtopiaButton's gradient swap - not
+   the translucent overlay this rule used to blend on top. */
+.utopia-button.is-hover,
 .utopia-button:hover {
-  background-color: var(--utopia-color-on-colored-hover);
-  background-blend-mode: overlay;
+  background: linear-gradient(to top right, color-mix(in srgb, var(--utopia-color-primary) 50%, var(--utopia-color-accent) 50%), var(--utopia-color-accent));
+}
+
+/* Press: 2% scale-down, the same geometric answer AnimatedScale gives on the
+   Flutter side. */
+.utopia-button:active {
+  transform: scale(0.98);
+}
+
+/* Focus: a solid ring with a gap, the Radix/Linear/Geist canon. `outline`
+   costs no layout, so the ring never nudges a toolbar row. Geometry matches
+   the Flutter pair of hard-edged shadows exactly: a borders.thick gap, then a
+   borders.thick ring. */
+.utopia-button.is-focus,
+.utopia-button:focus-visible {
+  outline: var(--utopia-border-thick) solid var(--utopia-color-primary);
+  outline-offset: var(--utopia-border-thick);
 }
 
 /* Dense: shorter fixed extent, x*10 = 40px instead of x*15 = 60px. */
@@ -179,7 +205,9 @@
   border-radius: var(--utopia-theme-border-radius);
   background-color: var(--utopia-color-field);
   border: var(--utopia-border-hairline) solid var(--utopia-color-border);
-  transition: border-color var(--utopia-duration-sm) ease;
+  transition: border-color var(--utopia-duration-sm) ease,
+              background-color var(--utopia-duration-sm) ease,
+              outline-color var(--utopia-duration-sm) ease;
 }
 
 .utopia-text-field__body {
@@ -190,14 +218,18 @@
   justify-content: center;
 }
 
-/* Floating label: textStyles.label (semi-bold, small, slightly tightened
-   caption size) shown above the value once the field has content or focus. */
+/* Floating label: microcopy, not a second line of content - textStyles.caption
+   in the hint colour, so the label is quieter AND smaller than the value it
+   names instead of heavier. Flutter reaches the same rendered size by
+   pre-dividing the caption size by InputDecorator's 0.75 floated-label scale
+   (see utopiaFieldDecoration); the twin renders it unscaled, so it reads the
+   caption token directly. */
 .utopia-text-field__label {
-  font-family: var(--utopia-text-style-label-font-family), sans-serif;
-  font-size: var(--utopia-text-style-label-font-size);
-  font-weight: var(--utopia-text-style-label-font-weight);
-  letter-spacing: var(--utopia-text-style-label-letter-spacing);
-  color: var(--utopia-text-style-label-color);
+  font-family: var(--utopia-text-style-caption-font-family), sans-serif;
+  font-size: var(--utopia-text-style-caption-font-size);
+  font-weight: var(--utopia-text-style-caption-font-weight);
+  letter-spacing: var(--utopia-text-style-caption-letter-spacing);
+  color: var(--utopia-color-hint);
   margin: 0 0 var(--utopia-spacing-xxs) 0;
 }
 
@@ -243,8 +275,47 @@
   margin: 0;
 }
 
+/* Hover: the edge steps toward the hint colour (the same lerp
+   UtopiaThemeData.fieldHoverDecoration takes). The fill is unchanged - a
+   field acknowledges the pointer, it does not light up. Expressed through the
+   `:hover` pseudo-class ONLY, with no `.is-hover` counterpart: the manifest
+   does not (yet) declare `hover` among the field's states, and a `.is-*` class
+   with no manifest entry is state drift in the other direction. */
+.utopia-text-field:hover .utopia-text-field__chrome {
+  border-color: color-mix(in srgb, var(--utopia-color-border) 65%, var(--utopia-color-hint) 35%);
+}
+
+/* Focus: a borders.thick solid ring in the accent colour, pulled inward by a
+   hairline so it straddles the existing border (Radix's canon). `outline`
+   takes no layout space, so focusing never shifts the field - the same
+   promise the Flutter side keeps by painting its outward half as a shadow.
+   The fill lifts to `surface` so the field reads as live. */
+.utopia-text-field.is-focus .utopia-text-field__chrome,
+.utopia-text-field__chrome:focus-within {
+  background-color: var(--utopia-color-surface);
+  border-color: var(--utopia-color-primary);
+  outline: var(--utopia-border-thick) solid var(--utopia-color-primary);
+  outline-offset: calc(-1 * var(--utopia-border-hairline));
+}
+
 .utopia-text-field.is-error .utopia-text-field__chrome {
   border-color: var(--utopia-color-error);
+}
+
+/* An errored field keeps its hue while being corrected, ring included. */
+.utopia-text-field.is-error.is-focus .utopia-text-field__chrome {
+  border-color: var(--utopia-color-error);
+  outline-color: var(--utopia-color-error);
+}
+
+/* Read-only: recessed to the page colour, no ring - a displayed value rather
+   than a control waiting for input. Outranks every state above it, so it is
+   declared last. */
+.utopia-text-field.is-readonly .utopia-text-field__chrome {
+  background-color: var(--utopia-color-canvas);
+  border-color: var(--utopia-color-border);
+  outline: none;
+  cursor: default;
 }
 
 /* Dense: no vertical content padding (top/bottom -> 0), and the content
@@ -258,9 +329,9 @@
   min-height: 40px; /* utopia-literal-ok: mirrors Dart invariant UtopiaFieldWrapper dense outer extent = x*10 (content floor x*10 - 2*border.hairline, borders added back) */
 }
 
-/* Disabled / read-only: UtopiaTextField keeps the field's NORMAL styling
-   (disabled is modeled through readOnly, not a faded look) - only the cursor
-   affordance communicates the state. */
+/* Disabled: UtopiaTextField models it through readOnly rather than Flutter's
+   faded look, so the chrome the state carries is the read-only one above -
+   this rule only adds the cursor affordance. */
 .utopia-text-field.is-disabled .utopia-text-field__chrome {
   cursor: default;
 }
@@ -302,37 +373,10 @@
   background-color: var(--utopia-color-hover);
 }
 
-.utopia-check-row__box {
-  flex: 0 0 auto;
-  box-sizing: border-box;
-  width: 20px; /* utopia-literal-ok: mirrors Dart constant UtopiaCheckRow._CheckBox width/height (literal 20) */
-  height: 20px; /* utopia-literal-ok: mirrors Dart constant UtopiaCheckRow._CheckBox width/height (literal 20) */
-  border-radius: var(--utopia-radius-sm);
-  border: var(--utopia-border-thin) solid var(--utopia-color-disabled);
-  transition: background-color var(--utopia-duration-xs) ease, border-color var(--utopia-duration-xs) ease;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.utopia-check-row.is-selected .utopia-check-row__box {
-  background-color: var(--utopia-color-accent);
-  border-color: var(--utopia-color-accent);
-}
-
-.utopia-check-row__box::after {
-  content: '';
-  width: 10px; /* utopia-literal-ok: mirrors Dart constant Icons.check size (literal 14) scaled to a CSS checkmark glyph box */
-  height: 6px; /* utopia-literal-ok: mirrors Dart constant Icons.check size (literal 14) scaled to a CSS checkmark glyph box */
-  border-left: 2px solid #fff; /* utopia-literal-ok: checkmark glyph stroke color mirrors Icon(color: Colors.white) in _CheckBox */
-  border-bottom: 2px solid #fff; /* utopia-literal-ok: checkmark glyph stroke color mirrors Icon(color: Colors.white) in _CheckBox */
-  transform: rotate(-45deg) translate(1px, -1px); /* utopia-literal-ok: checkmark glyph position nudge, a CSS-drawing constant not a design token */
-  opacity: 0;
-}
-
-.utopia-check-row.is-selected .utopia-check-row__box::after {
-  opacity: 1;
-}
+/* The box itself is the nested .utopia-checkbox: the Dart stopped drawing its
+   own (_CheckBox is gone) and composes UtopiaCheckbox(readOnly: true) instead,
+   so the twin nests the checkbox markup in the check-row specimens - one place
+   defines the box, exactly like the Dart. See the .utopia-checkbox group below. */
 
 .utopia-check-row__label {
   margin: 0 0 0 var(--utopia-spacing-md);
@@ -344,6 +388,84 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+}
+
+/* ---------------------------------------------------------------------- */
+/* .utopia-checkbox - lib/src/widget/select/utopia_checkbox.dart           */
+/* ---------------------------------------------------------------------- */
+
+.utopia-checkbox {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 20px; /* utopia-literal-ok: mirrors UtopiaCheckbox extent = tokens.x*5 */
+  height: 20px; /* utopia-literal-ok: mirrors UtopiaCheckbox extent = tokens.x*5 */
+  padding: 0;
+  background-color: var(--utopia-color-field);
+  border: var(--utopia-border-thin) solid var(--utopia-color-disabled);
+  border-radius: var(--utopia-radius-xs);
+  cursor: pointer;
+  transition: background-color var(--utopia-duration-xs) ease, border-color var(--utopia-duration-xs) ease;
+}
+
+/* The edge leads and the fill supports: an empty box steps one shade darker
+   on hover (mirrors the interactive && hovering branch of borderColor), the
+   same doctrine the fields follow. */
+.utopia-checkbox:hover,
+.utopia-checkbox.is-hover {
+  border-color: var(--utopia-color-hint);
+}
+
+/* Checked and mixed share one filled rendering and differ only in the glyph
+   (Dart: `filled = value || indeterminate`). The mixed rendering is a BEM
+   modifier rather than an .is-* class: `indeterminate` is a constructor flag
+   like the button's `dense`, not an interaction state, and the manifest's
+   closed state vocabulary has no entry for it - validate_twin's state-parity
+   gate warns about any .is-* class with no matching manifest state. */
+.utopia-checkbox.is-selected,
+.utopia-checkbox.utopia-checkbox--indeterminate {
+  background-color: var(--utopia-color-primary);
+  border-color: var(--utopia-color-primary);
+}
+
+/* A filled box keeps its primary edge under the cursor - hover only moves the
+   resting border, never the selected one. */
+.utopia-checkbox.is-selected:hover,
+.utopia-checkbox.utopia-checkbox--indeterminate:hover {
+  border-color: var(--utopia-color-primary);
+}
+
+.utopia-checkbox.is-readonly {
+  cursor: default;
+}
+
+.utopia-checkbox.is-disabled {
+  opacity: 0.5; /* mirrors UtopiaCheckbox disabled fade (onChanged == null, not readOnly) */
+  cursor: default;
+}
+
+/* The check glyph. Flutter draws Icon(Icons.check, size: tokens.x*3.5); the
+   twin draws the same mark from two borders, sized to sit inside that glyph
+   box, and takes its colour from the button text style exactly like the Dart
+   (textStyles.button.color), so a theme with dark on-primary content stays in
+   parity. */
+.utopia-checkbox__check {
+  width: 8px; /* utopia-literal-ok: CSS checkmark drawing box inside Icon(Icons.check, size: tokens.x*3.5) */
+  height: 5px; /* utopia-literal-ok: CSS checkmark drawing box inside Icon(Icons.check, size: tokens.x*3.5) */
+  border-left: var(--utopia-border-thick) solid var(--utopia-text-style-button-color);
+  border-bottom: var(--utopia-border-thick) solid var(--utopia-text-style-button-color);
+  transform: rotate(-45deg) translate(1px, -1px); /* utopia-literal-ok: checkmark glyph position nudge, a CSS-drawing constant not a design token */
+}
+
+/* The mixed ("some, not all") bar: x*2.5 wide, borders.thick tall, fully
+   rounded - the Container the Dart draws in place of the check glyph. */
+.utopia-checkbox__bar {
+  width: 10px; /* utopia-literal-ok: mirrors UtopiaCheckbox mixed bar width = tokens.x*2.5 */
+  height: var(--utopia-border-thick);
+  border-radius: var(--utopia-radius-full);
+  background-color: var(--utopia-text-style-button-color);
 }
 
 /* ---------------------------------------------------------------------- */
@@ -612,6 +734,22 @@
 }
 
 /* ---------------------------------------------------------------------- */
+/* .utopia-dropdown-field - lib/src/widget/dropdown/utopia_dropdown_field.dart */
+/* The closed trigger IS a .utopia-labeled-field: same chrome, same row, so */
+/* only the trigger's own states are declared here.                        */
+/* ---------------------------------------------------------------------- */
+
+/* Focused, and open: an open popup means its trigger is the active control,
+   so both states take the shared field focus ring - one rule, two names. */
+.utopia-dropdown-field.is-focus .utopia-text-field__chrome,
+.utopia-dropdown-field.is-open .utopia-text-field__chrome {
+  background-color: var(--utopia-color-surface);
+  border-color: var(--utopia-color-primary);
+  outline: var(--utopia-border-thick) solid var(--utopia-color-primary);
+  outline-offset: calc(-1 * var(--utopia-border-hairline));
+}
+
+/* ---------------------------------------------------------------------- */
 /* .utopia-loader - lib/src/widget/loading/utopia_loader.dart              */
 /* ---------------------------------------------------------------------- */
 
@@ -686,6 +824,69 @@
 }
 
 /* ---------------------------------------------------------------------- */
+/* .utopia-radio - lib/src/widget/select/utopia_radio.dart                 */
+/* ---------------------------------------------------------------------- */
+
+/* The radio shares UtopiaCheckbox's chrome exactly and differs only in shape
+   and glyph. The rules deliberately repeat the box's values rather than
+   inheriting from .utopia-checkbox: the two components are separate manifest
+   entries with separate visual contracts, and a shared base class would hide
+   a future divergence from the twin's own diff. */
+
+.utopia-radio {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+  width: 20px; /* utopia-literal-ok: mirrors UtopiaRadio extent = tokens.x*5 */
+  height: 20px; /* utopia-literal-ok: mirrors UtopiaRadio extent = tokens.x*5 */
+  padding: 0;
+  background-color: var(--utopia-color-field);
+  border: var(--utopia-border-thin) solid var(--utopia-color-disabled);
+  border-radius: var(--utopia-radius-full);
+  cursor: pointer;
+  transition: background-color var(--utopia-duration-xs) ease, border-color var(--utopia-duration-xs) ease;
+}
+
+/* Same hover doctrine as the check box: the resting edge steps one shade
+   darker, the selected edge never moves. */
+.utopia-radio:hover,
+.utopia-radio.is-hover {
+  border-color: var(--utopia-color-hint);
+}
+
+.utopia-radio.is-selected,
+.utopia-radio.is-selected:hover {
+  background-color: var(--utopia-color-primary);
+  border-color: var(--utopia-color-primary);
+}
+
+.utopia-radio.is-readonly {
+  cursor: default;
+}
+
+.utopia-radio.is-disabled {
+  opacity: 0.5; /* mirrors UtopiaRadio disabled fade (onChanged == null, not readOnly) */
+  cursor: default;
+}
+
+/* The dot grows out of nothing rather than fading in, mirroring the inner
+   AnimatedContainer whose extent is 0 while unselected. */
+.utopia-radio__dot {
+  width: 0;
+  height: 0;
+  border-radius: var(--utopia-radius-full);
+  background-color: var(--utopia-text-style-button-color);
+  transition: width var(--utopia-duration-xs) ease, height var(--utopia-duration-xs) ease;
+}
+
+.utopia-radio.is-selected .utopia-radio__dot {
+  width: 6px; /* utopia-literal-ok: mirrors UtopiaRadio dot extent = tokens.x*1.5 */
+  height: 6px; /* utopia-literal-ok: mirrors UtopiaRadio dot extent = tokens.x*1.5 */
+}
+
+/* ---------------------------------------------------------------------- */
 /* .utopia-remove-icon-button - lib/src/widget/button/utopia_remove_icon_button.dart */
 /* ---------------------------------------------------------------------- */
 
@@ -733,6 +934,24 @@
   border-radius: var(--utopia-theme-border-radius);
   background-color: var(--utopia-color-field);
   border: var(--utopia-border-hairline) solid var(--utopia-color-border);
+  transition: border-color var(--utopia-duration-sm) ease,
+              background-color var(--utopia-duration-sm) ease,
+              outline-color var(--utopia-duration-sm) ease;
+}
+
+/* Hover and focus: the search field carries its own copy of the wrapper
+   chrome, so it restates the shared state rules rather than inheriting them
+   (see .utopia-text-field__chrome). */
+.utopia-search-field:hover {
+  border-color: color-mix(in srgb, var(--utopia-color-border) 65%, var(--utopia-color-hint) 35%);
+}
+
+.utopia-search-field.is-focus,
+.utopia-search-field:focus-within {
+  background-color: var(--utopia-color-surface);
+  border-color: var(--utopia-color-primary);
+  outline: var(--utopia-border-thick) solid var(--utopia-color-primary);
+  outline-offset: calc(-1 * var(--utopia-border-hairline));
 }
 
 .utopia-search-field--dense {
@@ -1067,6 +1286,18 @@
   border-radius: var(--utopia-theme-border-radius);
   background-color: var(--utopia-color-field);
   border: var(--utopia-border-hairline) solid var(--utopia-color-border);
+}
+
+/* Read-only and disabled are forwarded VERBATIM to the inner switch
+   (UtopiaSwitchField hands both straight to UtopiaSwitch and leaves the
+   wrapper alone), so the composite's own chrome is unchanged in both: the
+   visible difference lives on .utopia-switch (full colour + default cursor
+   for read-only, 50% fade for disabled) and the row only stops advertising
+   itself as clickable. Deliberately NOT the recessed read-only fill a text
+   field takes - that would claim a Flutter behaviour that does not exist. */
+.utopia-switch-field.is-readonly,
+.utopia-switch-field.is-disabled {
+  cursor: default;
 }
 
 .utopia-switch-field__title {

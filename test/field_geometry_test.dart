@@ -9,7 +9,13 @@ import 'package:utopia_ui/utopia_ui.dart';
 /// box: the value's line box reserves descender space below the baseline that
 /// digits/caps never fill, so box-symmetric centring reads as bottom-heavy.
 /// The theme compensates with asymmetric vertical fieldContentPadding
-/// (top 2.5x, bottom 1.5x) - this test pins that intent.
+/// (top 2x, bottom 1x) - this test pins that intent.
+///
+/// It also pins the system's height invariant in BOTH variants:
+/// `fieldMinHeight + padTop + padBottom + 2 * borders.hairline == button
+/// extent`. The dense variant carried that pin from the start; the resting
+/// variant did not, which is exactly why it drifted 2px apart unnoticed once
+/// the wrapper gained a border.
 void main() {
   testWidgets('text field: error message sits flush with the field edge', (tester) async {
     await tester.pumpWidget(
@@ -102,6 +108,85 @@ void main() {
     );
     expect(find.text('Name'), findsNothing);
     expect(find.text('Search...'), findsOneWidget);
+  });
+
+  testWidgets('resting text field: matches the resting button height', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Center(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                SizedBox(
+                  width: 300,
+                  // The floated label + value stack is the tallest resting
+                  // content a field carries, so this is the case that has to
+                  // fit inside fieldMinHeight for the invariant to hold.
+                  child: UtopiaTextField(
+                    value: 'Ava Chen',
+                    label: const Text('Name'),
+                    onChanged: (_) {},
+                  ),
+                ),
+                UtopiaButton(maxWidth: 100, onTap: () {}, child: const Text('Go')),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final theme = UtopiaThemeData.defaultTheme;
+    final expected =
+        theme.fieldMinHeight +
+        theme.fieldContentPadding.vertical +
+        2 * theme.tokens.borders.hairline;
+    final fieldBox = tester.getRect(find.byType(UtopiaFieldWrapper));
+    final buttonBox = tester.getRect(find.byType(UtopiaButton));
+
+    expect(
+      fieldBox.height,
+      moreOrLessEquals(expected, epsilon: 0.5),
+      reason: 'the label+value stack must fit inside fieldMinHeight, or the field outgrows the invariant',
+    );
+    expect(
+      fieldBox.height,
+      moreOrLessEquals(buttonBox.height, epsilon: 0.5),
+      reason: 'resting field chrome must match the resting button extent exactly',
+    );
+  });
+
+  testWidgets('labeled field: matches the resting button height', (tester) async {
+    await tester.pumpWidget(
+      MaterialApp(
+        home: Scaffold(
+          body: Center(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              children: [
+                const SizedBox(
+                  width: 300,
+                  child: UtopiaLabeledField(label: 'Role', value: 'Editor'),
+                ),
+                UtopiaButton(maxWidth: 100, onTap: () {}, child: const Text('Go')),
+              ],
+            ),
+          ),
+        ),
+      ),
+    );
+    await tester.pumpAndSettle();
+
+    final fieldBox = tester.getRect(find.byType(UtopiaFieldWrapper));
+    final buttonBox = tester.getRect(find.byType(UtopiaButton));
+
+    expect(
+      fieldBox.height,
+      moreOrLessEquals(buttonBox.height, epsilon: 0.5),
+      reason: 'the dropdown trigger chrome must match the resting button extent too',
+    );
   });
 
   testWidgets('dense search field: matches the dense button height', (tester) async {

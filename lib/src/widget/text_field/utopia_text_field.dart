@@ -49,7 +49,9 @@ class UtopiaTextField extends HookWidget {
   /// Number of visible text lines.
   final int lines;
 
-  /// When `true`, blocks editing while keeping the field's normal styling.
+  /// When `true`, blocks editing and recesses the chrome to the inert
+  /// read-only look (see `UtopiaFieldWrapper.readOnly`), so a displayed value
+  /// never poses as an empty control.
   final bool readOnly;
 
   /// Compact chrome matching a dense `UtopiaButton`'s height. No room for a
@@ -122,6 +124,7 @@ class UtopiaTextField extends HookWidget {
   Widget _buildField(BuildContext context, TextEditingController controller) {
     return UtopiaFieldWrapper(
       hasError: error != null,
+      readOnly: readOnly,
       dense: dense,
       child: Row(
         children: [
@@ -163,9 +166,11 @@ class UtopiaTextField extends HookWidget {
           alignLabelWithHint: multiline,
           // Reserve headroom for the floated label: multiline content fills
           // the decorator, so without it the floated label sits flush with
-          // the chrome. 1.5x matches the single-line fields' centring slack,
-          // so the floated label lands at the same top offset in both.
-          contentPadding: multiline && label != null ? EdgeInsets.only(top: context.tokens.x * 1.5) : null,
+          // the chrome. 0.5x matches the slack a single-line field gets from
+          // centring its shorter stack inside `fieldMinHeight`, so the floated
+          // label lands at the same top offset in both (pinned by
+          // field_geometry_test).
+          contentPadding: multiline && label != null ? EdgeInsets.only(top: context.tokens.x * 0.5) : null,
         ),
         style: textStyles.text,
       ),

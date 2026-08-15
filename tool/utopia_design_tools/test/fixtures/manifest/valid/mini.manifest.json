@@ -80,10 +80,13 @@
       ],
       "tokenBindings": [
         "colors.accent",
-        "colors.onColoredHover",
         "colors.primary",
+        "colors.surface",
         "textStyles.button",
         "theme.borderRadius",
+        "tokens.borders.thick",
+        "tokens.durations.sm",
+        "tokens.durations.xs",
         "tokens.x"
       ],
       "states": [

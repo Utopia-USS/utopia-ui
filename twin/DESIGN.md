@@ -136,6 +136,8 @@ One line per tier-1 component; anchors point at `data-utopia-id` on the componen
 - Card - `data-utopia-id="card"`
 - Chip - `data-utopia-id="chip"`
 - Chip list - `data-utopia-id="chip-list"`
+- Checkbox - `data-utopia-id="checkbox"`
+- Radio - `data-utopia-id="radio"`
 - Check row - `data-utopia-id="check-row"`
 - Switch - `data-utopia-id="switch"`
 - Switch field - `data-utopia-id="switch-field"`
