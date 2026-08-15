@@ -49,25 +49,37 @@ class UtopiaTableHeader<T> extends StatelessWidget {
     // Column headers are a restrained take on the row data: same medium weight
     // (capped at medium - any heavier reads as too bold here), only a hair larger,
     // not the full section/page title size which renders too big and too heavy.
+    // The style's own colour (the body tone) is kept on purpose - a column
+    // label carrying the heading tone outweighs the data it labels.
     final body = context.textStyles.text;
     final style = body.copyWith(
-      color: context.colors.text,
       fontWeight: context.tokens.fontWeights.medium,
       fontSize: (body.fontSize ?? 14) + 1,
     );
-    return Padding(
-      // Full lg breathing room: rows scroll under this pinned row, so a tight
-      // header reads as the table crowding itself.
-      padding: EdgeInsets.symmetric(horizontal: context.spacing.lg, vertical: context.spacing.lg),
-      child: Row(
-        children: [
-          for (final entry in entries) entry.wrapTableCell(_buildHeaderItem(context, entry, style)),
-          if (hasActions)
-            const Padding(
-              padding: UtopiaTable.itemPadding,
-              child: SizedBox(width: UtopiaTable.actionsWidth),
-            ),
-        ],
+    return DecoratedBox(
+      // The header owns the rule under itself, drawn in `colors.border` rather
+      // than the lighter divider the rows separate with: search panel, headers
+      // and data otherwise run together as one block, and the caesura between
+      // labels and data has to outrank the lines inside the data.
+      decoration: BoxDecoration(
+        border: Border(
+          bottom: BorderSide(color: context.colors.border, width: context.theme.dividerThickness),
+        ),
+      ),
+      child: Padding(
+        // Full lg breathing room: rows scroll under this pinned row, so a tight
+        // header reads as the table crowding itself.
+        padding: EdgeInsets.symmetric(horizontal: context.spacing.lg, vertical: context.spacing.lg),
+        child: Row(
+          children: [
+            for (final entry in entries) entry.wrapTableCell(_buildHeaderItem(context, entry, style)),
+            if (hasActions)
+              const Padding(
+                padding: UtopiaTable.itemPadding,
+                child: SizedBox(width: UtopiaTable.actionsWidth),
+              ),
+          ],
+        ),
       ),
     );
   }

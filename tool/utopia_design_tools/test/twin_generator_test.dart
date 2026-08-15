@@ -57,12 +57,28 @@ void main() {
 
     test('theme.borderRadius emits a var() alias reference', () {
       final css = generateCss(canonicalDocument(), inputPath: 'tokens/utopia.tokens.json', profileVersion: '0.2.0');
-      expect(css, contains('  --utopia-theme-border-radius: var(--utopia-radius-sm);'));
+      expect(css, contains('  --utopia-theme-border-radius: var(--utopia-radius-md);'));
     });
 
-    test('shadow.sm emits the full box-shadow value with unitless zero components', () {
+    test('shadow.sm emits every layer, comma-joined, with unitless zero components', () {
       final css = generateCss(canonicalDocument(), inputPath: 'tokens/utopia.tokens.json', profileVersion: '0.2.0');
-      expect(css, contains('  --utopia-shadow-sm: 0 1px 6px 0 rgb(0 0 0 / 0.051);'));
+      expect(
+        css,
+        contains(
+          '  --utopia-shadow-sm: 0 1px 2px 0 rgb(16 24 40 / 0.0588), 0 4px 10px -2px rgb(16 24 40 / 0.051);',
+        ),
+      );
+    });
+
+    test('shadow.lg leads with the hairline ring layer and keeps negative spreads', () {
+      final css = generateCss(canonicalDocument(), inputPath: 'tokens/utopia.tokens.json', profileVersion: '0.2.0');
+      expect(
+        css,
+        contains(
+          '  --utopia-shadow-lg: 0 0 0 1px rgb(16 24 40 / 0.0588), '
+          '0 4px 8px -2px rgb(16 24 40 / 0.0588), 0 16px 32px -8px rgb(16 24 40 / 0.1412);',
+        ),
+      );
     });
 
     test('textStyle.header expands to per-property vars with the folded sibling color', () {
@@ -73,7 +89,7 @@ void main() {
       expect(css, contains('  --utopia-text-style-header-letter-spacing: -0.5px;'));
       // The fold rule: textStyle-colors.header -> ...-header-color, NOT
       // ...-text-style-colors-header.
-      expect(css, contains('  --utopia-text-style-header-color: rgb(0 0 0 / 0.8667);'));
+      expect(css, contains('  --utopia-text-style-header-color: #14161f;'));
       expect(css, isNot(contains('text-style-colors')));
     });
 
@@ -84,13 +100,15 @@ void main() {
 
     test('an alpha color renders rgb() with 0-255 channels and trimmed alpha', () {
       final css = generateCss(canonicalDocument(), inputPath: 'tokens/utopia.tokens.json', profileVersion: '0.2.0');
-      // color.text: components [0,0,0], alpha 0.866667 -> rgb(0 0 0 / 0.8667).
-      expect(css, contains('  --utopia-color-text: rgb(0 0 0 / 0.8667);'));
+      // color.onColoredContent: components [1,1,1], alpha 0.850980 ->
+      // rgb(255 255 255 / 0.851). The default palette is otherwise fully
+      // opaque, so the on-colored overlays are the alpha carriers.
+      expect(css, contains('  --utopia-color-on-colored-content: rgb(255 255 255 / 0.851);'));
     });
 
     test('an opaque color renders lowercase hex', () {
       final css = generateCss(canonicalDocument(), inputPath: 'tokens/utopia.tokens.json', profileVersion: '0.2.0');
-      expect(css, contains('  --utopia-color-primary: #536dfe;'));
+      expect(css, contains('  --utopia-color-primary: #3f51e5;'));
     });
 
     test('header comment carries the input path and regeneration command', () {
@@ -124,14 +142,14 @@ void main() {
         inputPath: 'tokens/utopia.tokens.json',
         profileVersion: '0.2.0',
       );
-      expect(tailwind, contains('  --color-primary: #536dfe;'));
+      expect(tailwind, contains('  --color-primary: #3f51e5;'));
       expect(tailwind, contains('  --spacing-md: 12px;'));
       expect(tailwind, contains('  --radius-sm: 6px;'));
-      expect(tailwind, contains('  --shadow-sm: 0 1px 6px 0 rgb(0 0 0 / 0.051);'));
+      expect(tailwind, contains('  --shadow-sm: 0 1px 2px 0 rgb(16 24 40 / 0.0588), 0 4px 10px -2px rgb(16 24 40 / 0.051);'));
       expect(tailwind, contains('  --font-weight-semi-bold: 600;'));
       expect(tailwind, contains('  --breakpoint-tablet: 600px;'));
       expect(tailwind, contains('  --font-header: Sora;'));
-      expect(tailwind, contains('  --color-text-style-header: rgb(0 0 0 / 0.8667);'));
+      expect(tailwind, contains('  --color-text-style-header: #14161f;'));
     });
 
     test('families with no stable namespace are kept as comments, not dropped', () {
@@ -143,7 +161,7 @@ void main() {
       expect(tailwind, contains('  /* --utopia-x: 4; */'));
       expect(tailwind, contains('  /* --utopia-border-hairline: 1px; */'));
       expect(tailwind, contains('  /* --utopia-duration-md: 200ms; */'));
-      expect(tailwind, contains('  /* --utopia-theme-border-radius: 6px; */'));
+      expect(tailwind, contains('  /* --utopia-theme-border-radius: 8px; */'));
     });
 
     test('is idempotent', () {
@@ -438,7 +456,7 @@ void main() {
     test('emits name, colors, typography, rounded and spacing per SPEC 4.6', () {
       final frontMatter = buildFrontMatterBody(canonicalDocument());
       expect(frontMatter, contains('name: Utopia'));
-      expect(frontMatter, contains('  primary: "#536dfe"'));
+      expect(frontMatter, contains('  primary: "#3f51e5"'));
       expect(frontMatter, contains('    fontFamily: "Sora"'));
       expect(frontMatter, contains('    fontSize: "24px"'));
       expect(frontMatter, contains('    fontWeight: 600'));
@@ -470,7 +488,7 @@ Some more hand-written prose that must survive regeneration untouched.
 
       expect(spliced, contains(doctoredBody));
       expect(spliced, isNot(contains('primary: "#000000"')));
-      expect(spliced, contains('primary: "#536dfe"'));
+      expect(spliced, contains('primary: "#3f51e5"'));
 
       // Regenerating again with an unrelated front matter body must not
       // disturb the body a second time.

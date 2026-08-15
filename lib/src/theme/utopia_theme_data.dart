@@ -70,7 +70,7 @@ abstract class UtopiaThemeData with _$UtopiaThemeData {
       tokens: tokens,
       colors: colors,
       textStyles: textStyles,
-      borderRadius: radius.smAll,
+      borderRadius: radius.mdAll,
       cardRadius: radius.xlAll,
       // Vertically biased on purpose: the text stack is box-symmetric inside
       // the chrome, but the value line reserves descender space below the
@@ -105,14 +105,20 @@ abstract class UtopiaThemeData with _$UtopiaThemeData {
   /// Thickness of row / header dividers.
   double get dividerThickness => tokens.borders.hairline;
 
-  /// Corner radius of a `UtopiaChip`.
-  double get chipRadius => tokens.radius.md;
+  /// Corner radius of a `UtopiaChip` - one step below [borderRadius], so a
+  /// badge never reads as rounder than the control it sits in.
+  double get chipRadius => tokens.radius.sm;
 
   BoxDecoration get fieldDecoration => BoxDecoration(borderRadius: borderRadius, color: colors.field);
 
   /// Fill + radius + shadow for the table card (the back layer of the card).
   BoxDecoration get cardDecoration =>
       BoxDecoration(color: colors.surface, borderRadius: cardRadius, boxShadow: cardShadow);
+
+  /// Card chrome lifted to the overlay tier: a dialog sits above a barrier,
+  /// so it takes [menuShadow] rather than the resting [cardShadow] a card
+  /// underneath it would use.
+  BoxDecoration get dialogDecoration => cardDecoration.copyWith(boxShadow: menuShadow);
 
   /// Foreground hairline border for the table card, drawn on top of its content.
   BoxDecoration get cardBorderDecoration => BoxDecoration(

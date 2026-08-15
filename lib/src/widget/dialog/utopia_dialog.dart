@@ -139,7 +139,7 @@ class UtopiaDialog extends StatelessWidget {
             child: Material(
               color: Colors.transparent,
               child: Container(
-                decoration: theme.cardDecoration,
+                decoration: theme.dialogDecoration,
                 foregroundDecoration: theme.cardBorderDecoration,
                 clipBehavior: Clip.antiAlias,
                 child: body,

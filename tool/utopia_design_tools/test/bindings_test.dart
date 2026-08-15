@@ -88,7 +88,7 @@ void main() {
       'textStyles.title',
       'textStyles.header',
       'colors.text',
-      'theme.cardDecoration',
+      'theme.dialogDecoration',
       'theme.cardBorderDecoration',
       'tokens.spacing.xxxl',
       'tokens.radius.xl',

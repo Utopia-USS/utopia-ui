@@ -340,7 +340,7 @@
   font-size: var(--utopia-text-style-text-font-size);
   font-weight: var(--utopia-text-style-text-font-weight);
   letter-spacing: var(--utopia-text-style-text-letter-spacing);
-  color: var(--utopia-color-text);
+  color: var(--utopia-text-style-text-color);
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
@@ -355,8 +355,8 @@
   align-items: center;
   gap: var(--utopia-spacing-xs);
   box-sizing: border-box;
-  padding: var(--utopia-spacing-xs) var(--utopia-spacing-md);
-  border-radius: var(--utopia-radius-md); /* utopia-literal-ok: mirrors Dart getter UtopiaThemeData.chipRadius = tokens.radius.md (no dedicated theme.* token emitted) */
+  padding: var(--utopia-spacing-xs) var(--utopia-spacing-sm);
+  border-radius: var(--utopia-radius-sm); /* utopia-literal-ok: mirrors Dart getter UtopiaThemeData.chipRadius = tokens.radius.sm (no dedicated theme.* token emitted) */
   background-color: var(--utopia-color-chip-background);
   color: var(--utopia-color-chip-foreground);
   font-family: var(--utopia-text-style-caption-font-family), sans-serif;
@@ -441,7 +441,7 @@
   font-size: var(--utopia-text-style-text-font-size);
   font-weight: var(--utopia-text-style-text-font-weight);
   letter-spacing: var(--utopia-text-style-text-letter-spacing);
-  color: var(--utopia-color-text);
+  color: var(--utopia-text-style-text-color);
 }
 
 .utopia-confirm-dialog__actions {
@@ -505,7 +505,9 @@
   background-color: var(--utopia-color-surface);
   border-radius: var(--utopia-radius-xl);
   border: var(--utopia-border-thin) solid var(--utopia-color-border);
-  box-shadow: var(--utopia-shadow-sm);
+  /* Mirrors UtopiaThemeData.dialogDecoration: a modal sits above a barrier,
+     so it takes the overlay shadow, not the resting card's. */
+  box-shadow: var(--utopia-shadow-lg);
   display: flex;
   flex-direction: column;
   overflow: hidden;
@@ -571,10 +573,11 @@
   width: 100%;
   border: 0;
   margin: 0;
-  /* colors.divider is unset by default: derived as text-over-surface at 12%
-     alpha (Color.alphaBlend(colors.text.withValues(alpha: 0.12), colors.surface)).
-     color-mix approximates the same alpha blend against the surface color. */
-  background-color: color-mix(in srgb, var(--utopia-color-text) 12%, var(--utopia-color-surface));
+  /* colors.divider carries a value in the default theme, one step lighter
+     than colors.border, so a surface's outer edge stays stronger than the
+     lines inside it. The text-over-surface derivation only runs for a theme
+     that leaves the slot unset. */
+  background-color: var(--utopia-color-divider);
 }
 
 /* ---------------------------------------------------------------------- */
@@ -935,7 +938,8 @@
   border: 0;
   background: none;
   width: calc(100% - 2 * var(--utopia-spacing-md));
-  color: var(--utopia-color-text);
+  /* Unselected nav rests on the label style's body tone; .is-selected overrides with the brand color below */
+  color: var(--utopia-text-style-label-color);
   transition: background-color var(--utopia-duration-xs) ease;
 }
 
@@ -1073,7 +1077,7 @@
   font-size: var(--utopia-text-style-text-font-size);
   font-weight: var(--utopia-text-style-text-font-weight);
   letter-spacing: var(--utopia-text-style-text-letter-spacing);
-  color: var(--utopia-color-text);
+  color: var(--utopia-text-style-text-color);
 }
 
 /* ---------------------------------------------------------------------- */
@@ -1123,6 +1127,9 @@
   align-items: center;
   padding: var(--utopia-spacing-lg);
   gap: 0;
+  /* The header draws the caesura itself, in colors.border rather than the
+     lighter row divider - mirrors UtopiaTableHeader's own bottom BorderSide. */
+  border-bottom: var(--utopia-border-hairline) solid var(--utopia-color-border);
 }
 
 .utopia-table__header-cell {
@@ -1133,7 +1140,8 @@
   padding: 0 var(--utopia-spacing-sm);
   font-size: var(--utopia-text-style-text-font-size);
   font-weight: var(--utopia-font-weight-medium);
-  color: var(--utopia-color-text);
+  /* Body tone, not the heading tone: a column label must not outweigh the data it labels */
+  color: var(--utopia-text-style-text-color);
   white-space: nowrap;
   overflow: hidden;
   text-overflow: ellipsis;
@@ -1159,8 +1167,9 @@
   align-items: center;
   min-height: var(--utopia-theme-tile-height);
   padding: 0 var(--utopia-spacing-lg);
-  border-top: var(--utopia-border-hairline) solid;
-  border-top-color: color-mix(in srgb, var(--utopia-color-text) 12%, var(--utopia-color-surface));
+  /* No border here: rows are separated by a real <hr class="utopia-divider">
+     element, mirroring Dart's UtopiaDivider between SliverList items. Giving
+     the row its own top border as well would render every row boundary twice. */
 }
 
 .utopia-table__row--alt {
@@ -1177,7 +1186,7 @@
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  color: var(--utopia-color-text);
+  color: var(--utopia-text-style-text-color);
 }
 
 .utopia-table__cell--id { flex: 0 0 110px; } /* utopia-literal-ok: specimen column width */

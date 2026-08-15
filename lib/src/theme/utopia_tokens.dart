@@ -52,9 +52,9 @@ const double _x = 4;
 /// | `border.hairline`   | -        | 1              |
 /// | `border.thin`       | -        | 1.5            |
 /// | `border.thick`      | -        | 2              |
-/// | `shadow.sm`         | -        | y1 blur6 5%    |
-/// | `shadow.md`         | -        | y2 blur10 15%  |
-/// | `shadow.lg`         | -        | xy3 blur14 35% |
+/// | `shadow.sm`         | -        | 2 layers, <= 6%|
+/// | `shadow.md`         | -        | ring + 2, <= 8%|
+/// | `shadow.lg`         | -        | ring + 2, <=14%|
 /// | `fontWeight.*`      | -        | 400-700        |
 /// | `duration.xs`       | -        | 100ms          |
 /// | `duration.sm`       | -        | 150ms          |
@@ -154,6 +154,9 @@ abstract class UtopiaSpacingTokens with _$UtopiaSpacingTokens {
 ///
 /// Each step is available as a raw [double] and as a ready-made uniform
 /// [BorderRadius] (`smAll`, `mdAll`, ...) for direct use in decorations.
+///
+/// The scale is assigned so that radius grows with the surface it bounds:
+/// badge (6) < control (8) < menu (12) < card (16), monotonically.
 @freezed
 abstract class UtopiaRadiusTokens with _$UtopiaRadiusTokens {
   const UtopiaRadiusTokens._();
@@ -162,10 +165,10 @@ abstract class UtopiaRadiusTokens with _$UtopiaRadiusTokens {
     /// 1x = 4. Smallest rounding - tags, thumbnails.
     @Default(_x) double xs,
 
-    /// 1.5x = 6. Fields and other inline controls.
+    /// 1.5x = 6. Badges and chips - the tier below controls.
     @Default(_x * 1.5) double sm,
 
-    /// 2x = 8. Chips, buttons.
+    /// 2x = 8. Interactive controls: fields, buttons, sidebar tiles.
     @Default(_x * 2) double md,
 
     /// 3x = 12. Menus, popovers.
@@ -211,19 +214,43 @@ abstract class UtopiaBorderTokens with _$UtopiaBorderTokens {
 }
 
 /// Elevation presets - box shadows in increasing prominence.
+///
+/// Two rules hold across the scale. Light falls straight down, so every layer
+/// offsets on Y only. And the shadow colour is the system's blue-black
+/// `#101828` rather than pure black, so elevation stays inside the same hue
+/// family as the neutrals instead of greying them out.
+///
+/// [md] and [lg] open with a hairline ring (`blur 0, spread 1`) before their
+/// blur layers, which gives a floating surface a defined edge without its own
+/// border. [sm] deliberately has no ring: the surfaces that use it (cards, the
+/// sidebar rail) already draw a `borders.thin` outline, and a ring would
+/// double it.
 @freezed
 abstract class UtopiaShadowTokens with _$UtopiaShadowTokens {
   const factory UtopiaShadowTokens({
     /// Subtle lift for resting surfaces (cards).
-    @Default(<BoxShadow>[BoxShadow(color: Color(0x0D000000), blurRadius: 6, offset: Offset(0, 1))])
+    @Default(<BoxShadow>[
+      BoxShadow(color: Color(0x0F101828), offset: Offset(0, 1), blurRadius: 2),
+      BoxShadow(color: Color(0x0D101828), offset: Offset(0, 4), blurRadius: 10, spreadRadius: -2),
+    ])
     List<BoxShadow> sm,
 
     /// Intermediate lift for hovering / dragged elements.
-    @Default(<BoxShadow>[BoxShadow(color: Color(0x26000000), blurRadius: 10, offset: Offset(0, 2))])
+    @Default(<BoxShadow>[
+      // Hairline ring: no blur, 1px spread.
+      BoxShadow(color: Color(0x0F101828), spreadRadius: 1),
+      BoxShadow(color: Color(0x12101828), offset: Offset(0, 2), blurRadius: 4, spreadRadius: -1),
+      BoxShadow(color: Color(0x14101828), offset: Offset(0, 8), blurRadius: 16, spreadRadius: -4),
+    ])
     List<BoxShadow> md,
 
     /// Strong lift for floating overlays (menus, popovers).
-    @Default(<BoxShadow>[BoxShadow(color: Color(0x59000000), blurRadius: 14, offset: Offset(3, 3))])
+    @Default(<BoxShadow>[
+      // Hairline ring: no blur, 1px spread.
+      BoxShadow(color: Color(0x0F101828), spreadRadius: 1),
+      BoxShadow(color: Color(0x0F101828), offset: Offset(0, 4), blurRadius: 8, spreadRadius: -2),
+      BoxShadow(color: Color(0x24101828), offset: Offset(0, 16), blurRadius: 32, spreadRadius: -8),
+    ])
     List<BoxShadow> lg,
   }) = _UtopiaShadowTokens;
 }

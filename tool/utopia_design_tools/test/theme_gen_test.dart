@@ -64,7 +64,7 @@ void main() {
       expect(generated, isNot(contains('.copyWith(')));
     });
 
-    test('the canonical export omits every optional-color and divider arg', () {
+    test('the canonical export omits every optional-color arg', () {
       final document = TokenDocument.parse(loadCanonical());
       final spec = ThemeSpec.fromDocument(document);
       final generated = emitDart(spec, inputPath: 'tokens/utopia.tokens.json');
@@ -72,7 +72,28 @@ void main() {
       for (final field in dartDefaultOptionalColorArgb32.keys) {
         expect(generated, isNot(contains('$field:')), reason: '"$field:" should be omitted (matches Dart default)');
       }
+    });
+
+    test('a document without color.divider omits the divider arg', () {
+      // The slot is optional on purpose: an absent token means "derive a
+      // contrast-safe hairline at paint time", which a hard-coded light value
+      // in a generated dark theme would silently break.
+      final raw = deepClone(loadCanonical()) as Map<String, dynamic>;
+      (raw['color'] as Map<String, dynamic>).remove('divider');
+
+      final document = TokenDocument.parse(raw);
+      final spec = ThemeSpec.fromDocument(document);
+      final generated = emitDart(spec, inputPath: 'tokens/utopia.tokens.json');
+
       expect(generated, isNot(contains('divider:')));
+    });
+
+    test('the canonical export carries the divider the default theme sets', () {
+      final document = TokenDocument.parse(loadCanonical());
+      final spec = ThemeSpec.fromDocument(document);
+      final generated = emitDart(spec, inputPath: 'tokens/utopia.tokens.json');
+
+      expect(generated, contains('divider: Color(0xFFE6E9F2)'));
     });
 
     test('is idempotent: emitting twice from the same input produces identical output', () {

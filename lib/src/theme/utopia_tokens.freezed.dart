@@ -735,8 +735,8 @@ as double,
 mixin _$UtopiaRadiusTokens {
 
 /// 1x = 4. Smallest rounding - tags, thumbnails.
- double get xs;/// 1.5x = 6. Fields and other inline controls.
- double get sm;/// 2x = 8. Chips, buttons.
+ double get xs;/// 1.5x = 6. Badges and chips - the tier below controls.
+ double get sm;/// 2x = 8. Interactive controls: fields, buttons, sidebar tiles.
  double get md;/// 3x = 12. Menus, popovers.
  double get lg;/// 4x = 16. Cards and other large surfaces.
  double get xl;/// Effectively-infinite radius for pill / circular shapes.
@@ -942,9 +942,9 @@ class _UtopiaRadiusTokens extends UtopiaRadiusTokens {
 
 /// 1x = 4. Smallest rounding - tags, thumbnails.
 @override@JsonKey() final  double xs;
-/// 1.5x = 6. Fields and other inline controls.
+/// 1.5x = 6. Badges and chips - the tier below controls.
 @override@JsonKey() final  double sm;
-/// 2x = 8. Chips, buttons.
+/// 2x = 8. Interactive controls: fields, buttons, sidebar tiles.
 @override@JsonKey() final  double md;
 /// 3x = 12. Menus, popovers.
 @override@JsonKey() final  double lg;
@@ -1484,7 +1484,7 @@ return $default(_that.sm,_that.md,_that.lg);case _:
 
 
 class _UtopiaShadowTokens implements UtopiaShadowTokens {
-  const _UtopiaShadowTokens({final  List<BoxShadow> sm = const <BoxShadow>[BoxShadow(color: Color(0x0D000000), blurRadius: 6, offset: Offset(0, 1))], final  List<BoxShadow> md = const <BoxShadow>[BoxShadow(color: Color(0x26000000), blurRadius: 10, offset: Offset(0, 2))], final  List<BoxShadow> lg = const <BoxShadow>[BoxShadow(color: Color(0x59000000), blurRadius: 14, offset: Offset(3, 3))]}): _sm = sm,_md = md,_lg = lg;
+  const _UtopiaShadowTokens({final  List<BoxShadow> sm = const <BoxShadow>[BoxShadow(color: Color(0x0F101828), offset: Offset(0, 1), blurRadius: 2), BoxShadow(color: Color(0x0D101828), offset: Offset(0, 4), blurRadius: 10, spreadRadius: -2)], final  List<BoxShadow> md = const <BoxShadow>[BoxShadow(color: Color(0x0F101828), blurRadius: 0, spreadRadius: 1), BoxShadow(color: Color(0x12101828), offset: Offset(0, 2), blurRadius: 4, spreadRadius: -1), BoxShadow(color: Color(0x14101828), offset: Offset(0, 8), blurRadius: 16, spreadRadius: -4)], final  List<BoxShadow> lg = const <BoxShadow>[BoxShadow(color: Color(0x0F101828), blurRadius: 0, spreadRadius: 1), BoxShadow(color: Color(0x0F101828), offset: Offset(0, 4), blurRadius: 8, spreadRadius: -2), BoxShadow(color: Color(0x24101828), offset: Offset(0, 16), blurRadius: 32, spreadRadius: -8)]}): _sm = sm,_md = md,_lg = lg;
   
 
 /// Subtle lift for resting surfaces (cards).

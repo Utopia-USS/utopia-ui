@@ -323,7 +323,7 @@
           "origin": "source"
         },
         {
-          "path": "tokens.spacing.md",
+          "path": "tokens.spacing.sm",
           "origin": "source"
         },
         {
@@ -870,7 +870,7 @@
           "origin": "source"
         },
         {
-          "path": "theme.cardDecoration",
+          "path": "theme.dialogDecoration",
           "origin": "source"
         },
         {

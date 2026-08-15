@@ -206,12 +206,12 @@
           "color": {
             "colorSpace": "srgb",
             "components": [
-              0,
-              0,
-              0
+              0.062745,
+              0.094118,
+              0.156863
             ],
-            "alpha": 0.05098,
-            "hex": "#000000"
+            "alpha": 0.058824,
+            "hex": "#101828"
           },
           "offsetX": {
             "value": 0,
@@ -222,11 +222,39 @@
             "unit": "px"
           },
           "blur": {
-            "value": 6,
+            "value": 2,
             "unit": "px"
           },
           "spread": {
             "value": 0,
+            "unit": "px"
+          }
+        },
+        {
+          "color": {
+            "colorSpace": "srgb",
+            "components": [
+              0.062745,
+              0.094118,
+              0.156863
+            ],
+            "alpha": 0.05098,
+            "hex": "#101828"
+          },
+          "offsetX": {
+            "value": 0,
+            "unit": "px"
+          },
+          "offsetY": {
+            "value": 4,
+            "unit": "px"
+          },
+          "blur": {
+            "value": 10,
+            "unit": "px"
+          },
+          "spread": {
+            "value": -2,
             "unit": "px"
           }
         }
@@ -239,12 +267,40 @@
           "color": {
             "colorSpace": "srgb",
             "components": [
-              0,
-              0,
-              0
+              0.062745,
+              0.094118,
+              0.156863
             ],
-            "alpha": 0.14902,
-            "hex": "#000000"
+            "alpha": 0.058824,
+            "hex": "#101828"
+          },
+          "offsetX": {
+            "value": 0,
+            "unit": "px"
+          },
+          "offsetY": {
+            "value": 0,
+            "unit": "px"
+          },
+          "blur": {
+            "value": 0,
+            "unit": "px"
+          },
+          "spread": {
+            "value": 1,
+            "unit": "px"
+          }
+        },
+        {
+          "color": {
+            "colorSpace": "srgb",
+            "components": [
+              0.062745,
+              0.094118,
+              0.156863
+            ],
+            "alpha": 0.070588,
+            "hex": "#101828"
           },
           "offsetX": {
             "value": 0,
@@ -255,11 +311,39 @@
             "unit": "px"
           },
           "blur": {
-            "value": 10,
+            "value": 4,
             "unit": "px"
           },
           "spread": {
+            "value": -1,
+            "unit": "px"
+          }
+        },
+        {
+          "color": {
+            "colorSpace": "srgb",
+            "components": [
+              0.062745,
+              0.094118,
+              0.156863
+            ],
+            "alpha": 0.078431,
+            "hex": "#101828"
+          },
+          "offsetX": {
             "value": 0,
+            "unit": "px"
+          },
+          "offsetY": {
+            "value": 8,
+            "unit": "px"
+          },
+          "blur": {
+            "value": 16,
+            "unit": "px"
+          },
+          "spread": {
+            "value": -4,
             "unit": "px"
           }
         }
@@ -272,27 +356,83 @@
           "color": {
             "colorSpace": "srgb",
             "components": [
-              0,
-              0,
-              0
+              0.062745,
+              0.094118,
+              0.156863
             ],
-            "alpha": 0.34902,
-            "hex": "#000000"
+            "alpha": 0.058824,
+            "hex": "#101828"
           },
           "offsetX": {
-            "value": 3,
+            "value": 0,
             "unit": "px"
           },
           "offsetY": {
-            "value": 3,
+            "value": 0,
             "unit": "px"
           },
           "blur": {
-            "value": 14,
+            "value": 0,
             "unit": "px"
           },
           "spread": {
+            "value": 1,
+            "unit": "px"
+          }
+        },
+        {
+          "color": {
+            "colorSpace": "srgb",
+            "components": [
+              0.062745,
+              0.094118,
+              0.156863
+            ],
+            "alpha": 0.058824,
+            "hex": "#101828"
+          },
+          "offsetX": {
             "value": 0,
+            "unit": "px"
+          },
+          "offsetY": {
+            "value": 4,
+            "unit": "px"
+          },
+          "blur": {
+            "value": 8,
+            "unit": "px"
+          },
+          "spread": {
+            "value": -2,
+            "unit": "px"
+          }
+        },
+        {
+          "color": {
+            "colorSpace": "srgb",
+            "components": [
+              0.062745,
+              0.094118,
+              0.156863
+            ],
+            "alpha": 0.141176,
+            "hex": "#101828"
+          },
+          "offsetX": {
+            "value": 0,
+            "unit": "px"
+          },
+          "offsetY": {
+            "value": 16,
+            "unit": "px"
+          },
+          "blur": {
+            "value": 32,
+            "unit": "px"
+          },
+          "spread": {
+            "value": -8,
             "unit": "px"
           }
         }
@@ -383,12 +523,12 @@
       "$value": {
         "colorSpace": "srgb",
         "components": [
-          0.32549,
-          0.427451,
-          0.996078
+          0.247059,
+          0.317647,
+          0.898039
         ],
         "alpha": 1,
-        "hex": "#536dfe"
+        "hex": "#3f51e5"
       }
     },
     "accent": {
@@ -396,12 +536,12 @@
       "$value": {
         "colorSpace": "srgb",
         "components": [
-          0.32549,
-          0.427451,
-          0.996078
+          0.290196,
+          0.360784,
+          0.913725
         ],
         "alpha": 1,
-        "hex": "#536dfe"
+        "hex": "#4a5ce9"
       }
     },
     "field": {
@@ -409,12 +549,12 @@
       "$value": {
         "colorSpace": "srgb",
         "components": [
-          0.929412,
-          0.929412,
-          0.929412
+          0.972549,
+          0.976471,
+          0.992157
         ],
         "alpha": 1,
-        "hex": "#ededed"
+        "hex": "#f8f9fd"
       }
     },
     "canvas": {
@@ -422,12 +562,12 @@
       "$value": {
         "colorSpace": "srgb",
         "components": [
+          0.956863,
           0.960784,
-          0.960784,
-          0.960784
+          0.980392
         ],
         "alpha": 1,
-        "hex": "#f5f5f5"
+        "hex": "#f4f5fa"
       }
     },
     "error": {
@@ -435,12 +575,12 @@
       "$value": {
         "colorSpace": "srgb",
         "components": [
-          1,
-          0.321569,
-          0.321569
+          0.827451,
+          0.188235,
+          0.184314
         ],
         "alpha": 1,
-        "hex": "#ff5252"
+        "hex": "#d3302f"
       }
     },
     "disabled": {
@@ -448,12 +588,12 @@
       "$value": {
         "colorSpace": "srgb",
         "components": [
-          0.741176,
-          0.741176,
-          0.741176
+          0.72549,
+          0.745098,
+          0.811765
         ],
         "alpha": 1,
-        "hex": "#bdbdbd"
+        "hex": "#b9becf"
       }
     },
     "text": {
@@ -461,12 +601,12 @@
       "$value": {
         "colorSpace": "srgb",
         "components": [
-          0,
-          0,
-          0
+          0.078431,
+          0.086275,
+          0.121569
         ],
-        "alpha": 0.866667,
-        "hex": "#000000"
+        "alpha": 1,
+        "hex": "#14161f"
       }
     },
     "surface": {
@@ -487,12 +627,25 @@
       "$value": {
         "colorSpace": "srgb",
         "components": [
-          0.909804,
-          0.917647,
-          0.941176
+          0.847059,
+          0.862745,
+          0.921569
         ],
         "alpha": 1,
-        "hex": "#e8eaf0"
+        "hex": "#d8dceb"
+      }
+    },
+    "divider": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.901961,
+          0.913725,
+          0.94902
+        ],
+        "alpha": 1,
+        "hex": "#e6e9f2"
       }
     },
     "rowAlt": {
@@ -500,12 +653,12 @@
       "$value": {
         "colorSpace": "srgb",
         "components": [
+          0.964706,
           0.968627,
-          0.972549,
-          0.984314
+          0.988235
         ],
         "alpha": 1,
-        "hex": "#f7f8fb"
+        "hex": "#f6f7fc"
       }
     },
     "hover": {
@@ -513,12 +666,12 @@
       "$value": {
         "colorSpace": "srgb",
         "components": [
-          0.937255,
-          0.945098,
-          0.972549
+          0.929412,
+          0.941176,
+          0.980392
         ],
         "alpha": 1,
-        "hex": "#eff1f8"
+        "hex": "#edf0fa"
       }
     },
     "chipBackground": {
@@ -526,12 +679,12 @@
       "$value": {
         "colorSpace": "srgb",
         "components": [
-          0.905882,
-          0.917647,
+          0.913725,
+          0.929412,
           0.992157
         ],
         "alpha": 1,
-        "hex": "#e7eafd"
+        "hex": "#e9edfd"
       }
     },
     "chipForeground": {
@@ -539,12 +692,12 @@
       "$value": {
         "colorSpace": "srgb",
         "components": [
-          0.32549,
-          0.427451,
-          0.996078
+          0.227451,
+          0.294118,
+          0.8
         ],
         "alpha": 1,
-        "hex": "#536dfe"
+        "hex": "#3a4bcc"
       }
     },
     "hint": {
@@ -552,12 +705,12 @@
       "$value": {
         "colorSpace": "srgb",
         "components": [
-          0.603922,
-          0.627451,
-          0.709804
+          0.431373,
+          0.454902,
+          0.545098
         ],
         "alpha": 1,
-        "hex": "#9aa0b5"
+        "hex": "#6e748b"
       }
     },
     "onColoredContent": {
@@ -734,12 +887,12 @@
       "$value": {
         "colorSpace": "srgb",
         "components": [
-          0,
-          0,
-          0
+          0.078431,
+          0.086275,
+          0.121569
         ],
-        "alpha": 0.866667,
-        "hex": "#000000"
+        "alpha": 1,
+        "hex": "#14161f"
       }
     },
     "label": {
@@ -747,12 +900,12 @@
       "$value": {
         "colorSpace": "srgb",
         "components": [
-          0,
-          0,
-          0
+          0.356863,
+          0.376471,
+          0.462745
         ],
-        "alpha": 0.866667,
-        "hex": "#000000"
+        "alpha": 1,
+        "hex": "#5b6076"
       }
     },
     "text": {
@@ -760,12 +913,12 @@
       "$value": {
         "colorSpace": "srgb",
         "components": [
-          0,
-          0,
-          0
+          0.356863,
+          0.376471,
+          0.462745
         ],
-        "alpha": 0.866667,
-        "hex": "#000000"
+        "alpha": 1,
+        "hex": "#5b6076"
       }
     },
     "title": {
@@ -773,12 +926,12 @@
       "$value": {
         "colorSpace": "srgb",
         "components": [
-          0,
-          0,
-          0
+          0.078431,
+          0.086275,
+          0.121569
         ],
-        "alpha": 0.866667,
-        "hex": "#000000"
+        "alpha": 1,
+        "hex": "#14161f"
       }
     },
     "caption": {
@@ -786,12 +939,12 @@
       "$value": {
         "colorSpace": "srgb",
         "components": [
-          0,
-          0,
-          0
+          0.356863,
+          0.376471,
+          0.462745
         ],
-        "alpha": 0.866667,
-        "hex": "#000000"
+        "alpha": 1,
+        "hex": "#5b6076"
       }
     },
     "button": {
@@ -811,7 +964,7 @@
   "theme": {
     "borderRadius": {
       "$type": "dimension",
-      "$value": "{radius.sm}"
+      "$value": "{radius.md}"
     },
     "cardRadius": {
       "$type": "dimension",

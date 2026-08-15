@@ -175,6 +175,10 @@ class UtopiaTable<T> extends HookWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             ?searchPanel,
+            // No UtopiaDivider here: the header draws its own bottom rule in
+            // `colors.border`, one step stronger than the divider that
+            // separates rows, so the header/data caesura outranks the row
+            // lines instead of doubling up with one.
             UtopiaTableHeader<T>(
               entries: visibleEntries,
               currentSort: currentSort,
@@ -182,7 +186,6 @@ class UtopiaTable<T> extends HookWidget {
               onSortSelected: onSortSelected,
               hasActions: actionsBuilder != null,
             ),
-            const UtopiaDivider(),
           ],
         ),
       ),
