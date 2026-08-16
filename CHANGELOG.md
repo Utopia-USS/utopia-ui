@@ -1,5 +1,23 @@
 # Unreleased
 
+- **Dark mode out of the box:** `UtopiaThemeColors.darkTheme` and `UtopiaThemeData.darkTheme`.
+  The dark palette inverts the default inside the same hue family: a stepped
+  `canvas`/`surface`/`rowAlt`/`hover` ramp and a border light enough to read carry the
+  separation that shadow carries on light, and the brand pair lifts to `#6E7CFF`/`#828EFF`,
+  which is what flips the button label to near-black (white clears only 3.5:1 there).
+- **Palette completeness:** three new `UtopiaThemeColors` tokens close the holes that made a
+  palette swap insufficient - `textBody` (the body foreground tone), `onPrimary` (content on
+  the primary/accent sweep) and `shadow` (the elevation tint). All three default to today's
+  values, so no existing theme changes.
+- `UtopiaThemeTextStyles.fromColors(colors, {base})` re-tints a type family from a palette, and
+  `UtopiaThemeData.fromTokens` now takes `textStyles` as *optional*, defaulting to it. A dark
+  theme no longer has to rebuild the whole typography block just to flip the button label; the
+  shadow presets are likewise re-tinted through `colors.shadow` rather than carrying a
+  hardcoded blue-black. `UtopiaShadowTokens` keeps elevation geometry, the palette keeps hue.
+- **Protocol 0.4.0** (additive): `color.onPrimary`, `color.textBody` and `color.shadow` join the
+  token profile as optional members. Documents written for 0.3 stay valid - a generator reading
+  one omits the argument so the library default applies, and MUST NOT invent a value.
+
 - **Breaking (visual):** controls sit on `radius.lg` (12) - `UtopiaThemeData.fromTokens`
   assigns `borderRadius: radius.lgAll`, up from `radius.md` (8). Fields, buttons, sidebar
   tiles and the check row soften visibly at 48px while the radius ladder stays monotonic:

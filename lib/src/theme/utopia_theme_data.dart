@@ -62,9 +62,15 @@ abstract class UtopiaThemeData with _$UtopiaThemeData {
   /// The raw constructor stays available for fully manual themes, but its
   /// dimensional defaults are frozen at the 4-based scale and do not follow
   /// [tokens].
+  ///
+  /// [textStyles] is optional: omitted, the type family is
+  /// `UtopiaThemeTextStyles.fromColors(colors)` - the default ramp wearing this
+  /// palette's tones - so a theme is fully determined by its colours. Pass a
+  /// family explicitly only to change the type *structure*, and build it with
+  /// `fromColors` too if it should keep tracking the palette.
   factory UtopiaThemeData.fromTokens({
     required UtopiaThemeColors colors,
-    required UtopiaThemeTextStyles textStyles,
+    UtopiaThemeTextStyles? textStyles,
     UtopiaTokens tokens = const UtopiaTokens(),
   }) {
     final spacing = tokens.spacing;
@@ -72,7 +78,7 @@ abstract class UtopiaThemeData with _$UtopiaThemeData {
     return UtopiaThemeData(
       tokens: tokens,
       colors: colors,
-      textStyles: textStyles,
+      textStyles: textStyles ?? UtopiaThemeTextStyles.fromColors(colors),
       // Controls sit on radius.lg (12): a visible step of softness on a 48px
       // control while the ladder stays monotonic - chip (6) < controls (12) <
       // cards (16). radius.md (8) read stiff next to the reference input bars
@@ -89,10 +95,26 @@ abstract class UtopiaThemeData with _$UtopiaThemeData {
     );
   }
 
-  static final UtopiaThemeData defaultTheme = UtopiaThemeData.fromTokens(
-    colors: UtopiaThemeColors.defaultTheme,
-    textStyles: UtopiaThemeTextStyles.defaultTheme,
-  );
+  /// The shipped light theme: the default token scale wearing
+  /// `UtopiaThemeColors.defaultTheme`.
+  static final UtopiaThemeData defaultTheme = UtopiaThemeData.fromTokens(colors: UtopiaThemeColors.defaultTheme);
+
+  /// The shipped dark theme - the same token scale and type ramp as
+  /// [defaultTheme], differing only in `UtopiaThemeColors.darkTheme`. Dark mode
+  /// therefore costs a consumer one line:
+  ///
+  /// ```dart
+  /// UtopiaTheme(
+  ///   data: MediaQuery.platformBrightnessOf(context) == Brightness.dark
+  ///       ? UtopiaThemeData.darkTheme
+  ///       : UtopiaThemeData.defaultTheme,
+  ///   child: ...,
+  /// )
+  /// ```
+  ///
+  /// A branded app does the same over its own palette rather than copying this
+  /// one: build the dark colours, and the type and elevation follow.
+  static final UtopiaThemeData darkTheme = UtopiaThemeData.fromTokens(colors: UtopiaThemeColors.darkTheme);
 
   /// Shorthand for `tokens.spacing`.
   UtopiaSpacingTokens get spacing => tokens.spacing;
@@ -101,10 +123,30 @@ abstract class UtopiaThemeData with _$UtopiaThemeData {
   UtopiaRadiusTokens get radius => tokens.radius;
 
   /// Drop shadow of floating overlays (menus, the gradient rail).
-  List<BoxShadow> get menuShadow => tokens.shadows.lg;
+  List<BoxShadow> get menuShadow => _tinted(tokens.shadows.lg);
 
   /// Drop shadow cast by card surfaces.
-  List<BoxShadow> get cardShadow => tokens.shadows.sm;
+  List<BoxShadow> get cardShadow => _tinted(tokens.shadows.sm);
+
+  /// Paints an elevation preset in the palette's shadow hue.
+  ///
+  /// `UtopiaShadowTokens` owns the *geometry* of each preset - offset, blur,
+  /// spread, and the per-layer alpha that makes a stack read as one shadow -
+  /// while `UtopiaThemeColors.shadow` owns the hue. Only the tint's RGB is
+  /// taken; every layer keeps its own alpha, so a stack's internal balance
+  /// survives a re-tint and re-tinting an already-tinted stack is a no-op.
+  ///
+  /// That idempotence is load-bearing: the design protocol exports the tinted
+  /// stack (what actually paints) and reads it back into a theme that tints
+  /// again, so anything but an exactly repeatable operation would compound on
+  /// every export/generate cycle. To make elevation globally heavier or
+  /// lighter, tune the alphas in `tokens.shadows` - the family that owns them.
+  List<BoxShadow> _tinted(List<BoxShadow> preset) {
+    final tint = colors.shadow;
+    return [
+      for (final layer in preset) layer.copyWith(color: tint.withValues(alpha: layer.color.a)),
+    ];
+  }
 
   /// Stroke width of the card's hairline border.
   double get cardBorderWidth => tokens.borders.thin;

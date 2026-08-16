@@ -173,11 +173,13 @@ class ThemeCapture {
     final map = <String, dynamic>{
       'primary': _colorToken(colors.primary),
       'accent': _colorToken(colors.accent),
+      'onPrimary': _colorToken(colors.onPrimary),
       'field': _colorToken(colors.field),
       'canvas': _colorToken(colors.canvas),
       'error': _colorToken(colors.error),
       'disabled': _colorToken(colors.disabled),
       'text': _colorToken(colors.text),
+      'textBody': _colorToken(colors.textBody),
       'surface': _colorToken(colors.surface),
       'border': _colorToken(colors.border),
     };
@@ -193,6 +195,9 @@ class ThemeCapture {
       'chipBackground': _colorToken(colors.chipBackground),
       'chipForeground': _colorToken(colors.chipForeground),
       'hint': _colorToken(colors.hint),
+      // The hue the runtime paints every shadow.* preset in; the presets keep
+      // their own per-layer alphas (protocol SPEC 2.2).
+      'shadow': _colorToken(colors.shadow),
       'onColoredContent': _colorToken(colors.onColoredContent),
       'onColoredSelected': _colorToken(colors.onColoredSelected),
       'onColoredHover': _colorToken(colors.onColoredHover),

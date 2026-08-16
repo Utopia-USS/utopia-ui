@@ -119,6 +119,38 @@ To rebrand an app, construct your own `UtopiaThemeData` (via `UtopiaThemeData.fr
 `UtopiaThemeData.defaultTheme.copyWith(...)`) and pass it to a `UtopiaTheme` at the root - every descendant
 re-themes automatically.
 
+### Dark mode
+
+A theme is fully determined by its palette: the type family takes its three foreground tones from
+`colors.text` / `colors.textBody` / `colors.onPrimary`, and every elevation preset is painted in
+`colors.shadow`. Nothing else has to change, so dark mode is one line:
+
+```dart
+UtopiaTheme(
+  data: MediaQuery.platformBrightnessOf(context) == Brightness.dark
+      ? UtopiaThemeData.darkTheme
+      : UtopiaThemeData.defaultTheme,
+  child: child,
+)
+```
+
+A branded app writes its own dark palette instead of the shipped one - the type ramp and elevation
+follow it automatically:
+
+```dart
+final dark = UtopiaThemeData.fromTokens(colors: myDarkColors);
+
+// Keeping a custom type ramp? Re-tint it rather than rebuilding it:
+final branded = dark.copyWith(
+  textStyles: UtopiaThemeTextStyles.fromColors(myDarkColors, base: myTypeRamp),
+);
+```
+
+Two things carry a dark ground that a light theme leaves to shadow: a stepped
+`canvas` -> `surface` -> `rowAlt` -> `hover` ramp, and a `border` light enough to read (on a dark
+ground "stronger" means lighter, so the light theme's border-darker-than-divider rule inverts).
+`UtopiaThemeColors.darkTheme` is a worked example of both.
+
 ## Design protocol
 
 `utopia_ui` is the reference implementation of the Utopia Design Protocol - the first open,
@@ -165,7 +197,10 @@ The package ships three protocol artifacts, version-matched to the `utopia_ui` r
 Stated up front, not discovered later:
 
 - **Single-context.** The protocol carries one theme at a time - there is no dark-mode pairing
-  yet. A future version will add a second linked context.
+  yet. A future version will add a second linked context. This is a *protocol* limit, not a
+  library one: `utopia_ui` ships `UtopiaThemeData.darkTheme` and any palette re-themes the whole
+  system (see [Dark mode](#dark-mode)); what a single token document cannot yet do is carry the
+  light and dark palettes together, so a project exports one per context.
 - **Closed token tree.** The token document covers `utopia_ui`'s own scale and slots. Project-specific
   values (a one-off brand color used nowhere else, a bespoke metric) live as plain constants in your
   project code; custom components earn a manifest id through the project manifest (`generate_manifest

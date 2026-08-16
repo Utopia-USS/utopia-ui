@@ -6,7 +6,7 @@ export 'package:json_schema/json_schema.dart' show JsonSchema;
 
 /// The protocol version this validator implements (protocol/VERSIONING.md).
 /// Used for the profileVersion compatibility check (gate 6).
-const String protocolVersion = '0.3.0';
+const String protocolVersion = '0.4.0';
 
 /// Runs every validation gate from protocol SPEC section 2.7 against a
 /// parsed token document, in order, reporting every finding (no fail-fast).
