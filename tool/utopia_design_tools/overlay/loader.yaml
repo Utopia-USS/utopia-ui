@@ -1,6 +1,12 @@
-states: [loading]
 notes: >-
   A small circular progress indicator, sized and coloured to fit inline in
-  text-scale contexts (e.g. a loading row or a compact overlay).
+  text-scale contexts (e.g. a loading row or a compact overlay). Declares no
+  states on purpose: the loader has no not-loading rendering to contrast a
+  "loading" state with - it spins from the moment it is mounted, and its
+  absence is the other half of that pair, so loading is this component's
+  identity rather than a state of it (the state belongs to the components that
+  can be either way, e.g. button's loading). Colour defaults to colors.primary
+  - a running indicator reports activity, and activity is the brand colour
+  here - and is overridable per instance for coloured grounds.
 examples:
   - example/lib/sections/loading_section.dart

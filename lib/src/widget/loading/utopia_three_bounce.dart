@@ -3,11 +3,15 @@ import 'dart:math' as math;
 
 import 'package:flutter/material.dart';
 import 'package:utopia_ui/src/util/foundation.dart';
+import 'package:utopia_ui/src/util/utopia_context_extensions.dart';
 
 /// Three dots pulsing in a staggered wave - the loading indicator shown inside
 /// `UtopiaButton`. Hand-rolled so this package does not depend on `flutter_spinkit`.
 class UtopiaThreeBounce extends HookWidget {
-  /// The dots' color.
+  /// The dots' color. Defaults to `UtopiaThemeColors.primary`, the same
+  /// activity colour `UtopiaLoader` rests on. Pass the content colour of the
+  /// ground instead when the dots sit on a filled surface - which is what
+  /// `UtopiaButton` does with its own label colour.
   final Color? color;
 
   /// The overall height of the indicator; dot size scales with it.
@@ -25,6 +29,11 @@ class UtopiaThreeBounce extends HookWidget {
     }, [controller]);
 
     final dotSize = size * 0.5;
+    // A null colour used to reach BoxDecoration untouched, and a BoxDecoration
+    // with no colour paints no fill: a bare UtopiaThreeBounce() rendered three
+    // invisible dots. The token default keeps the indicator visible wherever it
+    // is dropped, on the same reading as UtopiaLoader (activity = brand).
+    final dotColor = color ?? context.colors.primary;
     return SizedBox(
       height: size,
       child: AnimatedBuilder(
@@ -40,7 +49,7 @@ class UtopiaThreeBounce extends HookWidget {
                 child: SizedBox.square(
                   dimension: dotSize,
                   child: DecoratedBox(
-                    decoration: BoxDecoration(color: color, shape: BoxShape.circle),
+                    decoration: BoxDecoration(color: dotColor, shape: BoxShape.circle),
                   ),
                 ),
               ),

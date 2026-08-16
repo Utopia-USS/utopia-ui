@@ -44,12 +44,16 @@ class UtopiaSidebarTile extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final colors = context.colors;
+    final baseStyle = onColored ? context.textStyles.button : context.textStyles.label;
+    // Unselected tiles rest on the label style's own body tone, not the
+    // heading tone: a nav list carrying full heading weight competes with the
+    // page it navigates to. The selected tile then wins on both tone and
+    // colour rather than colour alone.
     final contentColor = onColored
         ? (context.textStyles.button.color ?? Colors.white)
-        : (isSelected ? colors.primary : colors.text);
+        : (isSelected ? colors.primary : (baseStyle.color ?? colors.text));
     final selectedColor = onColored ? colors.onColoredSelected : colors.chipBackground;
     final hoverColor = onColored ? colors.onColoredHover : colors.hover;
-    final baseStyle = onColored ? context.textStyles.button : context.textStyles.label;
 
     final spacing = context.spacing;
     return Padding(

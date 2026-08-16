@@ -14,6 +14,10 @@ import '../sections/typography_section.dart';
 import '../widgets/page_scaffold.dart';
 
 /// The design-system reference sheet: every token and component on one page.
+///
+/// Sections run from foundations to composites - colors, typography, surfaces,
+/// buttons, selection, fields, chips & text, loading, table, dialogs, sidebar.
+/// twin/gallery.src.html mirrors this page section for section, in this order.
 class ComponentsPage extends StatelessWidget {
   const ComponentsPage({super.key});
 
@@ -28,27 +32,27 @@ class ComponentsPage extends StatelessWidget {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                TableSection(),
-                SizedBox(height: 48),
-                FieldsSection(),
-                SizedBox(height: 48),
-                ButtonsSection(),
-                SizedBox(height: 48),
-                SelectionSection(),
-                SizedBox(height: 48),
-                ChipsTextSection(),
-                SizedBox(height: 48),
-                DialogsSection(),
-                SizedBox(height: 48),
-                SidebarSection(),
-                SizedBox(height: 48),
-                LoadingSection(),
-                SizedBox(height: 48),
                 ColorsSection(),
                 SizedBox(height: 48),
                 TypographySection(),
                 SizedBox(height: 48),
                 SurfacesSection(),
+                SizedBox(height: 48),
+                ButtonsSection(),
+                SizedBox(height: 48),
+                SelectionSection(),
+                SizedBox(height: 48),
+                FieldsSection(),
+                SizedBox(height: 48),
+                ChipsTextSection(),
+                SizedBox(height: 48),
+                LoadingSection(),
+                SizedBox(height: 48),
+                TableSection(),
+                SizedBox(height: 48),
+                DialogsSection(),
+                SizedBox(height: 48),
+                SidebarSection(),
               ],
             ),
           ),

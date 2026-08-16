@@ -3,7 +3,7 @@ import 'package:utopia_ui/src/util/foundation.dart';
 import 'package:utopia_ui/src/util/utopia_context_extensions.dart';
 import 'package:utopia_ui/src/widget/layout/utopia_card.dart';
 import 'package:utopia_ui/src/widget/layout/utopia_divider.dart';
-import 'package:utopia_ui/src/widget/loading/utopia_mock_loading_box.dart';
+import 'package:utopia_ui/src/widget/loading/utopia_loading_box.dart';
 import 'package:utopia_ui/src/widget/table/utopia_table_cell.dart';
 import 'package:utopia_ui/src/widget/table/utopia_table_empty.dart';
 import 'package:utopia_ui/src/widget/table/utopia_table_entry.dart';
@@ -175,6 +175,10 @@ class UtopiaTable<T> extends HookWidget {
           mainAxisSize: MainAxisSize.min,
           children: [
             ?searchPanel,
+            // No UtopiaDivider here: the header draws its own bottom rule in
+            // `colors.border`, one step stronger than the divider that
+            // separates rows, so the header/data caesura outranks the row
+            // lines instead of doubling up with one.
             UtopiaTableHeader<T>(
               entries: visibleEntries,
               currentSort: currentSort,
@@ -182,7 +186,6 @@ class UtopiaTable<T> extends HookWidget {
               onSortSelected: onSortSelected,
               hasActions: actionsBuilder != null,
             ),
-            const UtopiaDivider(),
           ],
         ),
       ),
@@ -254,13 +257,15 @@ class UtopiaTable<T> extends HookWidget {
         children: [
           for (final entry in visibleEntries)
             entry.wrapTableCell(
-              const Padding(
+              Padding(
                 padding: UtopiaTable.itemPadding,
+                // Aligned like the real cell, so a numeric column's placeholder
+                // sits under its own header instead of jumping sides on load.
                 child: Align(
-                  alignment: Alignment.centerLeft,
-                  child: FractionallySizedBox(
+                  alignment: entry.cellAlignment,
+                  child: const FractionallySizedBox(
                     widthFactor: 0.6,
-                    child: UtopiaMockLoadingBox(width: double.infinity, height: 12),
+                    child: UtopiaLoadingBox(width: double.infinity, height: 12),
                   ),
                 ),
               ),
@@ -270,7 +275,7 @@ class UtopiaTable<T> extends HookWidget {
               padding: UtopiaTable.itemPadding,
               child: SizedBox(
                 width: UtopiaTable.actionsWidth,
-                child: UtopiaMockLoadingBox(width: double.infinity, height: 12),
+                child: UtopiaLoadingBox(width: double.infinity, height: 12),
               ),
             ),
         ],

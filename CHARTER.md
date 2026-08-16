@@ -120,9 +120,11 @@ Adding any dependency requires a charter update with rationale.
 
 - Theme: `UtopiaTheme`, `UtopiaThemeData`, `UtopiaThemeColors`, `UtopiaThemeTextStyles`.
 - Primitives: `UtopiaButton`, `UtopiaRemoveIconButton`, `UtopiaChip`, `UtopiaChipList`,
-  `UtopiaCheckRow`, `UtopiaSwitch`, `UtopiaSwitchField`, `UtopiaTextField`, `UtopiaSearchField`,
+  `UtopiaCheckbox`, `UtopiaRadio<T>`, `UtopiaCheckRow`, `UtopiaSwitch`, `UtopiaSwitchField`,
+  `UtopiaSlider`, `UtopiaTextField`, `UtopiaSearchField`,
   `UtopiaFieldWrapper`, `UtopiaLabeledField`, `UtopiaDropdownField`, `UtopiaOverlayAnchor`,
-  `UtopiaDatePicker`, `UtopiaLoader`, `UtopiaMockLoadingBox`, `UtopiaThreeBounce`,
+  `UtopiaDatePicker`, `UtopiaLoader`, `UtopiaLoadingBox` (formerly `UtopiaMockLoadingBox`,
+  deprecated alias retained), `UtopiaThreeBounce`,
   `UtopiaDivider`, `UtopiaCard`, `UtopiaGradientBackground`, `UtopiaTitle`,
   `UtopiaCopyableText`, `UtopiaBreakpoints`, `UtopiaPageWrapper`, `UtopiaPageType`.
 - Vendored layout/misc primitives: `UtopiaFormLayout`, `UtopiaCollapsible`, `UtopiaMultiWidget`.

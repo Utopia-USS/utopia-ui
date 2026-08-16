@@ -23,7 +23,10 @@ mixin _$UtopiaThemeData {
 /// slot rather than a fixed token alias.
  BorderRadius get borderRadius; EdgeInsets get fieldContentPadding;/// Minimum height of the content area inside a field's chrome (the
 /// `UtopiaFieldWrapper` floor). Total resting field height is this plus
-/// the vertical [fieldContentPadding].
+/// the vertical [fieldContentPadding] and the two hairline borders, and
+/// that total is pinned to a resting `UtopiaButton`'s extent (48 at the
+/// default 4-based scale): a field and a button standing side by side in
+/// a toolbar row must be exactly as tall as each other.
  double get fieldMinHeight;/// Vertical padding above page-level content (and the sidebar rail).
  double get pageTopPadding;/// Corner radius of card surfaces (the table card, dialogs).
  BorderRadius get cardRadius;/// Height of a single table row.
@@ -254,7 +257,7 @@ return $default(_that.tokens,_that.colors,_that.textStyles,_that.borderRadius,_t
 
 
 class _UtopiaThemeData extends UtopiaThemeData {
-  const _UtopiaThemeData({this.tokens = const UtopiaTokens(), required this.colors, required this.textStyles, required this.borderRadius, required this.fieldContentPadding, this.fieldMinHeight = 44.0, required this.pageTopPadding, this.cardRadius = const BorderRadius.all(Radius.circular(16)), this.tileHeight = 58.0}): super._();
+  const _UtopiaThemeData({this.tokens = const UtopiaTokens(), required this.colors, required this.textStyles, required this.borderRadius, required this.fieldContentPadding, this.fieldMinHeight = 34.0, required this.pageTopPadding, this.cardRadius = const BorderRadius.all(Radius.circular(16)), this.tileHeight = 58.0}): super._();
   
 
 /// The foundational token scale (base unit, spacing, radii) this theme
@@ -271,7 +274,10 @@ class _UtopiaThemeData extends UtopiaThemeData {
 @override final  EdgeInsets fieldContentPadding;
 /// Minimum height of the content area inside a field's chrome (the
 /// `UtopiaFieldWrapper` floor). Total resting field height is this plus
-/// the vertical [fieldContentPadding].
+/// the vertical [fieldContentPadding] and the two hairline borders, and
+/// that total is pinned to a resting `UtopiaButton`'s extent (48 at the
+/// default 4-based scale): a field and a button standing side by side in
+/// a toolbar row must be exactly as tall as each other.
 @override@JsonKey() final  double fieldMinHeight;
 /// Vertical padding above page-level content (and the sidebar rail).
 @override final  double pageTopPadding;

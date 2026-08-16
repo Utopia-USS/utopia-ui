@@ -31,7 +31,11 @@ class UtopiaChip extends StatelessWidget {
         color: color ?? context.colors.chipBackground,
         borderRadius: BorderRadius.circular(context.theme.chipRadius),
       ),
-      padding: EdgeInsets.symmetric(horizontal: spacing.md, vertical: spacing.xs),
+      // Side inset is deliberately one step below the vertical rhythm's
+      // neighbour: at a ~20px pill height inside a 120px status column, 12px
+      // of side padding turns the chip into a balloon and eats the density the
+      // table exists for.
+      padding: EdgeInsets.symmetric(horizontal: spacing.sm, vertical: spacing.xs),
       child: DefaultTextStyle.merge(
         style: context.textStyles.caption.copyWith(color: contentColor),
         child: IconTheme.merge(

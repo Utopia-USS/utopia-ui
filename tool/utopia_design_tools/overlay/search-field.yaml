@@ -1,4 +1,4 @@
-states: [focus, disabled]
+states: [focus, hover, disabled]
 notes: >-
   A prominent, full-width search field with a leading magnifier and a clear
   affordance once text is entered. Uncontrolled, like text-field: value seeds

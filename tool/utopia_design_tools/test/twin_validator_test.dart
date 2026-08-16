@@ -5,7 +5,9 @@ import 'package:flutter_test/flutter_test.dart';
 import 'package:path/path.dart' as p;
 import 'package:utopia_design_tools/src/cli/output.dart';
 import 'package:utopia_design_tools/src/dtcg/token_document.dart';
+import 'package:utopia_design_tools/src/dtcg/validator.dart' show protocolVersion;
 import 'package:utopia_design_tools/src/twin/css_generator.dart';
+import 'package:utopia_design_tools/src/twin/design_md_generator.dart';
 import 'package:utopia_design_tools/src/twin/tailwind_generator.dart';
 import 'package:utopia_design_tools/src/twin/twin_validator.dart';
 import 'package:utopia_design_tools/src/util/repo.dart';
@@ -31,7 +33,7 @@ void main() {
     manifestComponentIds: manifestIds,
     tokenDocument: document ?? tokenDocument,
     tokensInputPath: RepoLocator.normalizeInputPath(tokensFile.path),
-    profileVersion: '0.2.0',
+    profileVersion: protocolVersion,
   );
 
   List<Finding> errorsOnly(List<Finding> findings) =>
@@ -46,9 +48,10 @@ void main() {
   Map<String, dynamic> tokensJsonCopy() => jsonDecode(tokensFile.readAsStringSync()) as Map<String, dynamic>;
 
   /// Copies the real twin into a scratch dir and applies [doctor] to it. When
-  /// [document] is given, both generated stylesheets are regenerated from it
-  /// first, so the freshness gates stay green and only the gate under test can
-  /// fire.
+  /// [document] is given, every GENERATED surface (both stylesheets and
+  /// DESIGN.md's front matter) is regenerated from it first - exactly what
+  /// `generate_twin` would write for that document - so the freshness gates
+  /// stay green and only the gate under test can fire.
   Directory doctoredTwin(void Function(Directory twin) doctor, {TokenDocument? document}) {
     final scratch = Directory.systemTemp.createTempSync('twin_validator_test');
     addTearDown(() => scratch.deleteSync(recursive: true));
@@ -60,9 +63,16 @@ void main() {
     if (document != null) {
       final inputPath = RepoLocator.normalizeInputPath(tokensFile.path);
       File(p.join(scratch.path, 'tokens.css'))
-          .writeAsStringSync(generateCss(document, inputPath: inputPath, profileVersion: '0.2.0'));
+          .writeAsStringSync(generateCss(document, inputPath: inputPath, profileVersion: protocolVersion));
       File(p.join(scratch.path, 'tokens.tailwind.css'))
-          .writeAsStringSync(generateTailwind(document, inputPath: inputPath, profileVersion: '0.2.0'));
+          .writeAsStringSync(generateTailwind(document, inputPath: inputPath, profileVersion: protocolVersion));
+      final designMd = File(p.join(scratch.path, 'DESIGN.md'));
+      designMd.writeAsStringSync(
+        spliceDesignMd(
+          designMd.existsSync() ? designMd.readAsStringSync() : null,
+          buildFrontMatterBody(document),
+        ).content,
+      );
     }
     doctor(scratch);
     return scratch;
@@ -89,9 +99,20 @@ void main() {
   test('the real committed twin passes every gate', () {
     final findings = validatorFor(realTwinDir).validate();
     expect(
-      findings,
+      errorsOnly(findings),
       isEmpty,
       reason: 'expected a clean twin, got: ${findings.map((f) => f.toLine()).join('; ')}',
+    );
+    // Gate 5 (forward coverage) is warning-only and deliberately reports the
+    // committed twin's real gallery/tier-1 drift, so the committed twin is not
+    // warning-free; every OTHER gate still has to be silent on it. Which ids
+    // are missing is not asserted here - that is live twin state, covered by
+    // the synthetic fixtures below instead.
+    final otherWarnings = warningsOnly(findings).where((f) => !f.message.startsWith('twin coverage: ')).toList();
+    expect(
+      otherWarnings,
+      isEmpty,
+      reason: 'expected only coverage warnings, got: ${otherWarnings.map((f) => f.toLine()).join('; ')}',
     );
   });
 
@@ -164,6 +185,28 @@ void main() {
       final errors = errorsOnly(validatorFor(twin).validate());
       expect(errors.any((f) => f.message.contains('raw font-family')), isTrue);
       expect(errors.any((f) => f.message.contains('raw font-weight')), isTrue);
+    });
+
+    test('@font-face descriptors are exempt from the literals gate', () {
+      // Descriptors DEFINE a face (var() is invalid in descriptor position),
+      // so the block can never be token-clean - the linter must stay silent
+      // inside it while still flagging the same literals outside it.
+      final twin = doctoredTwin((dir) {
+        final css = File(p.join(dir.path, 'components.css'));
+        css.writeAsStringSync(
+          '${css.readAsStringSync()}\n'
+          '@font-face {\n'
+          "  font-family: 'Doctored Face';\n"
+          '  font-weight: 800;\n'
+          "  src: url('fonts/Doctored.ttf') format('truetype');\n"
+          '}\n'
+          '.doctored-after { font-weight: 800; }\n',
+        );
+      });
+      final errors = errorsOnly(validatorFor(twin).validate());
+      expect(errors.where((f) => f.message.contains('raw font-family')), isEmpty);
+      final weightErrors = errors.where((f) => f.message.contains('raw font-weight')).toList();
+      expect(weightErrors, hasLength(1), reason: 'only the declaration after the block is flagged');
     });
 
     test('non-token px and ms literals warn (not error)', () {
@@ -442,6 +485,400 @@ void main() {
     });
   });
 
+  // --- gates 4-6, on synthetic fixtures ---
+  //
+  // These never read the committed twin/: gates 5 and 6 report drift the
+  // repo's own twin genuinely carries today (and which other sessions are
+  // actively editing), so every assertion below is made against a scratch
+  // bundle built from scratch, with a synthetic manifest id/state set.
+
+  /// Builds a `<scratch>/twin/` bundle carrying a freshly generated
+  /// `tokens.css` (so the freshness gate stays silent and only the gate under
+  /// test can speak) plus whichever files the test needs.
+  Directory syntheticTwin({String? designMd, String? galleryHtml, String? componentsHtml, String? componentsCss}) {
+    final scratch = Directory.systemTemp.createTempSync('twin_validator_synthetic_');
+    addTearDown(() => scratch.deleteSync(recursive: true));
+    final twin = Directory(p.join(scratch.path, 'twin'))..createSync();
+    File(p.join(twin.path, 'tokens.css')).writeAsStringSync(
+      generateCss(tokenDocument, inputPath: RepoLocator.normalizeInputPath(tokensFile.path), profileVersion: protocolVersion),
+    );
+    if (designMd != null) File(p.join(twin.path, 'DESIGN.md')).writeAsStringSync(designMd);
+    if (galleryHtml != null) File(p.join(twin.path, 'gallery.html')).writeAsStringSync(galleryHtml);
+    if (componentsHtml != null) File(p.join(twin.path, 'components.html')).writeAsStringSync(componentsHtml);
+    if (componentsCss != null) File(p.join(twin.path, 'components.css')).writeAsStringSync(componentsCss);
+    return twin;
+  }
+
+  /// A validator bound to a synthetic manifest (ids + their `states[]`) rather
+  /// than the repo's own.
+  TwinValidator syntheticValidator(
+    Directory twinDir, {
+    required Set<String> ids,
+    Map<String, List<String>> states = const {},
+  }) => TwinValidator(
+    twinDir: twinDir,
+    manifestComponentIds: ids,
+    manifestComponentStates: states,
+    tokenDocument: tokenDocument,
+    tokensInputPath: RepoLocator.normalizeInputPath(tokensFile.path),
+    profileVersion: protocolVersion,
+  );
+
+  /// A `DESIGN.md` whose front matter is exactly what `generate_twin` writes
+  /// today (so gate 4 passes), followed by [body].
+  String designMdWith(String body, {TokenDocument? document}) =>
+      '---\n${buildFrontMatterBody(document ?? tokenDocument)}---\n\n$body';
+
+  group('gate 4: DESIGN.md front matter freshness (SPEC 4.6)', () {
+    List<Finding> designMdFindings(Directory twin, {Set<String> ids = const {'button'}}) =>
+        syntheticValidator(twin, ids: ids).validate().where((f) => f.path == 'DESIGN.md').toList();
+
+    /// The repo's token document with `color.primary` rebranded - a document
+    /// whose front matter necessarily differs from the real one.
+    TokenDocument rebrandedDocument() {
+      final json = tokensJsonCopy();
+      final primaryValue =
+          ((json['color'] as Map<String, dynamic>)['primary'] as Map<String, dynamic>)[r'$value']
+              as Map<String, dynamic>;
+      expect(primaryValue['hex'], isNot('#112233'));
+      primaryValue['hex'] = '#112233';
+      primaryValue['components'] = [0x11 / 255, 0x22 / 255, 0x33 / 255];
+      return TokenDocument.parse(json);
+    }
+
+    test('front matter regenerated from the bound token document passes, hand-edited body and all', () {
+      final twin = syntheticTwin(
+        designMd: designMdWith('## Overview\n\nA body hand-edited long after the skeleton was written.\n'),
+      );
+      final findings = designMdFindings(twin);
+      expect(findings, isEmpty, reason: findings.map((f) => f.toLine()).join('; '));
+    });
+
+    test('front matter generated from a different token document is stale (error)', () {
+      final twin = syntheticTwin(
+        designMd: designMdWith('## Overview\n\nBody.\n', document: rebrandedDocument()),
+      );
+      final findings = designMdFindings(twin);
+      expect(findings.map((f) => f.severity), everyElement(FindingSeverity.error));
+      expect(
+        findings.single.message,
+        'front matter stale - regenerate via generate_twin',
+        reason: findings.map((f) => f.toLine()).join('; '),
+      );
+    });
+
+    test('a DESIGN.md with no front matter block at all is reported as malformed (error)', () {
+      final twin = syntheticTwin(designMd: '## Overview\n\nSomebody dropped the front matter markers.\n');
+      final findings = designMdFindings(twin);
+      expect(findings.single.severity, FindingSeverity.error);
+      expect(findings.single.message, contains('missing or malformed'));
+    });
+
+    test('an opening front matter marker with no closing one is malformed too', () {
+      final twin = syntheticTwin(designMd: '---\nname: Utopia\n\n## Overview\n\nBody.\n');
+      final findings = designMdFindings(twin);
+      expect(findings.single.severity, FindingSeverity.error);
+      expect(findings.single.message, contains('missing or malformed'));
+    });
+
+    test('an absent DESIGN.md is not a finding (generate_twin --skip-design-md)', () {
+      expect(designMdFindings(syntheticTwin()), isEmpty);
+    });
+  });
+
+  group('gate 5: forward coverage of gallery.html and the DESIGN.md tier-1 list', () {
+    String galleryWith(Iterable<String> ids, {String extra = ''}) =>
+        '<!doctype html>\n<html>\n<body>\n$extra\n'
+        '${ids.map((id) => '  <div class="utopia-$id" data-utopia-id="$id">$id specimen</div>').join('\n')}\n'
+        '</body>\n</html>\n';
+
+    String tierOneWith(Iterable<String> ids, {String extra = ''}) => designMdWith(
+      '## Components\n\n$extra\n${ids.map((id) => '- `data-utopia-id="$id"`').join('\n')}\n\n'
+      "## Do's and Don'ts\n\n- Do keep this list current.\n",
+    );
+
+    List<Finding> coverageFindings(List<Finding> findings, String fileSuffix) =>
+        findings.where((f) => f.path.endsWith(fileSuffix) && f.message.startsWith('twin coverage: ')).toList();
+
+    test('a manifest id with no specimen warns, summarizes, and leaves the exit code at 0', () {
+      final twin = syntheticTwin(galleryHtml: galleryWith(['button']));
+      final findings = syntheticValidator(twin, ids: {'button', 'collapsible'}).validate();
+
+      expect(errorsOnly(findings), isEmpty, reason: findings.map((f) => f.toLine()).join('; '));
+      expect(FindingReport(findings).exitCode, 0);
+      final coverage = coverageFindings(findings, 'gallery.html');
+      expect(coverage.map((f) => f.severity), everyElement(FindingSeverity.warning));
+      expect(
+        coverage.map((f) => f.message),
+        containsAll([
+          contains('manifest component "collapsible" has no specimen in gallery.html'),
+          'twin coverage: 1 covered, 0 omitted, 1 missing (of 2 manifest components)',
+        ]),
+      );
+    });
+
+    test('an omit marker declares the gap: the gate goes fully silent, summary included', () {
+      // A declared omission is documentation, not a finding (SPEC 4.1 scopes
+      // the gate to "missing ids WITHOUT one"), so a file whose every gap
+      // carries a marker reports nothing at all - not even the summary line.
+      final twin = syntheticTwin(
+        galleryHtml: galleryWith(
+          ['button'],
+          extra: '<!-- utopia-twin-omit: collapsible -- pure-behaviour widget, nothing to render -->',
+        ),
+      );
+      final coverage = coverageFindings(
+        syntheticValidator(twin, ids: {'button', 'collapsible'}).validate(),
+        'gallery.html',
+      );
+      expect(coverage, isEmpty, reason: coverage.map((f) => f.toLine()).join('; '));
+    });
+
+    test('the summary is emitted only alongside a real missing id', () {
+      final twin = syntheticTwin(
+        galleryHtml: galleryWith(
+          ['button'],
+          extra: '<!-- utopia-twin-omit: collapsible -- pure-behaviour widget, nothing to render -->',
+        ),
+      );
+      final coverage = coverageFindings(
+        syntheticValidator(twin, ids: {'button', 'collapsible', 'card'}).validate(),
+        'gallery.html',
+      );
+      expect(
+        coverage.map((f) => f.message),
+        containsAll([
+          contains('manifest component "card" has no specimen in gallery.html'),
+          'twin coverage: 1 covered, 1 omitted, 1 missing (of 3 manifest components)',
+        ]),
+      );
+    });
+
+    test('an omit marker naming an id the manifest does not have is a dead omit', () {
+      final twin = syntheticTwin(
+        galleryHtml: galleryWith(
+          ['button'],
+          extra: '<!-- utopia-twin-omit: ghost-component -- removed from the library last release -->',
+        ),
+      );
+      final coverage = coverageFindings(syntheticValidator(twin, ids: {'button'}).validate(), 'gallery.html');
+      expect(coverage.map((f) => f.message), contains(contains('dead omit')));
+    });
+
+    test('an unparseable omit marker warns and silences nothing', () {
+      final twin = syntheticTwin(
+        galleryHtml: galleryWith(['button'], extra: '<!-- utopia-twin-omit: collapsible no separator here -->'),
+      );
+      final coverage = coverageFindings(
+        syntheticValidator(twin, ids: {'button', 'collapsible'}).validate(),
+        'gallery.html',
+      );
+      expect(coverage.map((f) => f.message), contains(contains('unparseable omit marker')));
+      expect(coverage.map((f) => f.message), contains(contains('has no specimen')));
+    });
+
+    test('a marker silences the file it lives in, not the other one', () {
+      final twin = syntheticTwin(
+        galleryHtml: galleryWith(
+          ['button'],
+          extra: '<!-- utopia-twin-omit: collapsible -- pure-behaviour widget -->',
+        ),
+        designMd: tierOneWith(['button']),
+      );
+      final findings = syntheticValidator(twin, ids: {'button', 'collapsible'}).validate();
+      expect(coverageFindings(findings, 'gallery.html').map((f) => f.message), isNot(contains(contains('collapsible'))));
+      expect(
+        coverageFindings(findings, 'DESIGN.md').map((f) => f.message),
+        contains(contains('manifest component "collapsible" is missing from the tier-1 list')),
+      );
+    });
+
+    test('the tier-1 list counts a bare backticked id as covered', () {
+      final twin = syntheticTwin(designMd: tierOneWith(['button'], extra: '- Collapsible - `collapsible`'));
+      expect(
+        coverageFindings(syntheticValidator(twin, ids: {'button', 'collapsible'}).validate(), 'DESIGN.md'),
+        isEmpty,
+      );
+    });
+
+    test('a component named only in prose is not covered (the check is structural)', () {
+      final twin = syntheticTwin(galleryHtml: '<html><head><title>header</title></head>\n<body><h1>header</h1>\n<p>The header row sits on top.</p></body></html>\n');
+      expect(
+        coverageFindings(syntheticValidator(twin, ids: {'header'}).validate(), 'gallery.html').map((f) => f.message),
+        contains(contains('manifest component "header" has no specimen')),
+      );
+    });
+
+    test('a DESIGN.md with no "## Components" section reports one skip warning', () {
+      final twin = syntheticTwin(designMd: designMdWith('## Overview\n\nNo components section here.\n'));
+      final coverage = coverageFindings(syntheticValidator(twin, ids: {'button'}).validate(), 'DESIGN.md');
+      expect(coverage.single.message, contains('no "## Components" section'));
+    });
+
+    test('a twin that tracks the manifest exactly stays silent (no summary line)', () {
+      final twin = syntheticTwin(galleryHtml: galleryWith(['button']), designMd: tierOneWith(['button']));
+      final findings = syntheticValidator(twin, ids: {'button'}).validate();
+      expect(findings, isEmpty, reason: findings.map((f) => f.toLine()).join('; '));
+    });
+
+    test('an absent gallery.html / DESIGN.md is not a finding (auto-partial twin)', () {
+      final findings = syntheticValidator(syntheticTwin(), ids: {'button', 'collapsible'}).validate();
+      expect(findings, isEmpty, reason: findings.map((f) => f.toLine()).join('; '));
+    });
+  });
+
+  group('gate 6: manifest states vs the twin .is-* classes', () {
+    String componentsHtmlWith(Map<String, String> bodyById) =>
+        '<!doctype html>\n<html>\n<body>\n'
+        '${bodyById.entries.map((e) => '  <section class="twin-section" data-utopia-id="${e.key}">\n    ${e.value}\n  </section>').join('\n')}\n'
+        '</body>\n</html>\n';
+
+    List<Finding> stateFindings(List<Finding> findings) =>
+        findings.where((f) => f.message.startsWith('state drift: ')).toList();
+
+    test('a manifest state with no .is-* class anywhere in the twin warns (and does not fail the run)', () {
+      final twin = syntheticTwin(
+        componentsHtml: componentsHtmlWith({'button': '<button class="utopia-button" data-utopia-id="button">Go</button>'}),
+        componentsCss: '.utopia-button { opacity: 1; }\n',
+      );
+      final findings = syntheticValidator(twin, ids: {'button'}, states: {'button': ['hover']}).validate();
+      expect(errorsOnly(findings), isEmpty, reason: findings.map((f) => f.toLine()).join('; '));
+      expect(FindingReport(findings).exitCode, 0);
+      expect(stateFindings(findings).single.path, 'button');
+      expect(stateFindings(findings).single.message, contains('manifest state "hover" has no .is-* class'));
+      expect(stateFindings(findings).single.message, contains('add .is-hover'));
+    });
+
+    test('an .is-* class the manifest does not declare warns too (the other direction)', () {
+      final twin = syntheticTwin(
+        componentsHtml: componentsHtmlWith({
+          'button': '<button class="utopia-button is-loading is-on" data-utopia-id="button">Go</button>',
+        }),
+      );
+      final findings = stateFindings(
+        syntheticValidator(twin, ids: {'button'}, states: {'button': ['loading']}).validate(),
+      );
+      expect(findings.single.message, contains('.is-on in the twin has no matching entry'));
+    });
+
+    test("a camelCase manifest state matches the twin's .is-readonly class", () {
+      final twin = syntheticTwin(componentsCss: '.utopia-switch.is-readonly { opacity: 1; }\n');
+      expect(
+        stateFindings(syntheticValidator(twin, ids: {'switch'}, states: {'switch': ['readOnly']}).validate()),
+        isEmpty,
+      );
+    });
+
+    test('a kebab-cased .is-read-only spelling matches the same state', () {
+      final twin = syntheticTwin(
+        componentsHtml: componentsHtmlWith({
+          'switch': '<div class="utopia-switch is-read-only" data-utopia-id="switch"></div>',
+        }),
+      );
+      expect(
+        stateFindings(syntheticValidator(twin, ids: {'switch'}, states: {'switch': ['readOnly']}).validate()),
+        isEmpty,
+      );
+    });
+
+    test('a state defined only in components.css counts, attributed through its compound selector', () {
+      final twin = syntheticTwin(
+        componentsCss: '.utopia-sidebar--gradient .utopia-sidebar-tile.is-selected { opacity: 1; }\n',
+      );
+      expect(
+        stateFindings(syntheticValidator(twin, ids: {'sidebar'}, states: {'sidebar': ['selected']}).validate()),
+        isEmpty,
+      );
+    });
+
+    test('the longest matching id owns a class, so switch-field never reads as switch', () {
+      final twin = syntheticTwin(
+        componentsCss: '.utopia-switch.is-on { opacity: 1; }\n.utopia-switch-field.is-disabled { opacity: 1; }\n',
+      );
+      final findings = stateFindings(
+        syntheticValidator(
+          twin,
+          ids: {'switch', 'switch-field'},
+          states: {
+            'switch': ['on'],
+            'switch-field': ['disabled'],
+          },
+        ).validate(),
+      );
+      expect(findings, isEmpty, reason: findings.map((f) => f.toLine()).join('; '));
+    });
+
+    test('a .is-* class named only in a CSS comment is not a definition', () {
+      final twin = syntheticTwin(componentsCss: '/* .utopia-button.is-hover is still to be built. */\n');
+      final findings = stateFindings(
+        syntheticValidator(twin, ids: {'button'}, states: {'button': ['hover']}).validate(),
+      );
+      expect(findings.single.message, contains('manifest state "hover" has no .is-* class'));
+    });
+
+    test('a nested component of another id does not leak its states to the section', () {
+      // switch-field's specimens wrap a <span class="utopia-switch is-on">:
+      // the .is-on belongs to switch, and switch-field must neither be
+      // credited with it nor reported for carrying an undeclared state.
+      final twin = syntheticTwin(
+        componentsHtml: componentsHtmlWith({
+          'switch-field': '<div class="utopia-switch-field is-readonly" data-utopia-id="switch-field">\n'
+              '      <span class="utopia-switch is-on" aria-hidden="true"></span>\n'
+              '    </div>',
+        }),
+      );
+      final findings = stateFindings(
+        syntheticValidator(
+          twin,
+          ids: {'switch', 'switch-field'},
+          states: {
+            'switch': ['on'],
+            'switch-field': ['readOnly'],
+          },
+        ).validate(),
+      );
+      // switch-field: its own .is-readonly matches, the nested .is-on is not
+      // its own. switch: its section is absent from this components.html, so
+      // its "on" state has no class to match anywhere - the one honest
+      // finding here, and it is filed against switch, not switch-field.
+      expect(findings.map((f) => f.path), everyElement('switch'));
+      expect(findings.single.message, contains('manifest state "on" has no .is-* class'));
+    });
+
+    test('an element with no utopia-* class at all falls back to the section it sits in', () {
+      // The scaffold's stub markup and hand-written wrappers carry only
+      // twin-* classes; a state class on one of those is the section's own.
+      final twin = syntheticTwin(
+        componentsHtml: componentsHtmlWith({
+          'button': '<div class="twin-specimen is-loading" data-utopia-id="button"></div>',
+        }),
+      );
+      expect(
+        stateFindings(syntheticValidator(twin, ids: {'button'}, states: {'button': ['loading']}).validate()),
+        isEmpty,
+      );
+    });
+
+    test('the missing-class hint spells the state the way the scaffold does', () {
+      // One truth for the spelling: components.css and generate_twin
+      // --scaffold both write .is-readonly, so the hint must not suggest a
+      // kebab-cased .is-read-only nobody uses.
+      final twin = syntheticTwin(componentsCss: '.utopia-text-field { opacity: 1; }\n');
+      final findings = stateFindings(
+        syntheticValidator(twin, ids: {'text-field'}, states: {'text-field': ['readOnly']}).validate(),
+      );
+      expect(findings.single.message, contains('add .is-readonly to'));
+      expect(findings.single.message, isNot(contains('.is-read-only')));
+    });
+
+    test('a component declaring no states is skipped in both directions', () {
+      final twin = syntheticTwin(
+        componentsHtml: componentsHtmlWith({'card': '<div class="utopia-card is-whatever" data-utopia-id="card"></div>'}),
+      );
+      expect(stateFindings(syntheticValidator(twin, ids: {'card'}, states: {'card': []}).validate()), isEmpty);
+    });
+  });
+
   group('CLI level: --tokens auto-discovery binds to the target twin (real bin/validate_twin.dart)', () {
     // These exercise bin/validate_twin.dart's _resolveTokensFileForTwin: when
     // --tokens is not passed, the freshness gate's token document must come
@@ -488,7 +925,7 @@ void main() {
       final rebrandedDocument = TokenDocument.parse(rebrandedJson);
       final twinDir = Directory(p.join(scratchRoot.path, 'twin'))..createSync(recursive: true);
       File(p.join(twinDir.path, 'tokens.css')).writeAsStringSync(
-        generateCss(rebrandedDocument, inputPath: 'design/tokens.json', profileVersion: '0.2.0'),
+        generateCss(rebrandedDocument, inputPath: 'design/tokens.json', profileVersion: protocolVersion),
       );
 
       final result = await runValidateTwin(['--twin-dir', twinDir.path]);

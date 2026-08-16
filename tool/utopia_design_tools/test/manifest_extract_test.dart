@@ -28,7 +28,7 @@ void main() {
       expect(kebabId('UtopiaRemoveIconButton'), 'remove-icon-button');
       expect(kebabId('UtopiaChipList'), 'chip-list');
       expect(kebabId('UtopiaThreeBounce'), 'three-bounce');
-      expect(kebabId('UtopiaMockLoadingBox'), 'mock-loading-box');
+      expect(kebabId('UtopiaLoadingBox'), 'loading-box');
     });
   });
 
@@ -57,6 +57,28 @@ void main() {
       expect(extraction.components.any((c) => c.name == 'UtopiaSidebarHeaderBuilder'), isFalse);
       final headerBuilder = extraction.helpers.firstWhere((h) => h.name == 'UtopiaSidebarHeaderBuilder');
       expect(headerBuilder.kind, 'typedef');
+    });
+
+    // The deprecated rename alias in utopia_loading_box.dart is the live
+    // subject here; when its deprecation period ends and the typedef is
+    // deleted, this test goes with it (the rule itself stays covered by the
+    // live-typedef expectations above, which must keep passing).
+    test('a deprecated typedef alias is excluded from every manifest section', () {
+      final loadingBox = component('loading-box');
+      expect(loadingBox.name, 'UtopiaLoadingBox');
+
+      const retiredName = 'UtopiaMockLoadingBox';
+      expect(
+        extraction.components.any((c) => c.name == retiredName),
+        isFalse,
+        reason: 'a typedef is not a widget subclass, so it can never be a component',
+      );
+      expect(extraction.models.any((m) => m.name == retiredName), isFalse);
+      expect(
+        extraction.helpers.any((h) => h.name == retiredName),
+        isFalse,
+        reason: 'the manifest cannot mark an entry deprecated, so retired aliases stay out of helpers',
+      );
     });
 
     test('expects free-function helpers per the inventory', () {

@@ -3,7 +3,7 @@
 import 'package:flutter/widgets.dart';
 import 'package:utopia_ui/utopia_ui.dart';
 
-/// App theme built from the token document (protocol 0.2.0).
+/// App theme built from the token document (protocol 0.3.0).
 UtopiaThemeData buildUtopiaTheme() {
   const tokens = UtopiaTokens(
     x: 4,
@@ -11,9 +11,20 @@ UtopiaThemeData buildUtopiaTheme() {
     radius: UtopiaRadiusTokens(xs: 4, sm: 6, md: 8, lg: 12, xl: 16, full: 9999),
     borders: UtopiaBorderTokens(hairline: 1, thin: 1.5, thick: 2),
     shadows: UtopiaShadowTokens(
-      sm: [BoxShadow(color: Color(0x0D000000), blurRadius: 6, offset: Offset(0, 1))],
-      md: [BoxShadow(color: Color(0x26000000), blurRadius: 10, offset: Offset(0, 2))],
-      lg: [BoxShadow(color: Color(0x59000000), blurRadius: 14, offset: Offset(3, 3))],
+      sm: [
+        BoxShadow(color: Color(0x0F101828), blurRadius: 2, offset: Offset(0, 1)),
+        BoxShadow(color: Color(0x0D101828), blurRadius: 10, offset: Offset(0, 4), spreadRadius: -2),
+      ],
+      md: [
+        BoxShadow(color: Color(0x0F101828), blurRadius: 0, offset: Offset(0, 0), spreadRadius: 1),
+        BoxShadow(color: Color(0x12101828), blurRadius: 4, offset: Offset(0, 2), spreadRadius: -1),
+        BoxShadow(color: Color(0x14101828), blurRadius: 16, offset: Offset(0, 8), spreadRadius: -4),
+      ],
+      lg: [
+        BoxShadow(color: Color(0x0F101828), blurRadius: 0, offset: Offset(0, 0), spreadRadius: 1),
+        BoxShadow(color: Color(0x0F101828), blurRadius: 8, offset: Offset(0, 4), spreadRadius: -2),
+        BoxShadow(color: Color(0x24101828), blurRadius: 32, offset: Offset(0, 16), spreadRadius: -8),
+      ],
     ),
     fontWeights: UtopiaFontWeightTokens(
       regular: FontWeight.w400,
@@ -32,13 +43,14 @@ UtopiaThemeData buildUtopiaTheme() {
   );
 
   final colors = UtopiaThemeColors(
-    primary: Color(0xFF536DFE),
-    accent: Color(0xFF536DFE),
-    field: Color(0xFFEDEDED),
-    canvas: Color(0xFFF5F5F5),
-    error: Color(0xFFFF5252),
-    disabled: Color(0xFFBDBDBD),
-    text: Color(0xDD000000),
+    primary: Color(0xFF3F51E5),
+    accent: Color(0xFF4A5CE9),
+    field: Color(0xFFF8F9FD),
+    canvas: Color(0xFFF4F5FA),
+    error: Color(0xFFD3302F),
+    disabled: Color(0xFFB9BECF),
+    text: Color(0xFF14161F),
+    divider: Color(0xFFE6E9F2),
     onColoredContent: Color(0xD9FFFFFF),
     onColoredSelected: Color(0x2EFFFFFF),
     onColoredHover: Color(0x14FFFFFF),
@@ -49,48 +61,48 @@ UtopiaThemeData buildUtopiaTheme() {
       fontFamily: 'Sora',
       package: 'utopia_ui',
       fontSize: 24,
-      fontWeight: FontWeight.w600,
-      letterSpacing: 1,
-      color: Color(0xDD000000),
+      fontWeight: FontWeight.w700,
+      letterSpacing: -0.5,
+      color: Color(0xFF14161F),
     ),
     label: TextStyle(
       fontFamily: 'Sora',
       package: 'utopia_ui',
       fontSize: 12,
       fontWeight: FontWeight.w600,
-      letterSpacing: 1,
-      color: Color(0xDD000000),
+      letterSpacing: -0.1,
+      color: Color(0xFF5B6076),
     ),
     text: TextStyle(
       fontFamily: 'Sora',
       package: 'utopia_ui',
       fontSize: 12,
-      fontWeight: FontWeight.w600,
-      letterSpacing: 1,
-      color: Color(0xDD000000),
+      fontWeight: FontWeight.w500,
+      letterSpacing: -0.1,
+      color: Color(0xFF5B6076),
     ),
     title: TextStyle(
       fontFamily: 'Sora',
       package: 'utopia_ui',
       fontSize: 16,
       fontWeight: FontWeight.w600,
-      letterSpacing: 1,
-      color: Color(0xDD000000),
+      letterSpacing: -0.3,
+      color: Color(0xFF14161F),
     ),
     caption: TextStyle(
       fontFamily: 'Sora',
       package: 'utopia_ui',
       fontSize: 10,
-      fontWeight: FontWeight.w600,
-      letterSpacing: 1,
-      color: Color(0xDD000000),
+      fontWeight: FontWeight.w500,
+      letterSpacing: 0,
+      color: Color(0xFF5B6076),
     ),
     button: TextStyle(
       fontFamily: 'Sora',
       package: 'utopia_ui',
       fontSize: 12,
       fontWeight: FontWeight.w600,
-      letterSpacing: 1,
+      letterSpacing: -0.1,
       color: Color(0xFFFFFFFF),
     ),
   );

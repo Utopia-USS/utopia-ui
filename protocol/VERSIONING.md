@@ -7,10 +7,19 @@ specification ([SPEC.md](SPEC.md)) and both JSON Schemas
 (`schemas/tokens.schema.json`, `schemas/manifest.schema.json`) always change together under
 one version number.
 
-Current version: **0.2.0**.
+Current version: **0.3.0**.
 
 History:
 
+- **0.3.0** (2026-08-14) - additive: `tokenBindings` entries carry provenance (SPEC 3.6) - an
+  entry is now an object `{ "path": ..., "origin": "source" | "overlay" }`; the bare-string
+  form written by 0.2 generators stays valid and is read as a path of unknown origin. The
+  component `twin` binding (SPEC 3.4) is generated rather than hand-kept: `generate_manifest`
+  emits it for every component the HTML twin renders. The twin bundle gains a hand-authored
+  `gallery.src.html` from which `gallery.html` is composed (SPEC 4.1), and the
+  `utopia-twin-omit` marker records deliberate coverage omissions. `validate_manifest` now
+  applies the document-version rule below to a manifest's `schemaVersion`. Token profile
+  unchanged.
 - **0.2.0** (2026-07-10) - additive: project manifests and the merged view (SPEC 3.8), the
   id namespace rule (SPEC 3.3), manifest schema fields `utopiaUiVersion` + `merged`,
   `package` widened from the `utopia_ui` constant to any Dart package name, component id

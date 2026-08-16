@@ -20,14 +20,19 @@ void main() {
     return extractTokenBindings(unit).toSet();
   }
 
-  test('button: tokens.x, colors.primary, colors.accent, colors.onColoredHover, theme.borderRadius, '
-      'textStyles.button', () {
+  test('button: the gradient pair, the focus-ring tokens and the hover/press timings', () {
+    // colors.surface backs the focus ring's opaque gap (the twin gets that gap
+    // from outline-offset, which Flutter has no equivalent for), and
+    // borders.thick sizes the ring itself.
     final bindings = bindingsOf('lib/src/widget/button/utopia_button.dart');
     expect(bindings, {
       'tokens.x',
       'colors.primary',
       'colors.accent',
-      'colors.onColoredHover',
+      'colors.surface',
+      'tokens.borders.thick',
+      'tokens.durations.sm',
+      'tokens.durations.xs',
       'theme.borderRadius',
       'textStyles.button',
     });
@@ -42,39 +47,43 @@ void main() {
     },
   );
 
-  test('field-wrapper: aliased locals (fieldTheme/themeValues) resolve through one-hop aliasing', () {
+  test('field-wrapper: the themeValues alias resolves every per-state decoration getter', () {
     // Whole-file scope also picks up utopiaFieldDecoration/utopiaPlaceholderStyle,
-    // the two free functions sharing this file - hence colors.hint (only read
-    // inside utopiaPlaceholderStyle) appears alongside UtopiaFieldWrapper's
-    // own reads.
+    // the two free functions sharing this file - hence colors.hint and
+    // textStyles.caption (read only inside those) appear alongside
+    // UtopiaFieldWrapper's own reads. The state colours themselves
+    // (border/error/primary) are no longer read here: they moved into the
+    // theme's field*Decoration getters, which this file reads by name.
     final bindings = bindingsOf('lib/src/widget/wrapper/utopia_field_wrapper.dart');
     expect(bindings, {
       'theme.fieldDecoration',
-      'tokens.durations.sm',
-      'colors.error',
-      'colors.border',
-      'colors.hint',
-      'tokens.borders.hairline',
+      'theme.fieldHoverDecoration',
+      'theme.fieldFocusDecoration',
+      'theme.fieldErrorDecoration',
+      'theme.fieldErrorFocusDecoration',
+      'theme.fieldReadOnlyDecoration',
       'theme.fieldContentPadding',
       'theme.fieldMinHeight',
+      'tokens.durations.sm',
+      'tokens.borders.hairline',
       'tokens.x',
-      'textStyles.text',
-      'textStyles.label',
       'tokens.fontWeights.regular',
+      'colors.hint',
+      'textStyles.text',
+      'textStyles.caption',
     });
   });
 
-  test('check-row: tokens.durations.xs and the row/checkbox theme reads', () {
+  test('check-row: only the row-level reads remain after the box moved into UtopiaCheckbox', () {
+    // The private _CheckBox is gone - UtopiaCheckRow composes UtopiaCheckbox
+    // (readOnly: true), so the box's own reads (durations.xs, radius.xsAll,
+    // colors.primary/disabled, borders.thin) now belong to the checkbox
+    // component and must NOT leak into check-row's bindings.
     final bindings = bindingsOf('lib/src/widget/select/utopia_check_row.dart');
     expect(bindings, {
       'colors.hover',
       'tokens.spacing.md',
       'textStyles.text',
-      'tokens.durations.xs',
-      'colors.accent',
-      'tokens.radius.smAll',
-      'colors.disabled',
-      'tokens.borders.thin',
     });
   });
 
@@ -88,8 +97,11 @@ void main() {
       'textStyles.title',
       'textStyles.header',
       'colors.text',
-      'theme.cardDecoration',
+      'theme.dialogDecoration',
       'theme.cardBorderDecoration',
+      // The .form action bar rules itself off from the scrolling body with a
+      // hairline, so the closure now reads the divider thickness too.
+      'theme.dividerThickness',
       'tokens.spacing.xxxl',
       'tokens.radius.xl',
       'tokens.durations.sm',
@@ -146,9 +158,14 @@ void main() {
   });
 
   test('components with no theme/token reads produce an empty binding set', () {
+    // three-bounce left this list when its dots gained a colors.primary
+    // default (a null colour used to paint nothing at all).
     expect(bindingsOf('lib/src/widget/layout/utopia_form_layout.dart'), isEmpty);
     expect(bindingsOf('lib/src/widget/misc/utopia_collapsible.dart'), isEmpty);
     expect(bindingsOf('lib/src/widget/misc/utopia_multi_widget.dart'), isEmpty);
-    expect(bindingsOf('lib/src/widget/loading/utopia_three_bounce.dart'), isEmpty);
+  });
+
+  test('three-bounce: the primary-dot default is its only theme read', () {
+    expect(bindingsOf('lib/src/widget/loading/utopia_three_bounce.dart'), {'colors.primary'});
   });
 }

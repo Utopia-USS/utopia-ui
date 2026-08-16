@@ -1,0 +1,100 @@
+# Protocol gates as CI - automates RELEASING.md steps b and c on every push/PR.
+#
+# Two jobs on purpose, with opposite SDK policies:
+#
+# - `gates` is PINNED to one Flutter version. Its core is a byte-compare
+#   (regenerate everything, then require a clean tree), and formatter/analyzer
+#   output legitimately shifts across SDK releases - on a floating channel,
+#   Google shipping a new stable would redden unrelated PRs. The pin's only
+#   job is determinism of the byte gate; bump it together with the local
+#   toolchain (regenerating and committing the artifacts in the same PR).
+#
+# - `tests` FLOATS on the stable channel. utopia_ui is a library: analyze and
+#   tests should run against what consumers actually resolve today, and a new
+#   stable breaking them is a real signal the pin would hide.
+#
+# The one deliberate omission is tool/utopia_design_tools/smoke/run.sh: it is a
+# local release harness (bootstraps a fresh Flutter app, drives headless Chrome
+# for screenshot parity, writes a ledger checkpoint) and stays a manual gate in
+# RELEASING.md step c.
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+
+jobs:
+  gates:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          flutter-version: 3.44.2
+          cache: true
+
+      - name: Pub get (utopia_ui + utopia_design_tools)
+        run: |
+          flutter pub get
+          flutter pub get --directory tool/utopia_design_tools
+
+      # --- RELEASING.md step b: regenerate ALL shipped artifacts ---
+      - name: Regenerate shipped artifacts
+        run: |
+          dart run tool/utopia_design_tools/bin/export_tokens.dart -o tokens/utopia.tokens.json
+          dart run tool/utopia_design_tools/bin/generate_manifest.dart -o manifest/utopia.manifest.json
+          dart run tool/utopia_design_tools/bin/generate_twin.dart
+
+      - name: Regenerate theme golden
+        working-directory: tool/utopia_design_tools
+        run: dart run utopia_design_tools:generate_theme ../../tokens/utopia.tokens.json -o test/goldens/default_theme.g.dart
+
+      # The freshness gate: committed generator output must be byte-identical
+      # to a fresh regeneration. This is what catches stale manifest prose,
+      # a stale token export, or a stale twin stylesheet. git status (not
+      # git diff) so an uncommitted NEW artifact fails too.
+      - name: Committed artifacts match regeneration
+        run: |
+          git status --porcelain
+          test -z "$(git status --porcelain)"
+
+      # --- RELEASING.md step c: validators ---
+      - name: validate_tokens
+        run: dart run tool/utopia_design_tools/bin/validate_tokens.dart
+
+      - name: validate_manifest
+        run: dart run tool/utopia_design_tools/bin/validate_manifest.dart
+
+      - name: validate_twin
+        run: dart run tool/utopia_design_tools/bin/validate_twin.dart
+
+  tests:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+
+      - uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Pub get (utopia_ui + utopia_design_tools)
+        run: |
+          flutter pub get
+          flutter pub get --directory tool/utopia_design_tools
+
+      - name: Analyze
+        run: |
+          flutter analyze
+          cd tool/utopia_design_tools && flutter analyze
+
+      - name: Test utopia_ui
+        run: flutter test
+
+      - name: Test utopia_design_tools
+        working-directory: tool/utopia_design_tools
+        run: flutter test

@@ -1,0 +1,14 @@
+states: [selected, hover, disabled, readOnly]
+notes: >-
+  A themed radio button for one option of a group, generic over the option
+  type and styled from UtopiaThemeData instead of the ambient MaterialApp
+  theme. It shares UtopiaCheckbox's chrome exactly (x*5 extent, field fill,
+  disabled-coloured edge stepping to hint on hover) and differs only in shape
+  (radius.full) and glyph. selected is `value == groupValue`: a primary fill
+  carrying a button-coloured x*1.5 dot. Every tap reports value, including a
+  tap on the already-selected option, so the owner of the group decides
+  whether re-selecting is a no-op. readOnly blocks interaction while keeping
+  the full-color styling; a null onChanged (without readOnly) is the disabled
+  state and renders faded at 50% opacity.
+examples:
+  - example/lib/sections/selection_section.dart

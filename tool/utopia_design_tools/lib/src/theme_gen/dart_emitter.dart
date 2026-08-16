@@ -10,6 +10,7 @@
 library;
 
 import 'package:dart_style/dart_style.dart';
+import 'package:utopia_design_tools/src/dtcg/validator.dart' show protocolVersion;
 import 'package:utopia_design_tools/src/theme_gen/theme_spec.dart';
 
 /// The page width every generated file is formatted to, matching this
@@ -25,12 +26,12 @@ const int _pageWidth = 120;
 /// real `UtopiaThemeColors` and compares field-by-field).
 const Map<String, int> dartDefaultOptionalColorArgb32 = {
   'surface': 0xFFFFFFFF,
-  'border': 0xFFE8EAF0,
-  'rowAlt': 0xFFF7F8FB,
-  'hover': 0xFFEFF1F8,
-  'chipBackground': 0xFFE7EAFD,
-  'chipForeground': 0xFF536DFE,
-  'hint': 0xFF9AA0B5,
+  'border': 0xFFD8DCEB,
+  'rowAlt': 0xFFF6F7FC,
+  'hover': 0xFFEDF0FA,
+  'chipBackground': 0xFFE9EDFD,
+  'chipForeground': 0xFF3A4BCC,
+  'hint': 0xFF6E748B,
 };
 
 /// The Dart default for `UtopiaThemeData.tileHeight` (`@Default(58.0)`),
@@ -61,7 +62,10 @@ String emitDart(ThemeSpec spec, {required String inputPath, String? regeneratePa
   buffer.writeln("import 'package:flutter/widgets.dart';");
   buffer.writeln("import 'package:utopia_ui/utopia_ui.dart';");
   buffer.writeln();
-  buffer.writeln('/// App theme built from the token document (protocol 0.2.0).');
+  // The protocol version is the validator's single source of truth, not a
+  // literal: a hand-maintained copy here silently outlived the 0.2.0 bump and
+  // stamped every consumer's generated theme with a stale version.
+  buffer.writeln('/// App theme built from the token document (protocol $protocolVersion).');
   buffer.writeln('UtopiaThemeData buildUtopiaTheme() {');
   buffer.writeln(_emitTokens(spec));
   buffer.writeln();
@@ -261,13 +265,13 @@ String _emitReturn(ThemeSpec spec) {
   // Replicate UtopiaThemeData.fromTokens' arithmetic on the resolved spec so
   // we can tell exactly which slots a copyWith needs to override (protocol
   // SPEC section 5 / A6-spec.md "fromTokens arithmetic").
-  final derivedBorderRadius = spec.radiusSm;
+  final derivedBorderRadius = spec.radiusLg;
   final derivedCardRadius = spec.radiusXl;
-  final derivedFieldContentPaddingTop = spec.x * 2.5;
-  final derivedFieldContentPaddingBottom = spec.x * 1.5;
+  final derivedFieldContentPaddingTop = spec.x * 2;
+  final derivedFieldContentPaddingBottom = spec.x * 1;
   final derivedFieldContentPaddingLeft = spec.spacingLg;
   final derivedFieldContentPaddingRight = spec.spacingLg;
-  final derivedFieldMinHeight = spec.x * 11;
+  final derivedFieldMinHeight = spec.x * 8.5;
   final derivedPageTopPadding = spec.spacingXxxl;
   const derivedTileHeight = dartDefaultTileHeight;
 

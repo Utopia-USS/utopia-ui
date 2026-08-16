@@ -5,8 +5,9 @@ import 'package:utopia_ui/src/widget/button/utopia_button.dart';
 import 'package:utopia_ui/src/widget/button/utopia_ghost_button.dart';
 
 /// A themed confirm/cancel prompt drawn with the utopia card chrome - the
-/// same surface, border, shadow and radius as every other card - rather than
-/// a Material [AlertDialog].
+/// same surface, border and radius as every other card, lifted to the overlay
+/// elevation a modal above a barrier takes - rather than a Material
+/// [AlertDialog].
 ///
 /// A neutral confirm/cancel prefab: no default title/subtitle strings are
 /// baked in here - callers own their own copy. Title renders in
@@ -66,7 +67,11 @@ class UtopiaConfirmDialog extends StatelessWidget {
           child: Material(
             color: Colors.transparent,
             child: Container(
-              decoration: theme.cardDecoration,
+              // dialogDecoration, not cardDecoration: this prompt floats over a
+              // barrier like every other modal, so it carries the overlay
+              // elevation rather than the resting elevation of a card sitting
+              // in the page underneath it.
+              decoration: theme.dialogDecoration,
               foregroundDecoration: theme.cardBorderDecoration,
               clipBehavior: Clip.antiAlias,
               padding: EdgeInsets.all(spacing.xl),
@@ -75,10 +80,7 @@ class UtopiaConfirmDialog extends StatelessWidget {
                 crossAxisAlignment: CrossAxisAlignment.start,
                 children: [
                   Text(title, style: texts.header),
-                  if (subtitle != null) ...[
-                    SizedBox(height: spacing.md),
-                    Text(subtitle, style: texts.text),
-                  ],
+                  if (subtitle != null) ...[SizedBox(height: spacing.md), Text(subtitle, style: texts.text)],
                   SizedBox(height: spacing.xl),
                   Row(
                     mainAxisAlignment: MainAxisAlignment.end,

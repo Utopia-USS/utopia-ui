@@ -32,6 +32,7 @@ const Set<String> validStates = {
   'readOnly',
   'expanded',
   'open',
+  'on',
 };
 
 /// One parsed `overlay/<id>.yaml` file (library) or

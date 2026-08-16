@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://raw.githubusercontent.com/Utopia-USS/utopia-ui/main/protocol/schemas/manifest.schema.json",
   "title": "Utopia Design Protocol - component manifest",
-  "description": "Machine-readable API registry of a utopia_ui release, a consumer project's custom components (project manifest), or the merged view of both. Components are concrete widgets (library: exported from the barrel; project: opt-in via overlay), plus models (data classes used in props) and helpers (functions, hooks, typedefs). Modeled on custom-elements-manifest, adapted to Flutter. Protocol version 0.2.0; see protocol/VERSIONING.md and SPEC.md 3.8.",
+  "description": "Machine-readable API registry of a utopia_ui release, a consumer project's custom components (project manifest), or the merged view of both. Components are concrete widgets (library: exported from the barrel; project: opt-in via overlay), plus models (data classes used in props) and helpers (functions, hooks, typedefs). Modeled on custom-elements-manifest, adapted to Flutter. Protocol version 0.3.0; see protocol/VERSIONING.md and SPEC.md 3.8.",
   "type": "object",
   "properties": {
     "$schema": { "type": "string" },
@@ -123,16 +123,37 @@
       "required": ["name", "props"],
       "additionalProperties": false
     },
-    "tokenBinding": {
+    "tokenBindingPath": {
       "type": "string",
       "pattern": "^(colors|textStyles|theme|tokens)(\\.[a-zA-Z][a-zA-Z0-9]*)+$",
       "description": "Dotted UtopiaThemeData member path the component reads, e.g. \"colors.primary\", \"tokens.durations.xs\", \"theme.borderRadius\"."
+    },
+    "tokenBindingOrigin": {
+      "type": "string",
+      "enum": ["source", "overlay"],
+      "description": "Provenance of the binding (SPEC 3.6): \"source\" = derived from the component's own Dart implementation by the extractor; \"overlay\" = declared by the overlay's tokenBindingsAdd escape hatch, which the extractor cannot see. Optional: documents written for an older minor carry bare-string bindings with no provenance at all, and a generator that cannot tell the two apart must be able to stay silent rather than guess. Every generator in this repo stamps it (SPEC 3.7), which is what lets validate_manifest verify a shipped manifest's bindings without the overlay directory the pub tarball does not ship.",
+      "default": "source"
+    },
+    "tokenBinding": {
+      "description": "One tokenBindings entry. Since protocol 0.3.0 an object carrying the dotted path plus its origin; the bare-string form written by 0.2 generators stays valid (VERSIONING.md: documents written for an older minor remain valid) and is read as a path of unknown origin.",
+      "oneOf": [
+        { "$ref": "#/definitions/tokenBindingPath" },
+        {
+          "type": "object",
+          "properties": {
+            "path": { "$ref": "#/definitions/tokenBindingPath" },
+            "origin": { "$ref": "#/definitions/tokenBindingOrigin" }
+          },
+          "required": ["path"],
+          "additionalProperties": false
+        }
+      ]
     },
     "state": {
       "type": "string",
       "enum": [
         "hover", "focus", "pressed", "loading", "disabled", "selected",
-        "error", "empty", "readOnly", "expanded", "open"
+        "error", "empty", "readOnly", "expanded", "open", "on"
       ]
     },
     "component": {
@@ -173,9 +194,16 @@
         },
         "twin": {
           "type": "object",
+          "description": "Where this component is rendered in the HTML twin (SPEC 4.4). Emitted by the generator exactly for the ids that carry a data-utopia-id section in the twin bundle; absent for components with no twin section.",
           "properties": {
-            "file": { "type": "string" },
-            "selector": { "type": "string" }
+            "file": {
+              "type": "string",
+              "description": "Twin-bundle-relative file name (SPEC 4.1 layout), e.g. \"components.html\" - resolved against the twin/ directory of the package the manifest describes."
+            },
+            "selector": {
+              "type": "string",
+              "description": "CSS selector for the component's root element in that file, e.g. \"[data-utopia-id=\\\"button\\\"]\"."
+            }
           },
           "required": ["file", "selector"],
           "additionalProperties": false

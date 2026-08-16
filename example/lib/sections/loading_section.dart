@@ -33,22 +33,32 @@ class LoadingSection extends StatelessWidget {
           ),
           const SpecimenTile(label: 'UtopiaThreeBounce', child: UtopiaThreeBounce()),
           SpecimenTile(
-            label: 'UtopiaThreeBounce - primary',
-            child: UtopiaThreeBounce(color: colors.primary),
+            // The indicator's real habitat: UtopiaButton swaps its label for
+            // these dots in the button's own content colour, so the second
+            // specimen shows them on a filled ground rather than repeating the
+            // (now default) primary tint on the page colour.
+            label: 'UtopiaThreeBounce - on a filled ground',
+            child: DecoratedBox(
+              decoration: BoxDecoration(color: colors.primary, borderRadius: context.theme.borderRadius),
+              child: Padding(
+                padding: EdgeInsets.symmetric(horizontal: context.spacing.lg, vertical: context.spacing.md),
+                child: UtopiaThreeBounce(color: context.textStyles.button.color),
+              ),
+            ),
           ),
           const SpecimenTile(
-            label: 'Skeleton (UtopiaMockLoadingBox)',
+            label: 'Skeleton (UtopiaLoadingBox)',
             child: SizedBox(
               width: 280,
               child: Column(
                 crossAxisAlignment: CrossAxisAlignment.start,
                 mainAxisSize: MainAxisSize.min,
                 children: [
-                  UtopiaMockLoadingBox(height: 12, width: 140),
+                  UtopiaLoadingBox(height: 12, width: 140),
                   SizedBox(height: 12),
-                  UtopiaMockLoadingBox(height: 8, width: 220),
+                  UtopiaLoadingBox(height: 8, width: 220),
                   SizedBox(height: 8),
-                  UtopiaMockLoadingBox(height: 8, width: 180),
+                  UtopiaLoadingBox(height: 8, width: 180),
                 ],
               ),
             ),

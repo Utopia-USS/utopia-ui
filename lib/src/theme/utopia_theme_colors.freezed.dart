@@ -15,10 +15,14 @@ T _$identity<T>(T value) => value;
 mixin _$UtopiaThemeColors {
 
  Color get primary; Color get accent; Color get field; Color get canvas; Color get error; Color get disabled; Color get text;/// Background of the table card and other raised surfaces.
- Color get surface;/// Hairline colour for the card border and row / header dividers.
- Color get border;/// Colour of `UtopiaDivider` hairlines. `null` (the default) derives a
-/// contrast-safe colour from [text] over [surface] at paint time, so
-/// dividers stay visible in any theme without being set explicitly.
+ Color get surface;/// Hairline colour for the card border and the table header's bottom rule.
+/// Sits one step darker than [divider] so a surface's outer edge always
+/// reads stronger than the lines drawn inside it.
+ Color get border;/// Colour of `UtopiaDivider` hairlines. `null` derives a contrast-safe
+/// colour from [text] over [surface] at paint time, so dividers stay
+/// visible in a hand-built theme (dark included) without being set
+/// explicitly. The default light theme sets it explicitly, one step
+/// lighter than [border].
  Color? get divider;/// Tint of alternating (odd) table rows.
  Color get rowAlt;/// Row background while hovered.
  Color get hover;/// Fill of a `UtopiaChip`.
@@ -242,7 +246,7 @@ return $default(_that.primary,_that.accent,_that.field,_that.canvas,_that.error,
 
 
 class _UtopiaThemeColors extends UtopiaThemeColors {
-   _UtopiaThemeColors({required this.primary, required this.accent, required this.field, required this.canvas, required this.error, required this.disabled, required this.text, this.surface = const Color(0xFFFFFFFF), this.border = const Color(0xFFE8EAF0), this.divider, this.rowAlt = const Color(0xFFF7F8FB), this.hover = const Color(0xFFEFF1F8), this.chipBackground = const Color(0xFFE7EAFD), this.chipForeground = const Color(0xFF536DFE), this.hint = const Color(0xFF9AA0B5), required this.onColoredContent, required this.onColoredSelected, required this.onColoredHover}): super._();
+   _UtopiaThemeColors({required this.primary, required this.accent, required this.field, required this.canvas, required this.error, required this.disabled, required this.text, this.surface = const Color(0xFFFFFFFF), this.border = const Color(0xFFD8DCEB), this.divider, this.rowAlt = const Color(0xFFF6F7FC), this.hover = const Color(0xFFEDF0FA), this.chipBackground = const Color(0xFFE9EDFD), this.chipForeground = const Color(0xFF3A4BCC), this.hint = const Color(0xFF6E748B), required this.onColoredContent, required this.onColoredSelected, required this.onColoredHover}): super._();
   
 
 @override final  Color primary;
@@ -254,11 +258,15 @@ class _UtopiaThemeColors extends UtopiaThemeColors {
 @override final  Color text;
 /// Background of the table card and other raised surfaces.
 @override@JsonKey() final  Color surface;
-/// Hairline colour for the card border and row / header dividers.
+/// Hairline colour for the card border and the table header's bottom rule.
+/// Sits one step darker than [divider] so a surface's outer edge always
+/// reads stronger than the lines drawn inside it.
 @override@JsonKey() final  Color border;
-/// Colour of `UtopiaDivider` hairlines. `null` (the default) derives a
-/// contrast-safe colour from [text] over [surface] at paint time, so
-/// dividers stay visible in any theme without being set explicitly.
+/// Colour of `UtopiaDivider` hairlines. `null` derives a contrast-safe
+/// colour from [text] over [surface] at paint time, so dividers stay
+/// visible in a hand-built theme (dark included) without being set
+/// explicitly. The default light theme sets it explicitly, one step
+/// lighter than [border].
 @override final  Color? divider;
 /// Tint of alternating (odd) table rows.
 @override@JsonKey() final  Color rowAlt;

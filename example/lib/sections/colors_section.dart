@@ -19,6 +19,9 @@ class ColorsSection extends StatelessWidget {
       'surface': colors.surface,
       'field': colors.field,
       'border': colors.border,
+      // The divider slot is nullable (null derives a contrast-safe line at
+      // paint time); the swatch row only shows it when the theme pins a value.
+      'divider': ?colors.divider,
       'rowAlt': colors.rowAlt,
       'hover': colors.hover,
       'chipBackground': colors.chipBackground,

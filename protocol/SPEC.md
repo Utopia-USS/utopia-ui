@@ -1,6 +1,6 @@
 # Utopia Design Protocol - Specification
 
-Version: 0.2.0 (see [VERSIONING.md](VERSIONING.md))
+Version: 0.3.0 (see [VERSIONING.md](VERSIONING.md))
 Status: v0 draft, implemented by `tool/utopia_design_tools`
 
 The Utopia Design Protocol is an open, bidirectional design-system contract for Flutter apps
@@ -353,13 +353,20 @@ Namespace rule (since 0.2.0):
       ]
     }
   ],
-  "tokenBindings": ["colors.primary", "colors.accent", "tokens.x", "theme.borderRadius", "textStyles.button"],
+  "tokenBindings": [{ "path": "colors.primary", "origin": "source" }, { "path": "theme.cardShadow", "origin": "overlay" }],
   "states": ["loading", "disabled", "hover"],
   "composes": ["gradient-background", "three-bounce"],
-  "twin": { "file": "components.html", "selector": "[data-utopia-id=button]" },
+  "twin": { "file": "components.html", "selector": "[data-utopia-id=\"button\"]" },
   "examples": ["example/lib/sections/buttons_section.dart"]
 }
 ```
+
+`twin` is generated, not hand-kept: `generate_manifest` scans the twin bundle's
+`components.html` for `data-utopia-id` roots (4.4) and emits
+`{ "file": "components.html", "selector": "[data-utopia-id=\"<id>\"]" }` for every component
+that has one, omitting the field entirely for components the twin does not render. `file` is
+twin-bundle-relative (4.1). Project manifests (3.8) do not carry `twin` bindings in 0.3.0 -
+the twin bundle belongs to `utopia_ui` and has no sections for project components.
 
 ### 3.5 Portable prop type vocabulary
 
@@ -395,8 +402,28 @@ Every prop carries both the verbatim `dartType` and a portable `type` from this 
 - `theme.<slotOrGetter>` for semantic slots and derived getters (e.g. `theme.borderRadius`,
   `theme.cardDecoration`)
 
+Since 0.3.0 each entry is an object carrying the path plus its provenance:
+
+```jsonc
+"tokenBindings": [
+  { "path": "colors.primary", "origin": "source" },
+  { "path": "theme.cardShadow", "origin": "overlay" }
+]
+```
+
+`origin` is `source` for a binding the extractor read out of the component's own
+implementation, and `overlay` for one the overlay's `tokenBindingsAdd` escape hatch declared
+(3.7). Generators MUST stamp it; the schema keeps it optional so documents written for 0.2 -
+whose entries are bare strings - remain valid, and a bare string is read as a path of unknown
+origin.
+
 Bindings are verified against source (grep-level truth): a binding MUST appear in the
-component's implementation.
+component's implementation. Recording provenance in the document is what lets
+`validate_manifest` verify bindings against source WITHOUT the overlay directory, which the
+`utopia_ui` pub tarball does not ship: an entry marked `overlay` is exempt from the
+"must appear in the implementation" rule, and one the extractor does find there is reported as
+a stale origin marker. For a 0.2 document the validator falls back to reading the overlay
+directory, exactly as before.
 
 ### 3.7 Generation model and drift gates
 
@@ -412,7 +439,8 @@ Drift is an assumed condition, and generation is where it gets caught:
 - The manifest stamps `packageVersion` from `pubspec.yaml`. `validate_manifest` MUST fail when
   `packageVersion` differs from the resolved `utopia_ui` version it is validated against.
 - `validate_manifest` re-checks schema validity, id uniqueness/derivation, `tokenBindings`
-  against source, and twin binding targets (when a twin is present).
+  against source, and twin binding targets (the bound file MUST carry a `data-utopia-id` root
+  for the component's id).
 
 ### 3.8 The project manifest (custom components)
 
@@ -486,9 +514,21 @@ twin/
   tokens.tailwind.css   # GENERATED Tailwind v4 @theme variant (optional consumption)
   components.css        # hand-authored component styles, token-driven
   components.html       # one section per manifest component, data-utopia-id on each root
-  gallery.html          # mirrors example/lib/sections/* for side-by-side smoke comparison
+  gallery.src.html      # hand-authored gallery source: prose, section order, specimen markers
+  gallery.html          # COMPOSED from gallery.src.html + components.html - do not edit
   DESIGN.md             # design.md-spec description; front matter GENERATED from tokens
 ```
+
+The gallery is composed, not hand-copied: each `<!-- utopia-specimen: <id> -->` marker in
+`gallery.src.html` is replaced by that specimen's subtree copied verbatim from
+`components.html` (`generate_twin --compose-gallery`), and the emitted `gallery.html` stays a
+committed static file. When a component has several specimens, a trailing `#<n>` picks the
+n-th `data-utopia-id` root for that id in `components.html` document order (`<id>` alone means
+the first). The index is positional: inserting a specimen in the middle of a catalog section
+shifts the ones after it, so the composed `gallery.html` diff MUST be reviewed after catalog
+edits - the committed output is what makes that drift visible. A `<!-- utopia-twin-omit: <id> -- <reason> -->` marker records a
+manifest id a surface deliberately does not show; `validate_twin` treats missing ids without
+one as coverage warnings.
 
 Static HTML/CSS with minimal vanilla JS only. No frameworks, no build step: opening the files
 in a browser MUST be sufficient.
@@ -594,9 +634,9 @@ here:
 | `validate_tokens` | validation gates 2.7 |
 | `generate_manifest` | analyzer + overlay -> manifest (3.7); `--project` mode emits the project + merged manifests (3.8) |
 | `validate_manifest` | manifest gates (3.7) |
-| `generate_theme` | token document -> Dart theme code (a `UtopiaThemeData` factory) |
-| `generate_twin` | token document -> `twin/tokens.css`, `twin/tokens.tailwind.css`, DESIGN.md front matter |
-| `validate_twin` | literals linter + `data-utopia-id` coverage vs the manifest |
+| `generate_theme` | token document -> Dart theme code (a `UtopiaThemeData` factory); `--check` compares in-memory regeneration against the existing generated file (freshness gate, writes nothing) |
+| `generate_twin` | token document -> `twin/tokens.css`, `twin/tokens.tailwind.css`, DESIGN.md front matter; composes `gallery.html` from `gallery.src.html` when present (4.1); `--scaffold <id>` prints a components.html section skeleton to stdout |
+| `validate_twin` | literals linter + `data-utopia-id` coverage vs the manifest + DESIGN.md front matter freshness + forward coverage of gallery/tier-1 (warnings, `utopia-twin-omit` markers) + manifest `states[]` vs `.is-*` parity (warnings) |
 
 Shared conventions: exit code 0 = success, 1 = validation/generation failure (actionable
 messages, one finding per line), 2 = usage or I/O error. Every command accepts `--json` for

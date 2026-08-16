@@ -1,0 +1,16 @@
+states: [selected, hover, disabled, readOnly]
+notes: >-
+  A themed check box, styled from UtopiaThemeData instead of the ambient
+  MaterialApp theme; the token base drives its extent (x*5 square), its check
+  glyph (x*3.5) and its mixed-state bar (x*2.5 wide, borders.thick tall).
+  selected is the checked rendering (value: true) - a primary fill with the
+  button-coloured glyph; unchecked is a field-coloured box whose disabled-
+  coloured edge steps to hint on hover. indeterminate is a separate
+  presentational flag rather than a state in this vocabulary: it swaps the
+  check glyph for a bar on the same filled ground, independent of value, and
+  reports the semantics mixed state (the twin mirrors it as .is-indeterminate).
+  readOnly blocks interaction while keeping the full-color styling; a null
+  onChanged (without readOnly) is the disabled state and renders faded at 50%
+  opacity.
+examples:
+  - example/lib/sections/selection_section.dart

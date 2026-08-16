@@ -107,6 +107,13 @@ Future<void> main(List<String> arguments) async {
       .map((c) => c['id'])
       .whereType<String>()
       .toSet();
+  // states[] is optional per component (SPEC 3.4); components without one are
+  // simply absent from the map, which skips them in the state-parity gate.
+  final manifestComponentStates = <String, List<String>>{
+    for (final component in componentsRaw.whereType<Map<String, dynamic>>())
+      if (component['id'] case final String id)
+        if (component['states'] case final List<dynamic> states) id: states.whereType<String>().toList(),
+  };
 
   final Map<String, dynamic> tokensJson;
   try {
@@ -129,6 +136,7 @@ Future<void> main(List<String> arguments) async {
   final validator = TwinValidator(
     twinDir: twinDir,
     manifestComponentIds: manifestComponentIds,
+    manifestComponentStates: manifestComponentStates,
     tokenDocument: tokenDocument,
     // When the target twin's own tokens.css header named the resolved file,
     // reuse that exact recorded string - it is what the freshness

@@ -1,5 +1,5 @@
 {
-  "schemaVersion": "0.2.0",
+  "schemaVersion": "0.3.0",
   "package": "utopia_ui",
   "packageVersion": "0.1.0",
   "components": [
@@ -49,7 +49,7 @@
               "dartType": "bool",
               "required": false,
               "default": "false",
-              "description": "Uses a shorter fixed extent (10x instead of 15x the token base - 40 instead of 60 by default) when height is not set."
+              "description": "Uses a shorter fixed extent (10x instead of 12x the token base - 40 instead of 48 by default) when height is not set."
             },
             {
               "name": "maxWidth",
@@ -73,21 +73,52 @@
               "type": "number",
               "dartType": "double?",
               "required": false,
-              "description": "Overrides the fixed square extent (min/max height and min width). Defaults to 10x the token base when dense (40), 15x otherwise (60, matching a resting field's total height). Pair with maxWidth == height for a square icon button."
+              "description": "Overrides the fixed square extent (min/max height and min width). Defaults to 10x the token base when dense (40, matching a dense field), 12x otherwise (48, matching a resting field's total height - content floor, vertical padding and both hairline borders). Pair with maxWidth == height for a square icon button."
             }
           ]
         }
       ],
       "tokenBindings": [
-        "colors.accent",
-        "colors.onColoredHover",
-        "colors.primary",
-        "textStyles.button",
-        "theme.borderRadius",
-        "tokens.x"
+        {
+          "path": "colors.accent",
+          "origin": "source"
+        },
+        {
+          "path": "colors.primary",
+          "origin": "source"
+        },
+        {
+          "path": "colors.surface",
+          "origin": "source"
+        },
+        {
+          "path": "textStyles.button",
+          "origin": "source"
+        },
+        {
+          "path": "theme.borderRadius",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.borders.thick",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.durations.sm",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.durations.xs",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.x",
+          "origin": "source"
+        }
       ],
       "states": [
         "disabled",
+        "focus",
         "hover",
         "loading"
       ],
@@ -95,11 +126,15 @@
         "gradient-background",
         "three-bounce"
       ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"button\"]"
+      },
       "examples": [
         "example/lib/sections/buttons_section.dart",
         "example/lib/sections/dialogs_section.dart"
       ],
-      "notes": "The primary call-to-action button. Loading swaps the label for an inline UtopiaThreeBounce indicator while keeping the button's size stable; disabled dims the gradient fill instead of hiding the button."
+      "notes": "The primary call-to-action button. Hover slides the whole gradient sweep half a step down the primary -> accent axis (a colour step, not a translucent overlay) and press answers with a 2% scale-down; focus draws a solid ring in the primary colour with a gap the width of borders.thick. Loading swaps the label for an inline UtopiaThreeBounce indicator while keeping the button's size stable; disabled dims the gradient fill instead of hiding the button."
     },
     {
       "id": "card",
@@ -122,14 +157,39 @@
         }
       ],
       "tokenBindings": [
-        "colors.border",
-        "colors.surface",
-        "theme.cardBorderDecoration",
-        "theme.cardBorderWidth",
-        "theme.cardDecoration",
-        "theme.cardRadius",
-        "theme.cardShadow"
+        {
+          "path": "colors.border",
+          "origin": "source"
+        },
+        {
+          "path": "colors.surface",
+          "origin": "source"
+        },
+        {
+          "path": "theme.cardBorderDecoration",
+          "origin": "source"
+        },
+        {
+          "path": "theme.cardBorderWidth",
+          "origin": "source"
+        },
+        {
+          "path": "theme.cardDecoration",
+          "origin": "source"
+        },
+        {
+          "path": "theme.cardRadius",
+          "origin": "source"
+        },
+        {
+          "path": "theme.cardShadow",
+          "origin": "source"
+        }
       ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"card\"]"
+      },
       "examples": [
         "example/lib/sections/surfaces_section.dart",
         "example/lib/sections/typography_section.dart"
@@ -171,23 +231,138 @@
         }
       ],
       "tokenBindings": [
-        "colors.accent",
-        "colors.disabled",
-        "colors.hover",
-        "textStyles.text",
-        "tokens.borders.thin",
-        "tokens.durations.xs",
-        "tokens.radius.smAll",
-        "tokens.spacing.md"
+        {
+          "path": "colors.hover",
+          "origin": "source"
+        },
+        {
+          "path": "textStyles.text",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.md",
+          "origin": "source"
+        }
       ],
       "states": [
         "hover",
         "selected"
       ],
+      "composes": [
+        "checkbox"
+      ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"check-row\"]"
+      },
       "examples": [
         "example/lib/sections/selection_section.dart"
       ],
       "notes": "A non-Material selectable row: a label preceded by a check box, used inside dropdown popups. Styled from the Utopia theme, with no ink splash."
+    },
+    {
+      "id": "checkbox",
+      "name": "UtopiaCheckbox",
+      "description": "A themed check box, drawn entirely from `UtopiaThemeData` - no Material `Checkbox` underneath, so its extent, corner radius and stroke widths follow the token scale (a rebranded base unit rescales the box with every other control) instead of Material's fixed 18px geometry.",
+      "file": "lib/src/widget/select/utopia_checkbox.dart",
+      "constructors": [
+        {
+          "name": "",
+          "description": "Creates a themed check box.",
+          "props": [
+            {
+              "name": "value",
+              "type": "bool",
+              "dartType": "bool",
+              "required": true,
+              "description": "Whether the box renders as checked."
+            },
+            {
+              "name": "onChanged",
+              "type": "callback",
+              "dartType": "void Function(bool)?",
+              "required": false,
+              "description": "Called with the flipped value when tapped; `null` disables interaction."
+            },
+            {
+              "name": "readOnly",
+              "type": "bool",
+              "dartType": "bool",
+              "required": false,
+              "default": "false",
+              "description": "When `true`, blocks interaction while keeping the full-color styling (instead of a faded disabled look)."
+            },
+            {
+              "name": "indeterminate",
+              "type": "bool",
+              "dartType": "bool",
+              "required": false,
+              "default": "false",
+              "description": "Renders the mixed (\"some, not all\") state: a horizontal bar instead of the check glyph, drawn on the same filled ground as a checked box."
+            }
+          ]
+        }
+      ],
+      "tokenBindings": [
+        {
+          "path": "colors.disabled",
+          "origin": "source"
+        },
+        {
+          "path": "colors.field",
+          "origin": "source"
+        },
+        {
+          "path": "colors.hint",
+          "origin": "source"
+        },
+        {
+          "path": "colors.primary",
+          "origin": "source"
+        },
+        {
+          "path": "textStyles.button",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.borders.thick",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.borders.thin",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.durations.xs",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.radius.fullAll",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.radius.xsAll",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.x",
+          "origin": "source"
+        }
+      ],
+      "states": [
+        "disabled",
+        "hover",
+        "readOnly",
+        "selected"
+      ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"checkbox\"]"
+      },
+      "examples": [
+        "example/lib/sections/selection_section.dart"
+      ],
+      "notes": "A themed check box, styled from UtopiaThemeData instead of the ambient MaterialApp theme; the token base drives its extent (x*5 square), its check glyph (x*3.5) and its mixed-state bar (x*2.5 wide, borders.thick tall). selected is the checked rendering (value: true) - a primary fill with the button-coloured glyph; unchecked is a field-coloured box whose disabled- coloured edge steps to hint on hover. indeterminate is a separate presentational flag rather than a state in this vocabulary: it swaps the check glyph for a bar on the same filled ground, independent of value, and reports the semantics mixed state (the twin mirrors it as .is-indeterminate). readOnly blocks interaction while keeping the full-color styling; a null onChanged (without readOnly) is the disabled state and renders faded at 50% opacity."
     },
     {
       "id": "chip",
@@ -231,13 +406,35 @@
         }
       ],
       "tokenBindings": [
-        "colors.chipBackground",
-        "colors.chipForeground",
-        "textStyles.caption",
-        "theme.chipRadius",
-        "tokens.spacing.md",
-        "tokens.spacing.xs"
+        {
+          "path": "colors.chipBackground",
+          "origin": "source"
+        },
+        {
+          "path": "colors.chipForeground",
+          "origin": "source"
+        },
+        {
+          "path": "textStyles.caption",
+          "origin": "source"
+        },
+        {
+          "path": "theme.chipRadius",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.sm",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.xs",
+          "origin": "source"
+        }
       ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"chip\"]"
+      },
       "examples": [
         "example/lib/sections/chips_text_section.dart",
         "example/lib/sections/table_section.dart"
@@ -274,14 +471,30 @@
         }
       ],
       "tokenBindings": [
-        "colors.hint",
-        "textStyles.text",
-        "tokens.spacing.sm",
-        "tokens.spacing.xs"
+        {
+          "path": "colors.hint",
+          "origin": "source"
+        },
+        {
+          "path": "textStyles.text",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.sm",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.xs",
+          "origin": "source"
+        }
       ],
       "composes": [
         "chip"
       ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"chip-list\"]"
+      },
       "examples": [
         "example/lib/sections/chips_text_section.dart"
       ],
@@ -406,12 +619,16 @@
           ]
         }
       ],
-      "tokenBindings": []
+      "tokenBindings": [],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"collapsible\"]"
+      }
     },
     {
       "id": "confirm-dialog",
       "name": "UtopiaConfirmDialog",
-      "description": "A themed confirm/cancel prompt drawn with the utopia card chrome - the same surface, border, shadow and radius as every other card - rather than a Material AlertDialog.",
+      "description": "A themed confirm/cancel prompt drawn with the utopia card chrome - the same surface, border and radius as every other card, lifted to the overlay elevation a modal above a barrier takes - rather than a Material AlertDialog.",
       "file": "lib/src/widget/dialog/utopia_confirm_dialog.dart",
       "constructors": [
         {
@@ -476,18 +693,43 @@
         }
       ],
       "tokenBindings": [
-        "colors.error",
-        "textStyles.header",
-        "textStyles.text",
-        "theme.cardBorderDecoration",
-        "theme.cardDecoration",
-        "tokens.spacing.md",
-        "tokens.spacing.xl"
+        {
+          "path": "colors.error",
+          "origin": "source"
+        },
+        {
+          "path": "textStyles.header",
+          "origin": "source"
+        },
+        {
+          "path": "textStyles.text",
+          "origin": "source"
+        },
+        {
+          "path": "theme.cardBorderDecoration",
+          "origin": "source"
+        },
+        {
+          "path": "theme.dialogDecoration",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.md",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.xl",
+          "origin": "source"
+        }
       ],
       "composes": [
         "button",
         "ghost-button"
       ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"confirm-dialog\"]"
+      },
       "examples": [
         "example/lib/sections/dialogs_section.dart"
       ],
@@ -514,22 +756,47 @@
         }
       ],
       "tokenBindings": [
-        "colors.accent",
-        "textStyles.button",
-        "textStyles.text",
-        "tokens.durations.xs",
-        "tokens.spacing.md",
-        "tokens.spacing.xl",
-        "tokens.spacing.xxl"
+        {
+          "path": "colors.accent",
+          "origin": "source"
+        },
+        {
+          "path": "textStyles.button",
+          "origin": "source"
+        },
+        {
+          "path": "textStyles.text",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.durations.xs",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.md",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.xl",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.xxl",
+          "origin": "source"
+        }
       ],
       "composes": [
         "multi-widget"
-      ]
+      ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"copyable-text\"]"
+      }
     },
     {
       "id": "date-picker",
       "name": "UtopiaDatePicker",
-      "description": "A tap-to-open date field: displays the picked date through a UtopiaTextField, opens an anchored calendar popover and offers a clear affordance via UtopiaRemoveIconButton.",
+      "description": "A tap-to-open date field: displays the picked date through a UtopiaLabeledField trigger, opens an anchored calendar popover, and clears through a UtopiaRemoveIconButton shown only when there is a date to clear.",
       "file": "lib/src/widget/date_picker/utopia_date_picker.dart",
       "constructors": [
         {
@@ -541,7 +808,7 @@
               "type": "date",
               "dartType": "DateTime?",
               "required": true,
-              "description": "The currently picked date; `null` shows the field empty."
+              "description": "The currently picked date; `null` shows the field empty (label at rest, no clear affordance)."
             },
             {
               "name": "label",
@@ -555,7 +822,7 @@
               "type": "callback",
               "dartType": "void Function(DateTime?)?",
               "required": false,
-              "description": "Called with the newly picked date, or `null` when the field is cleared."
+              "description": "Called with the newly picked date, or `null` when the field is cleared. Omitting it also drops the clear affordance - there is nobody to tell."
             },
             {
               "name": "firstDate",
@@ -574,20 +841,34 @@
           ]
         }
       ],
-      "tokenBindings": [],
+      "tokenBindings": [
+        {
+          "path": "textStyles.text",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.xs",
+          "origin": "source"
+        }
+      ],
       "states": [
+        "focus",
         "open"
       ],
       "composes": [
+        "labeled-field",
         "overlay-anchor",
-        "remove-icon-button",
-        "text-field"
+        "remove-icon-button"
       ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"date-picker\"]"
+      },
       "examples": [
         "example/lib/sections/fields_section.dart",
         "example/lib/sections/dialogs_section.dart"
       ],
-      "notes": "A tap-to-open date field: displays the picked date through a text-field trigger, opens an anchored calendar popover, and offers a clear affordance. The calendar grid is Material-owned and restyled from the ambient theme via utopiaDatePickerMaterialTheme, so re-theming affects it even though this component's tokenBindings list is empty (it reads no theme member directly)."
+      "notes": "A tap-to-open date field: a labeled-field trigger carrying the picked date, a permanent calendar affordance, a clear affordance shown only when there is a date to clear, and an anchored calendar popover. The trigger is a real focus stop (its own FocusNode, Space/Enter opens), so both declared states have a rendering in Flutter and both are the shared field focus ring painted by UtopiaFieldWrapper - focus is a trigger reached by keyboard, open is a trigger whose calendar is up, and the ring outlives the pick because focus is handed back. The trigger deliberately does NOT use the read-only chrome: its value is uneditable by construction (a Text, not a TextField), and read-only outranks focus inside the wrapper, which would leave an open picker looking dead. The popover's calendar grid is Material-owned (CalendarDatePicker) and restyled from the ambient theme via utopiaDatePickerMaterialTheme - a full DatePickerThemeData derivation built from scratch rather than from the host ThemeData, so the grid stays utopian under any MaterialApp. That grid is the one part with no static twin: its metrics belong to Material and mirroring them in CSS would mean inventing values."
     },
     {
       "id": "dialog",
@@ -674,27 +955,83 @@
         }
       ],
       "tokenBindings": [
-        "colors.border",
-        "colors.surface",
-        "colors.text",
-        "textStyles.header",
-        "textStyles.title",
-        "theme.cardBorderDecoration",
-        "theme.cardDecoration",
-        "tokens.durations.sm",
-        "tokens.radius.fullAll",
-        "tokens.radius.xl",
-        "tokens.spacing.lg",
-        "tokens.spacing.md",
-        "tokens.spacing.sm",
-        "tokens.spacing.xl",
-        "tokens.spacing.xxxl",
-        "tokens.x"
+        {
+          "path": "colors.border",
+          "origin": "source"
+        },
+        {
+          "path": "colors.surface",
+          "origin": "source"
+        },
+        {
+          "path": "colors.text",
+          "origin": "source"
+        },
+        {
+          "path": "textStyles.header",
+          "origin": "source"
+        },
+        {
+          "path": "textStyles.title",
+          "origin": "source"
+        },
+        {
+          "path": "theme.cardBorderDecoration",
+          "origin": "source"
+        },
+        {
+          "path": "theme.dialogDecoration",
+          "origin": "source"
+        },
+        {
+          "path": "theme.dividerThickness",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.durations.sm",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.radius.fullAll",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.radius.xl",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.lg",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.md",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.sm",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.xl",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.xxxl",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.x",
+          "origin": "source"
+        }
       ],
       "composes": [
         "form-layout",
         "page-wrapper"
       ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"dialog\"]"
+      },
       "examples": [
         "example/lib/sections/dialogs_section.dart"
       ],
@@ -713,11 +1050,27 @@
         }
       ],
       "tokenBindings": [
-        "colors.divider",
-        "colors.surface",
-        "colors.text",
-        "theme.dividerThickness"
+        {
+          "path": "colors.divider",
+          "origin": "source"
+        },
+        {
+          "path": "colors.surface",
+          "origin": "source"
+        },
+        {
+          "path": "colors.text",
+          "origin": "source"
+        },
+        {
+          "path": "theme.dividerThickness",
+          "origin": "source"
+        }
       ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"divider\"]"
+      },
       "examples": [
         "example/lib/sections/surfaces_section.dart",
         "example/lib/sections/typography_section.dart"
@@ -776,11 +1129,26 @@
         }
       ],
       "tokenBindings": [
-        "colors.accent",
-        "colors.hover",
-        "textStyles.text",
-        "tokens.spacing.lg",
-        "tokens.spacing.md"
+        {
+          "path": "colors.accent",
+          "origin": "source"
+        },
+        {
+          "path": "colors.hover",
+          "origin": "source"
+        },
+        {
+          "path": "textStyles.text",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.lg",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.md",
+          "origin": "source"
+        }
       ],
       "states": [
         "focus",
@@ -790,6 +1158,10 @@
         "labeled-field",
         "overlay-anchor"
       ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"dropdown-field\"]"
+      },
       "examples": [
         "example/lib/sections/fields_section.dart",
         "example/lib/sections/dialogs_section.dart"
@@ -799,7 +1171,7 @@
     {
       "id": "field-wrapper",
       "name": "UtopiaFieldWrapper",
-      "description": "Shared borderless chrome and interactive-height floor for every utopia_ui field.",
+      "description": "Shared chrome and interactive-height floor for every utopia_ui field.",
       "file": "lib/src/widget/wrapper/utopia_field_wrapper.dart",
       "constructors": [
         {
@@ -822,6 +1194,14 @@
               "description": "When `true`, outlines the chrome in the theme's error colour - the field-level half of the error state (`UtopiaTextField` renders the message below the field)."
             },
             {
+              "name": "readOnly",
+              "type": "bool",
+              "dartType": "bool",
+              "required": false,
+              "default": "false",
+              "description": "When `true`, renders the inert chrome (recessed to the page colour, no focus ring) so a field that cannot be edited reads as a displayed value rather than an empty control. Outranks every other state."
+            },
+            {
               "name": "dense",
               "type": "bool",
               "dartType": "bool",
@@ -833,19 +1213,71 @@
         }
       ],
       "tokenBindings": [
-        "colors.border",
-        "colors.error",
-        "colors.hint",
-        "textStyles.label",
-        "textStyles.text",
-        "theme.fieldContentPadding",
-        "theme.fieldDecoration",
-        "theme.fieldMinHeight",
-        "tokens.borders.hairline",
-        "tokens.durations.sm",
-        "tokens.fontWeights.regular",
-        "tokens.x"
-      ]
+        {
+          "path": "colors.hint",
+          "origin": "source"
+        },
+        {
+          "path": "textStyles.caption",
+          "origin": "source"
+        },
+        {
+          "path": "textStyles.text",
+          "origin": "source"
+        },
+        {
+          "path": "theme.fieldContentPadding",
+          "origin": "source"
+        },
+        {
+          "path": "theme.fieldDecoration",
+          "origin": "source"
+        },
+        {
+          "path": "theme.fieldErrorDecoration",
+          "origin": "source"
+        },
+        {
+          "path": "theme.fieldErrorFocusDecoration",
+          "origin": "source"
+        },
+        {
+          "path": "theme.fieldFocusDecoration",
+          "origin": "source"
+        },
+        {
+          "path": "theme.fieldHoverDecoration",
+          "origin": "source"
+        },
+        {
+          "path": "theme.fieldMinHeight",
+          "origin": "source"
+        },
+        {
+          "path": "theme.fieldReadOnlyDecoration",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.borders.hairline",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.durations.sm",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.fontWeights.regular",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.x",
+          "origin": "source"
+        }
+      ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"field-wrapper\"]"
+      }
     },
     {
       "id": "form-layout",
@@ -939,7 +1371,11 @@
           ]
         }
       ],
-      "tokenBindings": []
+      "tokenBindings": [],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"form-layout\"]"
+      }
     },
     {
       "id": "ghost-button",
@@ -969,12 +1405,31 @@
         }
       ],
       "tokenBindings": [
-        "colors.hover",
-        "textStyles.label",
-        "theme.borderRadius",
-        "tokens.spacing.xl",
-        "tokens.x"
-      ]
+        {
+          "path": "colors.hover",
+          "origin": "source"
+        },
+        {
+          "path": "textStyles.label",
+          "origin": "source"
+        },
+        {
+          "path": "theme.borderRadius",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.xl",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.x",
+          "origin": "source"
+        }
+      ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"ghost-button\"]"
+      }
     },
     {
       "id": "gradient-background",
@@ -1028,11 +1483,27 @@
         }
       ],
       "tokenBindings": [
-        "colors.accent",
-        "colors.disabled",
-        "colors.primary",
-        "tokens.durations.xl"
-      ]
+        {
+          "path": "colors.accent",
+          "origin": "source"
+        },
+        {
+          "path": "colors.disabled",
+          "origin": "source"
+        },
+        {
+          "path": "colors.primary",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.durations.xl",
+          "origin": "source"
+        }
+      ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"gradient-background\"]"
+      }
     },
     {
       "id": "header",
@@ -1055,8 +1526,15 @@
         }
       ],
       "tokenBindings": [
-        "textStyles.header"
-      ]
+        {
+          "path": "textStyles.header",
+          "origin": "source"
+        }
+      ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"header\"]"
+      }
     },
     {
       "id": "labeled-field",
@@ -1093,11 +1571,18 @@
         }
       ],
       "tokenBindings": [
-        "textStyles.text"
+        {
+          "path": "textStyles.text",
+          "origin": "source"
+        }
       ],
       "composes": [
         "field-wrapper"
-      ]
+      ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"labeled-field\"]"
+      }
     },
     {
       "id": "loader",
@@ -1114,7 +1599,7 @@
               "type": "color",
               "dartType": "Color?",
               "required": false,
-              "description": "Overrides `UtopiaThemeTextStyles.label`'s color."
+              "description": "Overrides the indicator's colour. Defaults to `UtopiaThemeColors.primary`: a running indicator reports activity, and activity is the brand colour in this system - the same reading `UtopiaThreeBounce(color: colors.primary)` carries. Pass a colour explicitly when the spinner sits on a coloured ground (e.g. `textStyles.button.color` inside a filled button)."
             },
             {
               "name": "size",
@@ -1128,21 +1613,25 @@
         }
       ],
       "tokenBindings": [
-        "textStyles.label"
+        {
+          "path": "colors.primary",
+          "origin": "source"
+        }
       ],
-      "states": [
-        "loading"
-      ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"loader\"]"
+      },
       "examples": [
         "example/lib/sections/loading_section.dart"
       ],
-      "notes": "A small circular progress indicator, sized and coloured to fit inline in text-scale contexts (e.g. a loading row or a compact overlay)."
+      "notes": "A small circular progress indicator, sized and coloured to fit inline in text-scale contexts (e.g. a loading row or a compact overlay). Declares no states on purpose: the loader has no not-loading rendering to contrast a \"loading\" state with - it spins from the moment it is mounted, and its absence is the other half of that pair, so loading is this component's identity rather than a state of it (the state belongs to the components that can be either way, e.g. button's loading). Colour defaults to colors.primary - a running indicator reports activity, and activity is the brand colour here - and is overridable per instance for coloured grounds."
     },
     {
-      "id": "mock-loading-box",
-      "name": "UtopiaMockLoadingBox",
+      "id": "loading-box",
+      "name": "UtopiaLoadingBox",
       "description": "A shimmering rectangle placeholder for text/content that has not loaded yet - a skeleton-loading building block sized to mimic the real content.",
-      "file": "lib/src/widget/loading/utopia_mock_loading_box.dart",
+      "file": "lib/src/widget/loading/utopia_loading_box.dart",
       "constructors": [
         {
           "name": "",
@@ -1175,9 +1664,19 @@
         }
       ],
       "tokenBindings": [
-        "colors.canvas",
-        "colors.field"
-      ]
+        {
+          "path": "colors.hover",
+          "origin": "source"
+        },
+        {
+          "path": "colors.surface",
+          "origin": "source"
+        }
+      ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"loading-box\"]"
+      }
     },
     {
       "id": "multi-widget",
@@ -1215,7 +1714,11 @@
           ]
         }
       ],
-      "tokenBindings": []
+      "tokenBindings": [],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"multi-widget\"]"
+      }
     },
     {
       "id": "overlay-anchor",
@@ -1261,10 +1764,23 @@
         }
       ],
       "tokenBindings": [
-        "theme.cardBorderDecoration",
-        "theme.cardDecoration",
-        "tokens.spacing.sm"
-      ]
+        {
+          "path": "theme.cardBorderDecoration",
+          "origin": "source"
+        },
+        {
+          "path": "theme.cardDecoration",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.sm",
+          "origin": "source"
+        }
+      ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"overlay-anchor\"]"
+      }
     },
     {
       "id": "page-wrapper",
@@ -1294,7 +1810,107 @@
           ]
         }
       ],
-      "tokenBindings": []
+      "tokenBindings": [],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"page-wrapper\"]"
+      }
+    },
+    {
+      "id": "radio",
+      "name": "UtopiaRadio",
+      "description": "A themed radio button, drawn entirely from `UtopiaThemeData` - no Material `Radio` underneath, so its extent and stroke widths follow the token scale and its chrome matches `UtopiaCheckbox` exactly (same square extent, same resting border, same hover step), differing only in shape and glyph.",
+      "file": "lib/src/widget/select/utopia_radio.dart",
+      "generic": true,
+      "constructors": [
+        {
+          "name": "",
+          "description": "Creates a themed radio button for one option of a group.",
+          "props": [
+            {
+              "name": "value",
+              "type": "generic-model",
+              "dartType": "T",
+              "required": true,
+              "description": "The option this button stands for."
+            },
+            {
+              "name": "groupValue",
+              "type": "generic-model",
+              "dartType": "T?",
+              "required": false,
+              "description": "The group's currently selected option; the button renders as selected while it equals value."
+            },
+            {
+              "name": "onChanged",
+              "type": "callback",
+              "dartType": "void Function(T)?",
+              "required": false,
+              "description": "Called with value when tapped; `null` disables interaction."
+            },
+            {
+              "name": "readOnly",
+              "type": "bool",
+              "dartType": "bool",
+              "required": false,
+              "default": "false",
+              "description": "When `true`, blocks interaction while keeping the full-color styling (instead of a faded disabled look)."
+            }
+          ]
+        }
+      ],
+      "tokenBindings": [
+        {
+          "path": "colors.disabled",
+          "origin": "source"
+        },
+        {
+          "path": "colors.field",
+          "origin": "source"
+        },
+        {
+          "path": "colors.hint",
+          "origin": "source"
+        },
+        {
+          "path": "colors.primary",
+          "origin": "source"
+        },
+        {
+          "path": "textStyles.button",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.borders.thin",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.durations.xs",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.radius.fullAll",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.x",
+          "origin": "source"
+        }
+      ],
+      "states": [
+        "disabled",
+        "hover",
+        "readOnly",
+        "selected"
+      ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"radio\"]"
+      },
+      "examples": [
+        "example/lib/sections/selection_section.dart"
+      ],
+      "notes": "A themed radio button for one option of a group, generic over the option type and styled from UtopiaThemeData instead of the ambient MaterialApp theme. It shares UtopiaCheckbox's chrome exactly (x*5 extent, field fill, disabled-coloured edge stepping to hint on hover) and differs only in shape (radius.full) and glyph. selected is `value == groupValue`: a primary fill carrying a button-coloured x*1.5 dot. Every tap reports value, including a tap on the already-selected option, so the owner of the group decides whether re-selecting is a no-op. readOnly blocks interaction while keeping the full-color styling; a null onChanged (without readOnly) is the disabled state and renders faded at 50% opacity."
     },
     {
       "id": "remove-icon-button",
@@ -1317,10 +1933,23 @@
         }
       ],
       "tokenBindings": [
-        "colors.error",
-        "colors.text",
-        "tokens.durations.xs"
-      ]
+        {
+          "path": "colors.error",
+          "origin": "source"
+        },
+        {
+          "path": "colors.text",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.durations.xs",
+          "origin": "source"
+        }
+      ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"remove-icon-button\"]"
+      }
     },
     {
       "id": "search-field",
@@ -1374,18 +2003,35 @@
         }
       ],
       "tokenBindings": [
-        "colors.hint",
-        "colors.primary",
-        "textStyles.text",
-        "tokens.spacing.sm"
+        {
+          "path": "colors.hint",
+          "origin": "source"
+        },
+        {
+          "path": "colors.primary",
+          "origin": "source"
+        },
+        {
+          "path": "textStyles.text",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.sm",
+          "origin": "source"
+        }
       ],
       "states": [
         "disabled",
-        "focus"
+        "focus",
+        "hover"
       ],
       "composes": [
         "field-wrapper"
       ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"search-field\"]"
+      },
       "examples": [
         "example/lib/sections/fields_section.dart",
         "example/lib/sections/table_section.dart"
@@ -1452,26 +2098,86 @@
         }
       ],
       "tokenBindings": [
-        "colors.border",
-        "colors.hint",
-        "colors.hover",
-        "colors.onColoredContent",
-        "colors.onColoredHover",
-        "colors.surface",
-        "textStyles.button",
-        "theme.cardBorderWidth",
-        "theme.cardRadius",
-        "theme.cardShadow",
-        "theme.menuShadow",
-        "theme.pageTopPadding",
-        "tokens.durations.lg",
-        "tokens.durations.md",
-        "tokens.radius.mdAll",
-        "tokens.spacing.lg",
-        "tokens.spacing.md",
-        "tokens.spacing.sm",
-        "tokens.spacing.xs",
-        "tokens.spacing.xxs"
+        {
+          "path": "colors.border",
+          "origin": "source"
+        },
+        {
+          "path": "colors.hint",
+          "origin": "source"
+        },
+        {
+          "path": "colors.hover",
+          "origin": "source"
+        },
+        {
+          "path": "colors.onColoredContent",
+          "origin": "source"
+        },
+        {
+          "path": "colors.onColoredHover",
+          "origin": "source"
+        },
+        {
+          "path": "colors.surface",
+          "origin": "source"
+        },
+        {
+          "path": "textStyles.button",
+          "origin": "source"
+        },
+        {
+          "path": "theme.cardBorderWidth",
+          "origin": "source"
+        },
+        {
+          "path": "theme.cardRadius",
+          "origin": "source"
+        },
+        {
+          "path": "theme.cardShadow",
+          "origin": "source"
+        },
+        {
+          "path": "theme.menuShadow",
+          "origin": "source"
+        },
+        {
+          "path": "theme.pageTopPadding",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.durations.lg",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.durations.md",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.radius.mdAll",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.lg",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.md",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.sm",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.xs",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.xxs",
+          "origin": "source"
+        }
       ],
       "states": [
         "expanded",
@@ -1481,10 +2187,128 @@
       "composes": [
         "gradient-background"
       ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"sidebar\"]"
+      },
       "examples": [
         "example/lib/sections/sidebar_section.dart"
       ],
       "notes": "An adaptive navigation sidebar: a collapsible hover/pin rail on wide screens, a flush full-width drawer body on small screens. selected means only that selectedId matches a destination's id - the sidebar carries no navigation opinions of its own."
+    },
+    {
+      "id": "slider",
+      "name": "UtopiaSlider",
+      "description": "A themed value slider, drawn entirely from `UtopiaThemeData` - no Material `Slider` underneath, so it carries none of Material's foreign idioms (the press halo, the floating value indicator, the tick marks) and its track, fill and thumb follow the token scale instead of Material's fixed geometry.",
+      "file": "lib/src/widget/slider/utopia_slider.dart",
+      "constructors": [
+        {
+          "name": "",
+          "description": "Creates a themed value slider.",
+          "props": [
+            {
+              "name": "value",
+              "type": "number",
+              "dartType": "double",
+              "required": true,
+              "description": "The value the slider renders, in `min, max`."
+            },
+            {
+              "name": "onChanged",
+              "type": "callback",
+              "dartType": "void Function(double)?",
+              "required": false,
+              "description": "Called with the value under the pointer on a tap or a drag; `null` disables interaction."
+            },
+            {
+              "name": "min",
+              "type": "number",
+              "dartType": "double",
+              "required": false,
+              "default": "0",
+              "description": "The lower end of the range, rendered at the left edge of the track."
+            },
+            {
+              "name": "max",
+              "type": "number",
+              "dartType": "double",
+              "required": false,
+              "default": "1",
+              "description": "The upper end of the range, rendered at the right edge of the track. Must be greater than min."
+            },
+            {
+              "name": "divisions",
+              "type": "number",
+              "dartType": "int?",
+              "required": false,
+              "description": "When set, the number of equal steps the range is divided into: the values reported through onChanged snap to `min + n * (max - min) / divisions`."
+            },
+            {
+              "name": "readOnly",
+              "type": "bool",
+              "dartType": "bool",
+              "required": false,
+              "default": "false",
+              "description": "When `true`, blocks interaction while keeping the full-color styling (instead of a faded disabled look)."
+            }
+          ]
+        }
+      ],
+      "tokenBindings": [
+        {
+          "path": "colors.border",
+          "origin": "source"
+        },
+        {
+          "path": "colors.disabled",
+          "origin": "source"
+        },
+        {
+          "path": "colors.hint",
+          "origin": "source"
+        },
+        {
+          "path": "colors.primary",
+          "origin": "source"
+        },
+        {
+          "path": "colors.surface",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.borders.thin",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.durations.sm",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.durations.xs",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.radius.fullAll",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.x",
+          "origin": "source"
+        }
+      ],
+      "states": [
+        "disabled",
+        "hover",
+        "readOnly"
+      ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"slider\"]"
+      },
+      "examples": [
+        "example/lib/sections/selection_section.dart"
+      ],
+      "notes": "A themed value slider drawn from UtopiaThemeData instead of the ambient MaterialApp theme, so it carries none of Material's foreign idioms (press halo, floating value indicator, tick marks). The token base drives its geometry: an x-tall track (colors.border) carrying an x*5 thumb (surface fill, borders.thin edge) whose centre travels between the half-thumb insets, with the primary-coloured fill running from the left edge to that centre. hover steps the thumb's edge to hint, the doctrine every control here follows; the drag rendering (a primary thumb edge while the pointer holds the value) is a transient pointer state with no entry in this state vocabulary and is mirrored in the twin as the .utopia-slider--dragging modifier. divisions snaps every reported value to a step but stays deliberately without a visual expression - no tick marks. readOnly blocks interaction while keeping the full-color styling; a null onChanged (without readOnly) is the disabled state and renders faded at 50% opacity."
     },
     {
       "id": "switch",
@@ -1522,21 +2346,44 @@
         }
       ],
       "tokenBindings": [
-        "colors.disabled",
-        "colors.primary",
-        "textStyles.button",
-        "tokens.durations.sm",
-        "tokens.radius.fullAll",
-        "tokens.x"
+        {
+          "path": "colors.disabled",
+          "origin": "source"
+        },
+        {
+          "path": "colors.primary",
+          "origin": "source"
+        },
+        {
+          "path": "textStyles.button",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.durations.sm",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.radius.fullAll",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.x",
+          "origin": "source"
+        }
       ],
       "states": [
         "disabled",
+        "on",
         "readOnly"
       ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"switch\"]"
+      },
       "examples": [
         "example/lib/sections/selection_section.dart"
       ],
-      "notes": "A themed on/off switch, styled from UtopiaThemeColors instead of the ambient MaterialApp theme. readOnly blocks interaction while keeping the full-color styling; a null onChanged (without readOnly) is the disabled state and renders faded at 50% opacity."
+      "notes": "A themed on/off switch, styled from UtopiaThemeColors instead of the ambient MaterialApp theme. on is the toggled-on track/thumb rendering (value: true); readOnly blocks interaction while keeping the full-color styling; a null onChanged (without readOnly) is the disabled state and renders faded at 50% opacity."
     },
     {
       "id": "switch-field",
@@ -1581,7 +2428,10 @@
         }
       ],
       "tokenBindings": [
-        "textStyles.text"
+        {
+          "path": "textStyles.text",
+          "origin": "source"
+        }
       ],
       "states": [
         "disabled",
@@ -1591,6 +2441,10 @@
         "field-wrapper",
         "switch"
       ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"switch-field\"]"
+      },
       "examples": [
         "example/lib/sections/selection_section.dart",
         "example/lib/sections/dialogs_section.dart"
@@ -1694,8 +2548,14 @@
         }
       ],
       "tokenBindings": [
-        "colors.surface",
-        "theme.cardRadius"
+        {
+          "path": "colors.surface",
+          "origin": "source"
+        },
+        {
+          "path": "theme.cardRadius",
+          "origin": "source"
+        }
       ],
       "states": [
         "empty",
@@ -1704,9 +2564,13 @@
       ],
       "composes": [
         "divider",
-        "mock-loading-box",
+        "loading-box",
         "table-empty"
       ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"table\"]"
+      },
       "examples": [
         "example/lib/sections/table_section.dart"
       ],
@@ -1756,16 +2620,47 @@
         }
       ],
       "tokenBindings": [
-        "colors.hint",
-        "textStyles.caption",
-        "textStyles.text",
-        "tokens.spacing.lg",
-        "tokens.spacing.md",
-        "tokens.spacing.sm",
-        "tokens.spacing.xl",
-        "tokens.spacing.xs",
-        "tokens.spacing.xxxl"
-      ]
+        {
+          "path": "colors.hint",
+          "origin": "source"
+        },
+        {
+          "path": "textStyles.caption",
+          "origin": "source"
+        },
+        {
+          "path": "textStyles.text",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.lg",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.md",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.sm",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.xl",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.xs",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.xxxl",
+          "origin": "source"
+        }
+      ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"table-empty\"]"
+      }
     },
     {
       "id": "table-search-panel",
@@ -1807,10 +2702,23 @@
         }
       ],
       "tokenBindings": [
-        "tokens.breakpoints.webMin",
-        "tokens.spacing.lg",
-        "tokens.spacing.md"
-      ]
+        {
+          "path": "tokens.breakpoints.webMin",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.lg",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.md",
+          "origin": "source"
+        }
+      ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"table-search-panel\"]"
+      }
     },
     {
       "id": "text-field",
@@ -1857,7 +2765,7 @@
               "dartType": "bool",
               "required": false,
               "default": "false",
-              "description": "When `true`, blocks editing while keeping the field's normal styling."
+              "description": "When `true`, blocks editing and recesses the chrome to the inert read-only look (see `UtopiaFieldWrapper.readOnly`), so a displayed value never poses as an empty control."
             },
             {
               "name": "dense",
@@ -1944,22 +2852,45 @@
         }
       ],
       "tokenBindings": [
-        "colors.error",
-        "colors.primary",
-        "textStyles.caption",
-        "textStyles.text",
-        "tokens.spacing.xs",
-        "tokens.x"
+        {
+          "path": "colors.error",
+          "origin": "source"
+        },
+        {
+          "path": "colors.primary",
+          "origin": "source"
+        },
+        {
+          "path": "textStyles.caption",
+          "origin": "source"
+        },
+        {
+          "path": "textStyles.text",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.spacing.xs",
+          "origin": "source"
+        },
+        {
+          "path": "tokens.x",
+          "origin": "source"
+        }
       ],
       "states": [
         "disabled",
         "error",
         "focus",
+        "hover",
         "readOnly"
       ],
       "composes": [
         "field-wrapper"
       ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"text-field\"]"
+      },
       "examples": [
         "example/lib/sections/fields_section.dart",
         "example/lib/sections/dialogs_section.dart"
@@ -1981,7 +2912,7 @@
               "type": "color",
               "dartType": "Color?",
               "required": false,
-              "description": "The dots' color."
+              "description": "The dots' color. Defaults to `UtopiaThemeColors.primary`, the same activity colour `UtopiaLoader` rests on. Pass the content colour of the ground instead when the dots sit on a filled surface - which is what `UtopiaButton` does with its own label colour."
             },
             {
               "name": "size",
@@ -1994,7 +2925,16 @@
           ]
         }
       ],
-      "tokenBindings": []
+      "tokenBindings": [
+        {
+          "path": "colors.primary",
+          "origin": "source"
+        }
+      ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"three-bounce\"]"
+      }
     },
     {
       "id": "title",
@@ -2017,8 +2957,15 @@
         }
       ],
       "tokenBindings": [
-        "textStyles.title"
-      ]
+        {
+          "path": "textStyles.title",
+          "origin": "source"
+        }
+      ],
+      "twin": {
+        "file": "components.html",
+        "selector": "[data-utopia-id=\"title\"]"
+      }
     }
   ],
   "models": [
@@ -2219,6 +3166,14 @@
               "description": "Give-way order when the table is too narrow: the highest value hides first, until the remaining columns fit. `0` (default) never hides."
             },
             {
+              "name": "numeric",
+              "type": "bool",
+              "dartType": "bool",
+              "required": false,
+              "default": "false",
+              "description": "Declares the column as holding numbers, which the table presents its own way: cells *and* the column label align to the trailing edge, and cell text renders with tabular figures, so digits line up place-by-place and a column of amounts can be scanned vertically."
+            },
+            {
               "name": "sortBy",
               "type": "callback",
               "dartType": "Comparable<Object?>? Function(T row)?",
@@ -2297,6 +3252,14 @@
               "required": false,
               "default": "0",
               "description": "Give-way order when the table is too narrow: the highest value hides first, until the remaining columns fit. `0` (default) never hides."
+            },
+            {
+              "name": "numeric",
+              "type": "bool",
+              "dartType": "bool",
+              "required": false,
+              "default": "false",
+              "description": "Declares the column as holding numbers, which the table presents its own way: cells *and* the column label align to the trailing edge, and cell text renders with tabular figures, so digits line up place-by-place and a column of amounts can be scanned vertically."
             },
             {
               "name": "sortBy",
@@ -2428,14 +3391,14 @@
     {
       "name": "utopiaDatePickerMaterialTheme",
       "kind": "function",
-      "description": "Maps `UtopiaThemeData` tokens onto a Material ThemeData scoped to the calendar grid, so the (Material-owned) CalendarDatePicker renders in the design system's colors and typography.",
+      "description": "Maps `UtopiaThemeData` tokens onto a Material ThemeData scoped to Flutter's own date pickers, so the (Material-owned) CalendarDatePicker, `showDatePicker` dialog and `showDateRangePicker` dialog render in the design system's colors, type and shape.",
       "file": "lib/src/widget/date_picker/utopia_date_picker.dart",
       "signature": "ThemeData utopiaDatePickerMaterialTheme(UtopiaThemeData theme)"
     },
     {
       "name": "utopiaFieldDecoration",
       "kind": "function",
-      "description": "The shared InputDecoration for every utopia_ui field - the single source of the borderless chrome and the floating-label styling.",
+      "description": "The shared InputDecoration for every utopia_ui field - the single source of the field chrome and the floating-label styling.",
       "file": "lib/src/widget/wrapper/utopia_field_wrapper.dart",
       "signature": "InputDecoration utopiaFieldDecoration(BuildContext context, {Widget? label, Widget? hint, FloatingLabelBehavior? floatingLabelBehavior, EdgeInsets? contentPadding, bool alignLabelWithHint = false})"
     },

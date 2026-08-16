@@ -1,10 +1,22 @@
-states: [open]
+states: [focus, open]
 notes: >-
-  A tap-to-open date field: displays the picked date through a text-field
-  trigger, opens an anchored calendar popover, and offers a clear affordance.
-  The calendar grid is Material-owned and restyled from the ambient theme via
-  utopiaDatePickerMaterialTheme, so re-theming affects it even though this
-  component's tokenBindings list is empty (it reads no theme member directly).
+  A tap-to-open date field: a labeled-field trigger carrying the picked date, a
+  permanent calendar affordance, a clear affordance shown only when there is a
+  date to clear, and an anchored calendar popover. The trigger is a real focus
+  stop (its own FocusNode, Space/Enter opens), so both declared states have a
+  rendering in Flutter and both are the shared field focus ring painted by
+  UtopiaFieldWrapper - focus is a trigger reached by keyboard, open is a
+  trigger whose calendar is up, and the ring outlives the pick because focus
+  is handed back. The trigger deliberately does NOT use the read-only chrome:
+  its value is uneditable by construction (a Text, not a TextField), and
+  read-only outranks focus inside the wrapper, which would leave an open
+  picker looking dead. The popover's calendar grid is Material-owned
+  (CalendarDatePicker) and restyled from the ambient theme via
+  utopiaDatePickerMaterialTheme - a full DatePickerThemeData derivation built
+  from scratch rather than from the host ThemeData, so the grid stays utopian
+  under any MaterialApp. That grid is the one part with no static twin: its
+  metrics belong to Material and mirroring them in CSS would mean inventing
+  values.
 examples:
   - example/lib/sections/fields_section.dart
   - example/lib/sections/dialogs_section.dart

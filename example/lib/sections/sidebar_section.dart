@@ -19,7 +19,7 @@ class SidebarSection extends HookWidget {
     return SheetSection(
       title: 'Sidebar',
       subtitle:
-          'An adaptive rail: 76px collapsed, expands on hover, pins via the toggle. Plain surface or opt-in '
+          'An adaptive rail: 80px collapsed, expands on hover, pins via the toggle. Plain surface or opt-in '
           'gradient; drawer presentation for small screens.',
       child: Wrap(
         spacing: 32,

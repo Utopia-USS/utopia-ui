@@ -1,20 +1,21 @@
 ---
 name: Utopia
 colors:
-  primary: "#536dfe"
-  accent: "#536dfe"
-  field: "#ededed"
-  canvas: "#f5f5f5"
-  error: "#ff5252"
-  disabled: "#bdbdbd"
-  text: "rgb(0 0 0 / 0.8667)"
+  primary: "#3f51e5"
+  accent: "#4a5ce9"
+  field: "#f8f9fd"
+  canvas: "#f4f5fa"
+  error: "#d3302f"
+  disabled: "#b9becf"
+  text: "#14161f"
   surface: "#ffffff"
-  border: "#e8eaf0"
-  rowAlt: "#f7f8fb"
-  hover: "#eff1f8"
-  chipBackground: "#e7eafd"
-  chipForeground: "#536dfe"
-  hint: "#9aa0b5"
+  border: "#d8dceb"
+  divider: "#e6e9f2"
+  rowAlt: "#f6f7fc"
+  hover: "#edf0fa"
+  chipBackground: "#e9edfd"
+  chipForeground: "#3a4bcc"
+  hint: "#6e748b"
   onColoredContent: "rgb(255 255 255 / 0.851)"
   onColoredSelected: "rgb(255 255 255 / 0.1804)"
   onColoredHover: "rgb(255 255 255 / 0.0784)"
@@ -22,7 +23,7 @@ typography:
   header:
     fontFamily: "Sora"
     fontSize: "24px"
-    fontWeight: 600
+    fontWeight: 700
   label:
     fontFamily: "Sora"
     fontSize: "12px"
@@ -30,7 +31,7 @@ typography:
   text:
     fontFamily: "Sora"
     fontSize: "12px"
-    fontWeight: 600
+    fontWeight: 500
   title:
     fontFamily: "Sora"
     fontSize: "16px"
@@ -38,7 +39,7 @@ typography:
   caption:
     fontFamily: "Sora"
     fontSize: "10px"
-    fontWeight: 600
+    fontWeight: 500
   button:
     fontFamily: "Sora"
     fontSize: "12px"
@@ -85,10 +86,17 @@ reserved for `UtopiaChip`.
 Every text role (`header`, `title`, `text`, `label`, `caption`, `button`) is a complete, fixed
 `fontFamily` + `fontSize` + `fontWeight` + `letterSpacing` bundle plus its own paired color - there
 is no separate color override per usage site. Roles are chosen by what the text *is*, not by what
-it looks like: `header` names a page or section, `title` names a card or list item, `text` is body
-copy, `label` and `caption` are secondary/microcopy, and `button` is reserved for interactive
-labels. The whole scale ships in one weight family (Sora) so a rebrand only ever needs to swap the
-family name, not re-balance six independent styles.
+it looks like: `header` names a page or section (24px, 700), `title` names a card or list item
+(16px, 600), `text` is body copy (12px, 500), `label` (12px, 600) and `caption` (10px, 500) are
+secondary/microcopy, and `button` (12px, 600) is reserved for interactive labels. The whole scale
+ships in one type family (Sora) so a rebrand only ever needs to swap the family name, not
+re-balance six independent styles.
+
+Tracking is a function of type size, not of role: it falls monotonically as the size grows, from 0
+at `caption` (10px) to -0.5px at `header` (24px). Roles that share a `fontSize` share a
+`letterSpacing` and separate on weight and color instead - hierarchy comes from weight, not from
+spacing the letters out. The values are calibrated for Sora, which carries roughly 0.06 em more
+built-in sidebearing than SF Pro or Inter, which is why no role tracks positive.
 
 ## Layout
 
@@ -123,12 +131,17 @@ One line per tier-1 component; anchors point at `data-utopia-id` on the componen
 `components.html` (added by A5's HTML twin build-out).
 
 - Button - `data-utopia-id="button"`
+- Ghost button - `data-utopia-id="ghost-button"`
+- Remove icon button - `data-utopia-id="remove-icon-button"`
 - Card - `data-utopia-id="card"`
 - Chip - `data-utopia-id="chip"`
 - Chip list - `data-utopia-id="chip-list"`
+- Checkbox - `data-utopia-id="checkbox"`
+- Radio - `data-utopia-id="radio"`
 - Check row - `data-utopia-id="check-row"`
 - Switch - `data-utopia-id="switch"`
 - Switch field - `data-utopia-id="switch-field"`
+- Slider - `data-utopia-id="slider"`
 - Text field - `data-utopia-id="text-field"`
 - Search field - `data-utopia-id="search-field"`
 - Field wrapper - `data-utopia-id="field-wrapper"`
@@ -137,9 +150,10 @@ One line per tier-1 component; anchors point at `data-utopia-id` on the componen
 - Date picker - `data-utopia-id="date-picker"`
 - Loader - `data-utopia-id="loader"`
 - Three bounce - `data-utopia-id="three-bounce"`
-- Mock loading box - `data-utopia-id="mock-loading-box"`
+- Loading box - `data-utopia-id="loading-box"`
 - Divider - `data-utopia-id="divider"`
 - Card gradient background - `data-utopia-id="gradient-background"`
+- Header - `data-utopia-id="header"`
 - Title - `data-utopia-id="title"`
 - Copyable text - `data-utopia-id="copyable-text"`
 - Dialog - `data-utopia-id="dialog"`
@@ -148,6 +162,16 @@ One line per tier-1 component; anchors point at `data-utopia-id` on the componen
 - Table empty state - `data-utopia-id="table-empty"`
 - Table search panel - `data-utopia-id="table-search-panel"`
 - Sidebar - `data-utopia-id="sidebar"`
+
+The manifest ids missing from that list are deliberate, not an oversight: each is a
+pure-behavior widget with no visual contract of its own, carried in `components.html` as a
+"no visual twin" note entry (SPEC 4.4) and recorded here with its reason.
+
+<!-- utopia-twin-omit: collapsible -- pure animation behavior; renders whatever child it is given -->
+<!-- utopia-twin-omit: form-layout -- scroll-plus-pinned-bottom layout shell; its rendered shape is the dialog's -->
+<!-- utopia-twin-omit: multi-widget -- pure composition helper, nothing rendered -->
+<!-- utopia-twin-omit: overlay-anchor -- anchoring/positioning behavior; the popup chrome it anchors is the card recipe -->
+<!-- utopia-twin-omit: page-wrapper -- pure layout-resolution behavior, nothing rendered -->
 
 ## Do's and Don'ts
 
