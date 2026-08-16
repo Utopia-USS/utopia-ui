@@ -2,11 +2,11 @@ import 'package:flutter/material.dart';
 import 'package:utopia_hooks/utopia_hooks.dart';
 import 'package:utopia_ui/utopia_ui.dart';
 
-import '../state/theme_mode_state.dart';
+import '../state/theme_lab_state.dart';
 import '../theme.dart';
 
 /// A row of theme-mode pills, one per [ExampleThemeMode], reading and writing
-/// the app-wide [ThemeModeState]. Tapping a pill re-themes the whole sheet.
+/// the app-wide [ThemeLabState]. Tapping a pill re-themes the whole sheet.
 ///
 /// Widget-level hook pattern: the widget calls exactly one state hook
 /// ([_useThemeModePickerState], which owns the `useProvided` lookup) and
@@ -43,10 +43,10 @@ class _ThemeModePickerState {
 }
 
 /// Widget-level state hook - the only place the picker touches the global
-/// [ThemeModeState].
+/// [ThemeLabState].
 _ThemeModePickerState _useThemeModePickerState() {
-  final global = useProvided<ThemeModeState>();
-  return _ThemeModePickerState(selected: global.mode.value, select: (mode) => global.mode.value = mode);
+  final global = useProvided<ThemeLabState>();
+  return _ThemeModePickerState(selected: global.preset.value, select: global.selectPreset);
 }
 
 /// A single pill in the [ThemeModePicker]: three swatch dots plus the mode's
