@@ -125,7 +125,10 @@ class ResolvedThemeColors {
     required this.canvas,
     required this.error,
     required this.disabled,
+    required this.onPrimary,
     required this.text,
+    required this.textBody,
+    required this.shadow,
     required this.surface,
     required this.border,
     required this.divider,
@@ -146,6 +149,17 @@ class ResolvedThemeColors {
   final ResolvedColor error;
   final ResolvedColor disabled;
   final ResolvedColor text;
+
+  /// Optional like [divider], but for a different reason: absent means the
+  /// document predates the token (protocol 0.4.0), so the generated theme
+  /// simply omits the argument and the Dart `@Default` applies.
+  final ResolvedColor? onPrimary;
+
+  /// Optional - see [onPrimary].
+  final ResolvedColor? textBody;
+
+  /// Optional - see [onPrimary].
+  final ResolvedColor? shadow;
   final ResolvedColor surface;
   final ResolvedColor border;
   final ResolvedColor? divider;
@@ -308,7 +322,10 @@ class ThemeSpec {
         canvas: color('color.canvas'),
         error: color('color.error'),
         disabled: color('color.disabled'),
+        onPrimary: document.tokensByPath.containsKey('color.onPrimary') ? color('color.onPrimary') : null,
         text: color('color.text'),
+        textBody: document.tokensByPath.containsKey('color.textBody') ? color('color.textBody') : null,
+        shadow: document.tokensByPath.containsKey('color.shadow') ? color('color.shadow') : null,
         surface: color('color.surface'),
         border: color('color.border'),
         divider: document.tokensByPath.containsKey('color.divider') ? color('color.divider') : null,

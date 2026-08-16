@@ -25,6 +25,8 @@ const int _pageWidth = 120;
 /// `test/round_trip_test.dart` (the round-trip golden compiles against the
 /// real `UtopiaThemeColors` and compares field-by-field).
 const Map<String, int> dartDefaultOptionalColorArgb32 = {
+  'onPrimary': 0xFFFFFFFF,
+  'textBody': 0xFF5B6076,
   'surface': 0xFFFFFFFF,
   'border': 0xFFD8DCEB,
   'rowAlt': 0xFFF6F7FC,
@@ -32,6 +34,7 @@ const Map<String, int> dartDefaultOptionalColorArgb32 = {
   'chipBackground': 0xFFE9EDFD,
   'chipForeground': 0xFF3A4BCC,
   'hint': 0xFF6E748B,
+  'shadow': 0xFF101828,
 };
 
 /// The Dart default for `UtopiaThemeData.tileHeight` (`@Default(58.0)`),
@@ -174,6 +177,9 @@ String _emitColors(ResolvedThemeColors colors) {
   b.writeln('    error: ${_color(colors.error)},');
   b.writeln('    disabled: ${_color(colors.disabled)},');
   b.writeln('    text: ${_color(colors.text)},');
+  _emitOptionalColorOrSkip(b, 'onPrimary', colors.onPrimary);
+  _emitOptionalColorOrSkip(b, 'textBody', colors.textBody);
+  _emitOptionalColorOrSkip(b, 'shadow', colors.shadow);
   _emitOptionalColor(b, 'surface', colors.surface);
   _emitOptionalColor(b, 'border', colors.border);
   if (colors.divider != null) {
@@ -189,6 +195,17 @@ String _emitColors(ResolvedThemeColors colors) {
   b.writeln('    onColoredHover: ${_color(colors.onColoredHover)},');
   b.write('  );');
   return b.toString();
+}
+
+/// [_emitOptionalColor] for a token the document may not carry at all: a
+/// document written against a protocol older than the token's introduction
+/// resolves it to `null`, and the generated theme just omits the argument so
+/// the Dart `@Default` applies.
+void _emitOptionalColorOrSkip(StringBuffer b, String fieldName, ResolvedColor? resolved) {
+  if (resolved == null) {
+    return;
+  }
+  _emitOptionalColor(b, fieldName, resolved);
 }
 
 /// Emits an optional-color constructor argument only when [resolved] differs

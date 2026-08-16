@@ -16,7 +16,7 @@ import 'twin_sections.dart';
 
 /// The protocol/schema version this generator targets (protocol
 /// SPEC.md / VERSIONING.md).
-const String manifestSchemaVersion = '0.3.0';
+const String manifestSchemaVersion = '0.4.0';
 
 /// `tokenBindings` provenance markers (SPEC 3.6, protocol 0.3.0): a binding
 /// the extractor read out of the component's own Dart source, versus one the

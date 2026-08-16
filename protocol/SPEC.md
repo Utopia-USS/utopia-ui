@@ -1,6 +1,6 @@
 # Utopia Design Protocol - Specification
 
-Version: 0.3.0 (see [VERSIONING.md](VERSIONING.md))
+Version: 0.4.0 (see [VERSIONING.md](VERSIONING.md))
 Status: v0 draft, implemented by `tool/utopia_design_tools`
 
 The Utopia Design Protocol is an open, bidirectional design-system contract for Flutter apps
@@ -76,7 +76,7 @@ and semantic-slot families of `UtopiaThemeData`.
 | `fontWeight.{regular,medium,semiBold,bold}` | `fontWeight` | numeric, 100..900 step 100 | `UtopiaFontWeightTokens` |
 | `duration.{xs,sm,md,lg,xl}` | `duration` | unit `ms` | `UtopiaDurationTokens` |
 | `breakpoint.{tablet,web,sidebar}` | `dimension` | unit `px` | `UtopiaBreakpointTokens` |
-| `color.<name>` | `color` | sRGB with hex fallback; 18 names, `divider` optional | `UtopiaThemeColors` |
+| `color.<name>` | `color` | sRGB with hex fallback; 21 names, 4 optional | `UtopiaThemeColors` |
 | `textStyle.{header,label,text,title,caption,button}` | `typography` | see 2.4 | `UtopiaThemeTextStyles` |
 | `textStyle-colors.{header,label,text,title,caption,button}` | `color` | see 2.4 | `TextStyle.color` |
 | `theme.borderRadius` | `dimension` | value or alias | `UtopiaThemeData.borderRadius` |
@@ -88,10 +88,35 @@ and semantic-slot families of `UtopiaThemeData`.
 
 The `color` group members: `primary`, `accent`, `field`, `canvas`, `error`, `disabled`,
 `text`, `surface`, `border`, `rowAlt`, `hover`, `chipBackground`, `chipForeground`, `hint`,
-`onColoredContent`, `onColoredSelected`, `onColoredHover` are REQUIRED; `divider` is OPTIONAL.
+`onColoredContent`, `onColoredSelected`, `onColoredHover` are REQUIRED; `divider`,
+`onPrimary`, `textBody` and `shadow` are OPTIONAL.
+
 An absent `color.divider` means "derive a contrast-safe divider colour from `color.text` over
 `color.surface` at paint time" - exactly the semantics of a `null`
 `UtopiaThemeColors.divider`. Tools MUST NOT invent a concrete value for it.
+
+`onPrimary`, `textBody` and `shadow` were added in 0.4.0 and are optional only for
+backwards compatibility: an absent one means "this document predates the token", and a
+generator MUST omit the corresponding constructor argument so the Dart `@Default` applies,
+rather than substituting a value of its own. Generators writing a 0.4.0 document SHOULD emit
+all three. They complete the palette so that a theme is fully determined by its colours
+(CHARTER "Theming", palette completeness):
+
+- `color.onPrimary` - content painted on the `primary` -> `accent` sweep, the filled button
+  label above all. It backs `textStyle-colors.button`.
+- `color.textBody` - the body foreground tone, one step quieter than `text`. It backs
+  `textStyle-colors.{text,label,caption}`, while `text` backs
+  `textStyle-colors.{header,title}`.
+- `color.shadow` - the hue every `shadow.*` preset is painted in.
+
+`shadow.*` and `color.shadow` compose rather than duplicate: the `shadow` group carries
+elevation *geometry* (offset, blur, spread) plus the per-layer alpha that gives a stack its
+shape, and `color.shadow` carries the hue. The runtime paints each layer as
+`color.shadow`'s RGB at that layer's own alpha; the tint's own alpha is ignored. That makes
+re-tinting idempotent, which is what lets a document round-trip through
+export -> generate -> export unchanged. A document's `shadow.*` layer colours are therefore
+the presets as authored, not necessarily what paints - consumers reading elevation for
+display purposes should compose the two.
 
 Derived Dart getters (`cardShadow`, `menuShadow`, `chipRadius`, `cardBorderWidth`,
 `dividerThickness`, decoration getters) are **not** tokens. They are aliases in Dart and stay
