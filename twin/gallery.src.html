@@ -10,12 +10,17 @@
 
     dart run utopia_design_tools:generate_twin --compose-gallery
 
-  Mirrors example/lib/sections/*.dart one-to-one, in the same order as
-  example/lib/pages/components_page.dart: colors, typography, surfaces,
-  buttons, selection, fields, chips-text, loading, table, dialogs, sidebar
-  (11 sections). That sequence is deliberate - foundations, then primitives,
-  then composites - and it replaces the original H4 listing, which opened on
-  the table. The reorder was made in BOTH surfaces at once (this file and
+  Mirrors the example app one-to-one, in the same order as
+  example/lib/pages/components_page.dart: theme-lab, foundations, then
+  colors, typography, surfaces, buttons, selection, fields, chips-text,
+  loading, table, dialogs, sidebar, principles (14 sections). The theme-lab,
+  foundations and principles sections mirror example/lib/widgets/theme_lab.dart
+  and example/lib/sections/{foundations,principles}_section.dart and are fully
+  hand-authored (no specimen markers); the lab is interactive through ONE
+  inline script at the end of this file - no includes, the emitted gallery
+  still opens as a single static file. That sequence is deliberate -
+  the lab, then foundations, then primitives, then composites - and it
+  replaces the original H4 listing, which opened on the table. The reorder was made in BOTH surfaces at once (this file and
   example/lib/pages/components_page.dart), so what H4 actually freezes - the
   gallery mirroring the example components page section for section, in the
   same order - is untouched; only the shared order moved. Anything reordered
@@ -39,16 +44,16 @@
   specimen) stay written out by hand below, with no marker.
 
   The page chrome around those specimens - masthead with the version badge,
-  the numbered table of contents, the numbered section headings and the
-  twin-note value annotations - is hand-authored here and hand-maintained.
+  the numbered table of contents and the numbered section headings - is
+  hand-authored here and hand-maintained.
   Three things it repeats have to move together with their source:
 
   - the badge's two versions (package version in pubspec.yaml, protocol
     version in protocol/VERSIONING.md and tokens.css's profileVersion);
   - the section numbering, spelled out in both the contents chips and the
     section headings, in the section order this file already fixes;
-  - the resolved values in each twin-note, which mirror the DEFAULT theme
-    exactly as the Colors section's hex captions do.
+  - the section descriptions, which mirror the example app's SheetSection
+    subtitles word for word.
 -->
 <!doctype html>
 <html lang="en">
@@ -60,6 +65,42 @@
   <link rel="stylesheet" href="components.css" />
   <style>
     /* Page chrome only (not part of any component's visual contract). */
+    /* The gallery mirrors the example app's SHOWCASE theme (example/lib/
+       theme.dart, light preset), which layers a larger type ramp, a unified
+       ink colour, its own light palette and a beefier hairline over the
+       package defaults the canonical tokens.css carries - without this block
+       the whole page renders one visual step smaller and one tone greyer
+       than the Flutter showcase at the same knob settings. Type is pinned to pixels
+       on purpose: the base-unit knob rescales the grid, never the ramp. */
+    :root {
+      --utopia-color-primary: #4A6FFF; /* utopia-literal-ok: showcase light palette */
+      --utopia-color-accent: #4466FF; /* utopia-literal-ok: showcase light palette */
+      --utopia-color-field: #F8F9FD; /* utopia-literal-ok: showcase light palette */
+      --utopia-color-canvas: #F4F6FD; /* utopia-literal-ok: showcase light palette */
+      --utopia-color-text: #141518; /* utopia-literal-ok: showcase light palette */
+      --utopia-color-border: #F1F4FF; /* utopia-literal-ok: showcase light palette */
+      --utopia-color-row-alt: #F6F9FF; /* utopia-literal-ok: showcase light palette */
+      --utopia-color-hover: #EDF1FF; /* utopia-literal-ok: showcase light palette */
+      --utopia-color-chip-background: #E2E9FF; /* utopia-literal-ok: showcase light palette */
+      --utopia-color-chip-foreground: #4A6FFF; /* utopia-literal-ok: showcase light palette */
+      --utopia-color-hint: #9A9FB8; /* utopia-literal-ok: showcase light palette */
+      --utopia-text-style-header-color: #141518; /* utopia-literal-ok: showcase ink */
+      --utopia-text-style-title-color: #141518; /* utopia-literal-ok: showcase ink */
+      --utopia-text-style-label-color: #141518; /* utopia-literal-ok: showcase ink */
+      --utopia-text-style-text-color: #141518; /* utopia-literal-ok: showcase ink */
+      --utopia-text-style-caption-color: #141518; /* utopia-literal-ok: showcase ink */
+      --utopia-text-style-title-font-size: 18px; /* utopia-literal-ok: showcase ramp, x*4.5 */
+      --utopia-text-style-label-font-size: 14px; /* utopia-literal-ok: showcase ramp, x*3.5 */
+      --utopia-text-style-text-font-size: 15px; /* utopia-literal-ok: showcase ramp, x*3.75 */
+      --utopia-text-style-caption-font-size: 13px; /* utopia-literal-ok: showcase ramp, x*3.25 */
+      --utopia-text-style-button-font-size: 15px; /* utopia-literal-ok: showcase ramp, x*3.75 */
+      --utopia-text-style-caption-font-weight: var(--utopia-font-weight-bold);
+      --utopia-text-style-label-letter-spacing: -0.2px; /* utopia-literal-ok: showcase ramp, x*-0.05 */
+      --utopia-text-style-text-letter-spacing: 0px; /* utopia-literal-ok: showcase ramp */
+      --utopia-text-style-button-letter-spacing: 0px; /* utopia-literal-ok: showcase ramp */
+      --utopia-border-hairline: 1.5px; /* utopia-literal-ok: showcase border-token deviation */
+      --utopia-theme-page-top-padding: 16px; /* utopia-literal-ok: showcase slot, spacing.lg */
+    }
     body {
       margin: 0;
       background: var(--utopia-color-canvas);
@@ -67,7 +108,7 @@
       font-family: var(--utopia-text-style-text-font-family), sans-serif;
     }
     .twin-page {
-      max-width: 1100px; /* utopia-literal-ok: gallery page chrome, reading width */
+      max-width: 1340px; /* utopia-literal-ok: gallery page chrome, mirrors UtopiaPageWrapper.maxConstrainedWidth */
       margin: 0 auto;
       padding: var(--utopia-spacing-xxxl) var(--utopia-spacing-xl);
     }
@@ -201,17 +242,6 @@
       margin: 0 0 var(--utopia-spacing-xl) 0;
       max-width: 640px; /* utopia-literal-ok: gallery page chrome, prose width */
     }
-    /* Specimen annotation: the resolved values a specimen is actually drawn
-       with. Content, not styling - see the note above the first one. */
-    .twin-note {
-      font-size: var(--utopia-text-style-caption-font-size);
-      font-variant-numeric: tabular-nums;
-      color: var(--utopia-color-hint);
-      margin: 0;
-    }
-    .twin-note--section {
-      margin: calc(-1 * var(--utopia-spacing-md)) 0 var(--utopia-spacing-xl) 0;
-    }
     .twin-specimens {
       display: flex;
       flex-wrap: wrap;
@@ -298,6 +328,190 @@
       border-radius: var(--utopia-theme-border-radius);
       background: linear-gradient(to top right, var(--utopia-color-primary), var(--utopia-color-accent));
     }
+
+    /* Theme lab, foundations and principles chrome (hand-authored sections
+       mirroring example/lib/widgets/theme_lab.dart and
+       example/lib/sections/{foundations,principles}_section.dart). */
+    .twin-lab__presets { display: flex; flex-wrap: wrap; gap: var(--utopia-spacing-sm); margin-bottom: var(--utopia-spacing-xl); }
+    .twin-preset {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--utopia-spacing-sm);
+      padding: var(--utopia-spacing-sm) var(--utopia-spacing-md);
+      border: var(--utopia-border-hairline) solid var(--utopia-color-border);
+      border-radius: var(--utopia-theme-border-radius);
+      background: transparent;
+      color: var(--utopia-color-text);
+      font-family: var(--utopia-text-style-caption-font-family), sans-serif;
+      font-size: var(--utopia-text-style-caption-font-size);
+      font-weight: var(--utopia-font-weight-semi-bold);
+      cursor: pointer;
+      transition: background-color var(--utopia-duration-sm) ease, border-color var(--utopia-duration-sm) ease;
+    }
+    .twin-preset:hover { background: var(--utopia-color-hover); }
+    .twin-preset.is-selected {
+      background: var(--utopia-color-chip-background);
+      border: var(--utopia-border-thin) solid var(--utopia-color-primary);
+      color: var(--utopia-color-primary);
+    }
+    .twin-preset__swatch {
+      width: 12px; /* utopia-literal-ok: preset pill swatch dot */
+      height: 12px; /* utopia-literal-ok: preset pill swatch dot */
+      border-radius: var(--utopia-radius-full);
+      border: var(--utopia-border-hairline) solid var(--utopia-color-border);
+    }
+    .twin-lab__sliders {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      column-gap: var(--utopia-spacing-xxl);
+    }
+    @media (max-width: 720px) { /* utopia-literal-ok: gallery page chrome breakpoint */
+      .twin-lab__sliders { grid-template-columns: 1fr; }
+    }
+    .twin-lab__primary-row {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--utopia-spacing-lg);
+      flex-wrap: wrap;
+    }
+    .twin-lab__row {
+      display: flex;
+      justify-content: space-between;
+      align-items: baseline;
+      font-size: var(--utopia-text-style-caption-font-size);
+      color: var(--utopia-color-hint);
+      margin: var(--utopia-spacing-md) 0 var(--utopia-spacing-xs) 0;
+    }
+    .twin-lab__value { color: var(--utopia-color-primary); font-variant-numeric: tabular-nums; }
+    .twin-lab__dots { display: flex; flex-wrap: wrap; gap: var(--utopia-spacing-sm); margin-top: var(--utopia-spacing-xs); }
+    .twin-lab__dot {
+      width: 32px; /* utopia-literal-ok: lab chrome, mirrors the Flutter lab's x*8 dot */
+      height: 32px; /* utopia-literal-ok: lab chrome dot */
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      color: var(--utopia-color-on-colored-content);
+      border-radius: var(--utopia-radius-full);
+      border: var(--utopia-border-hairline) solid var(--utopia-color-border);
+      cursor: pointer;
+      padding: 0;
+    }
+    .twin-lab__dot.is-selected { border: var(--utopia-border-thick) solid var(--utopia-color-text); }
+    .twin-lab__reset {
+      visibility: hidden;
+      display: inline-flex;
+      align-items: center;
+      gap: var(--utopia-spacing-xs);
+      padding: var(--utopia-spacing-xs) var(--utopia-spacing-md);
+      border: none;
+      border-radius: var(--utopia-radius-full);
+      background: var(--utopia-color-chip-background);
+      color: var(--utopia-color-chip-foreground);
+      font-family: var(--utopia-text-style-caption-font-family), sans-serif;
+      font-size: var(--utopia-text-style-caption-font-size);
+      font-weight: var(--utopia-font-weight-semi-bold);
+      cursor: pointer;
+      transition: background-color var(--utopia-duration-sm) ease;
+    }
+    .twin-lab__reset:hover { background: var(--utopia-color-hover); }
+    .twin-lab__reset.is-visible { visibility: visible; }
+    .twin-lab__paste {
+      margin-top: var(--utopia-spacing-xl);
+      background: var(--utopia-color-field);
+      border: var(--utopia-border-thin) solid var(--utopia-color-border);
+      border-radius: var(--utopia-theme-card-radius);
+      padding: var(--utopia-spacing-lg);
+      cursor: pointer;
+      transition: border-color var(--utopia-duration-sm) ease;
+    }
+    .twin-lab__paste-head {
+      display: flex;
+      align-items: center;
+      gap: var(--utopia-spacing-sm);
+      font-size: var(--utopia-text-style-caption-font-size);
+      color: var(--utopia-color-hint);
+      margin-bottom: var(--utopia-spacing-md);
+    }
+    .twin-lab__paste.is-copied { border-color: var(--utopia-color-primary); }
+    .twin-lab__paste.is-copied .twin-lab__paste-head { color: var(--utopia-color-primary); }
+    .twin-lab__code {
+      margin: 0;
+      font-family: ui-monospace, "SF Mono", Menlo, monospace; /* utopia-literal-ok: code handoff block; the token tree has no monospace role */
+      font-size: 12.5px; /* utopia-literal-ok: handoff block code size */
+      line-height: 1.7;
+      color: var(--utopia-color-text);
+      white-space: pre;
+      overflow-x: auto;
+    }
+    .twin-ladders { display: flex; flex-wrap: wrap; gap: var(--utopia-spacing-xxl); align-items: flex-start; }
+    .twin-ladder__label {
+      font-size: var(--utopia-text-style-caption-font-size);
+      color: var(--utopia-color-hint);
+      margin: 0 0 var(--utopia-spacing-md) 0;
+    }
+    .twin-ladder__row {
+      display: flex;
+      align-items: center;
+      margin-bottom: var(--utopia-spacing-sm);
+      font-size: var(--utopia-text-style-caption-font-size);
+    }
+    .twin-ladder__name { width: 56px; /* utopia-literal-ok: ladder column */ color: var(--utopia-color-text); }
+    .twin-ladder__px {
+      width: 64px; /* utopia-literal-ok: ladder column */
+      color: var(--utopia-color-hint);
+      font-variant-numeric: tabular-nums;
+    }
+    .twin-ladder__role { margin-left: var(--utopia-spacing-md); color: var(--utopia-color-hint); }
+    .twin-ladder__bar { height: 10px; /* utopia-literal-ok: ladder bar */ background: var(--utopia-color-primary); border-radius: var(--utopia-radius-xs); }
+    .twin-ladder__radius {
+      width: 44px; /* utopia-literal-ok: ladder specimen */
+      height: 28px; /* utopia-literal-ok: ladder specimen */
+      background: var(--utopia-color-chip-background);
+      border: var(--utopia-border-thin) solid var(--utopia-color-primary);
+    }
+    .twin-ladder__stroke { width: 64px; /* utopia-literal-ok: ladder specimen */ background: var(--utopia-color-text); }
+    .twin-pulse {
+      width: 14px; /* utopia-literal-ok: ladder specimen */
+      height: 14px; /* utopia-literal-ok: ladder specimen */
+      border-radius: var(--utopia-radius-full);
+      background: var(--utopia-color-primary);
+      animation: twin-pulse 1s ease-in-out infinite alternate;
+    }
+    @keyframes twin-pulse { from { opacity: 0.25; } to { opacity: 1; } }
+    .twin-principles {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr)); /* utopia-literal-ok: principles card floor */
+      gap: var(--utopia-spacing-lg);
+    }
+    .twin-principle {
+      background: var(--utopia-color-surface);
+      border: var(--utopia-border-thin) solid var(--utopia-color-border);
+      border-radius: var(--utopia-theme-card-radius);
+      padding: var(--utopia-spacing-lg);
+    }
+    .twin-principle__head { display: flex; align-items: center; gap: var(--utopia-spacing-md); margin-bottom: var(--utopia-spacing-md); }
+    .twin-principle__index {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      width: var(--utopia-spacing-xl);
+      height: var(--utopia-spacing-xl);
+      border-radius: var(--utopia-radius-full);
+      background: var(--utopia-color-chip-background);
+      color: var(--utopia-color-chip-foreground);
+      font-size: var(--utopia-text-style-caption-font-size);
+      font-weight: var(--utopia-font-weight-semi-bold);
+    }
+    .twin-principle__title { font-size: var(--utopia-text-style-label-font-size); font-weight: var(--utopia-font-weight-semi-bold); color: var(--utopia-color-text); margin: 0; }
+    .twin-principle__body { font-size: var(--utopia-text-style-caption-font-size); font-weight: var(--utopia-font-weight-regular); color: var(--utopia-color-hint); line-height: 1.6; margin: 0; }
+    /* Specimen playground: the catalog states stay as authored, but live
+       instances respond to the pointer like their Flutter counterparts. */
+    .utopia-switch:not(.is-disabled):not(.is-readonly),
+    .utopia-checkbox:not(.is-disabled):not(.is-readonly),
+    .utopia-radio:not(.is-disabled):not(.is-readonly),
+    .utopia-check-row,
+    .utopia-sidebar-tile { cursor: pointer; }
   </style>
 </head>
 <body>
@@ -313,7 +527,7 @@
     <header class="twin-masthead">
       <div>
         <p class="twin-masthead__eyebrow">Design system</p>
-        <h1 class="twin-masthead__title">Utopia</h1>
+        <h1 class="twin-masthead__title">utopia_ui</h1>
         <p class="twin-masthead__subtitle">
           A static, dependency-free rendering mirroring the example app's Components page,
           section for section - see twin/components.html for the per-component specimen
@@ -329,45 +543,144 @@
       same change (the numbering is written out, not computed).
     -->
     <nav class="twin-toc" aria-label="Sections">
-      <a class="twin-toc__chip" href="#colors"><span class="twin-toc__index">01</span><span>Colors</span></a>
-      <a class="twin-toc__chip" href="#typography"><span class="twin-toc__index">02</span><span>Typography</span></a>
-      <a class="twin-toc__chip" href="#surfaces"><span class="twin-toc__index">03</span><span>Surfaces &amp; shape</span></a>
-      <a class="twin-toc__chip" href="#buttons"><span class="twin-toc__index">04</span><span>Buttons</span></a>
-      <a class="twin-toc__chip" href="#selection"><span class="twin-toc__index">05</span><span>Selection</span></a>
-      <a class="twin-toc__chip" href="#fields"><span class="twin-toc__index">06</span><span>Fields</span></a>
-      <a class="twin-toc__chip" href="#chips-text"><span class="twin-toc__index">07</span><span>Chips &amp; text</span></a>
-      <a class="twin-toc__chip" href="#loading"><span class="twin-toc__index">08</span><span>Loading</span></a>
-      <a class="twin-toc__chip" href="#table"><span class="twin-toc__index">09</span><span>Table</span></a>
-      <a class="twin-toc__chip" href="#dialogs"><span class="twin-toc__index">10</span><span>Dialogs</span></a>
-      <a class="twin-toc__chip" href="#sidebar"><span class="twin-toc__index">11</span><span>Sidebar</span></a>
+      <a class="twin-toc__chip" href="#theme-lab"><span class="twin-toc__index">01</span><span>Theme lab</span></a>
+      <a class="twin-toc__chip" href="#foundations"><span class="twin-toc__index">02</span><span>Foundations</span></a>
+      <a class="twin-toc__chip" href="#colors"><span class="twin-toc__index">03</span><span>Colors</span></a>
+      <a class="twin-toc__chip" href="#typography"><span class="twin-toc__index">04</span><span>Typography</span></a>
+      <a class="twin-toc__chip" href="#surfaces"><span class="twin-toc__index">05</span><span>Surfaces &amp; shape</span></a>
+      <a class="twin-toc__chip" href="#buttons"><span class="twin-toc__index">06</span><span>Buttons</span></a>
+      <a class="twin-toc__chip" href="#selection"><span class="twin-toc__index">07</span><span>Selection</span></a>
+      <a class="twin-toc__chip" href="#fields"><span class="twin-toc__index">08</span><span>Fields</span></a>
+      <a class="twin-toc__chip" href="#chips-text"><span class="twin-toc__index">09</span><span>Chips &amp; text</span></a>
+      <a class="twin-toc__chip" href="#loading"><span class="twin-toc__index">10</span><span>Loading</span></a>
+      <a class="twin-toc__chip" href="#table"><span class="twin-toc__index">11</span><span>Table</span></a>
+      <a class="twin-toc__chip" href="#dialogs"><span class="twin-toc__index">12</span><span>Dialogs</span></a>
+      <a class="twin-toc__chip" href="#sidebar"><span class="twin-toc__index">13</span><span>Sidebar</span></a>
+      <a class="twin-toc__chip" href="#principles"><span class="twin-toc__index">14</span><span>Principles</span></a>
     </nav>
+
+    <!-- mirrors example/lib/widgets/theme_lab.dart (interactive: inline JS below
+         rewrites the --utopia-* custom properties, so the whole page re-themes
+         live; the gallery stays a single static file with no includes) -->
+    <section class="twin-section" id="theme-lab">
+      <header class="twin-section__head">
+        <span class="twin-section__index">01</span>
+        <h2 class="twin-section__name">Theme lab</h2>
+        <span class="twin-section__rule" aria-hidden="true"></span>
+      </header>
+      <p class="twin-section__description">
+        The whole page runs on one token sheet. Turn the knobs and watch every specimen below
+        follow; the block on the right is the exact Dart that reproduces the result. Theme
+        presets live in the example app - this twin renders the default theme.
+      </p>
+      <div class="twin-lab">
+        <div class="twin-lab__row"><span>Palette</span></div>
+        <div class="twin-lab__presets" id="lab-presets"></div>
+        <div class="twin-lab__sliders">
+          <div>
+            <div class="twin-lab__row"><span>Base unit x</span><span class="twin-lab__value" id="lab-x-value">4.0 px</span></div>
+            <div class="utopia-slider" id="lab-x" data-min="3" data-max="6" data-divisions="6" style="--twin-slider-fraction: 0.3333;">
+              <span class="utopia-slider__track"></span>
+              <span class="utopia-slider__fill"></span>
+              <span class="utopia-slider__thumb"></span>
+            </div>
+          </div>
+          <div>
+            <div class="twin-lab__row"><span>Roundness</span><span class="twin-lab__value" id="lab-round-value">1.00x</span></div>
+            <div class="utopia-slider" id="lab-round" data-min="0" data-max="2" data-divisions="8" style="--twin-slider-fraction: 0.5;">
+              <span class="utopia-slider__track"></span>
+              <span class="utopia-slider__fill"></span>
+              <span class="utopia-slider__thumb"></span>
+            </div>
+          </div>
+        </div>
+        <div class="twin-lab__row"><span>Primary</span></div>
+        <div class="twin-lab__primary-row">
+          <div class="twin-lab__dots" id="lab-dots"></div>
+          <button class="twin-lab__reset" id="lab-reset" type="button"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.34 6M20 5v6h-6"/></svg>Reset knobs</button>
+        </div>
+        <div class="twin-lab__paste" id="lab-paste" title="Copy to clipboard">
+          <div class="twin-lab__paste-head" id="lab-paste-head">Tap to copy</div>
+          <pre class="twin-lab__code" id="lab-code"></pre>
+        </div>
+      </div>
+    </section>
+
+    <!-- mirrors example/lib/sections/foundations_section.dart -->
+    <section class="twin-section" id="foundations">
+      <header class="twin-section__head">
+        <span class="twin-section__index">02</span>
+        <h2 class="twin-section__name">Foundations</h2>
+        <span class="twin-section__rule" aria-hidden="true"></span>
+      </header>
+      <p class="twin-section__description">
+        Every dimension below is a multiple of one base unit - x = <span id="lab-x-inline">4.0</span> right now.
+        Spacing has eight named steps and nothing in between; radius steps map to roles; durations
+        scale the same way, instant feedback at xs, structural motion at lg.
+      </p>
+      <div class="twin-ladders">
+        <div>
+          <p class="twin-ladder__label">spacing</p>
+          <div class="twin-ladder__row"><span class="twin-ladder__name">xxs</span><span class="twin-ladder__px" data-px="--utopia-spacing-xxs"></span><span class="twin-ladder__bar" style="width: calc(var(--utopia-spacing-xxs) * 4);"></span></div>
+          <div class="twin-ladder__row"><span class="twin-ladder__name">xs</span><span class="twin-ladder__px" data-px="--utopia-spacing-xs"></span><span class="twin-ladder__bar" style="width: calc(var(--utopia-spacing-xs) * 4);"></span></div>
+          <div class="twin-ladder__row"><span class="twin-ladder__name">sm</span><span class="twin-ladder__px" data-px="--utopia-spacing-sm"></span><span class="twin-ladder__bar" style="width: calc(var(--utopia-spacing-sm) * 4);"></span></div>
+          <div class="twin-ladder__row"><span class="twin-ladder__name">md</span><span class="twin-ladder__px" data-px="--utopia-spacing-md"></span><span class="twin-ladder__bar" style="width: calc(var(--utopia-spacing-md) * 4);"></span></div>
+          <div class="twin-ladder__row"><span class="twin-ladder__name">lg</span><span class="twin-ladder__px" data-px="--utopia-spacing-lg"></span><span class="twin-ladder__bar" style="width: calc(var(--utopia-spacing-lg) * 4);"></span></div>
+          <div class="twin-ladder__row"><span class="twin-ladder__name">xl</span><span class="twin-ladder__px" data-px="--utopia-spacing-xl"></span><span class="twin-ladder__bar" style="width: calc(var(--utopia-spacing-xl) * 4);"></span></div>
+          <div class="twin-ladder__row"><span class="twin-ladder__name">xxl</span><span class="twin-ladder__px" data-px="--utopia-spacing-xxl"></span><span class="twin-ladder__bar" style="width: calc(var(--utopia-spacing-xxl) * 4);"></span></div>
+          <div class="twin-ladder__row"><span class="twin-ladder__name">xxxl</span><span class="twin-ladder__px" data-px="--utopia-spacing-xxxl"></span><span class="twin-ladder__bar" style="width: calc(var(--utopia-spacing-xxxl) * 4);"></span></div>
+        </div>
+        <div>
+          <p class="twin-ladder__label">radius</p>
+          <div class="twin-ladder__row"><span class="twin-ladder__name">xs</span><span class="twin-ladder__px" data-px="--utopia-radius-xs"></span><span class="twin-ladder__radius" style="border-radius: var(--utopia-radius-xs);"></span><span class="twin-ladder__role">tags</span></div>
+          <div class="twin-ladder__row"><span class="twin-ladder__name">sm</span><span class="twin-ladder__px" data-px="--utopia-radius-sm"></span><span class="twin-ladder__radius" style="border-radius: var(--utopia-radius-sm);"></span><span class="twin-ladder__role">fields</span></div>
+          <div class="twin-ladder__row"><span class="twin-ladder__name">md</span><span class="twin-ladder__px" data-px="--utopia-radius-md"></span><span class="twin-ladder__radius" style="border-radius: var(--utopia-radius-md);"></span><span class="twin-ladder__role">chips, buttons</span></div>
+          <div class="twin-ladder__row"><span class="twin-ladder__name">lg</span><span class="twin-ladder__px" data-px="--utopia-radius-lg"></span><span class="twin-ladder__radius" style="border-radius: var(--utopia-radius-lg);"></span><span class="twin-ladder__role">menus</span></div>
+          <div class="twin-ladder__row"><span class="twin-ladder__name">xl</span><span class="twin-ladder__px" data-px="--utopia-radius-xl"></span><span class="twin-ladder__radius" style="border-radius: var(--utopia-radius-xl);"></span><span class="twin-ladder__role">cards</span></div>
+        </div>
+        <div>
+          <p class="twin-ladder__label">borders</p>
+          <div class="twin-ladder__row"><span class="twin-ladder__name">hairline</span><span class="twin-ladder__px" data-px="--utopia-border-hairline"></span><span class="twin-ladder__stroke" style="height: var(--utopia-border-hairline);"></span><span class="twin-ladder__role">dividers</span></div>
+          <div class="twin-ladder__row"><span class="twin-ladder__name">thin</span><span class="twin-ladder__px" data-px="--utopia-border-thin"></span><span class="twin-ladder__stroke" style="height: var(--utopia-border-thin);"></span><span class="twin-ladder__role">card outlines</span></div>
+          <div class="twin-ladder__row"><span class="twin-ladder__name">thick</span><span class="twin-ladder__px" data-px="--utopia-border-thick"></span><span class="twin-ladder__stroke" style="height: var(--utopia-border-thick);"></span><span class="twin-ladder__role">focus, emphasis</span></div>
+        </div>
+        <div>
+          <p class="twin-ladder__label">durations</p>
+          <div class="twin-ladder__row"><span class="twin-ladder__name">xs</span><span class="twin-ladder__px" data-px="--utopia-duration-xs" data-unit="ms"></span><span class="twin-pulse" style="animation-duration: var(--utopia-duration-xs);"></span><span class="twin-ladder__role">hovers</span></div>
+          <div class="twin-ladder__row"><span class="twin-ladder__name">sm</span><span class="twin-ladder__px" data-px="--utopia-duration-sm" data-unit="ms"></span><span class="twin-pulse" style="animation-duration: var(--utopia-duration-sm);"></span><span class="twin-ladder__role">toggles</span></div>
+          <div class="twin-ladder__row"><span class="twin-ladder__name">md</span><span class="twin-ladder__px" data-px="--utopia-duration-md" data-unit="ms"></span><span class="twin-pulse" style="animation-duration: var(--utopia-duration-md);"></span><span class="twin-ladder__role">fades</span></div>
+          <div class="twin-ladder__row"><span class="twin-ladder__name">lg</span><span class="twin-ladder__px" data-px="--utopia-duration-lg" data-unit="ms"></span><span class="twin-pulse" style="animation-duration: var(--utopia-duration-lg);"></span><span class="twin-ladder__role">expand</span></div>
+          <div class="twin-ladder__row"><span class="twin-ladder__name">xl</span><span class="twin-ladder__px" data-px="--utopia-duration-xl" data-unit="ms"></span><span class="twin-pulse" style="animation-duration: var(--utopia-duration-xl);"></span><span class="twin-ladder__role">panels</span></div>
+        </div>
+      </div>
+    </section>
 
     <!-- mirrors example/lib/sections/colors_section.dart -->
     <section class="twin-section" id="colors">
       <header class="twin-section__head">
-        <span class="twin-section__index">01</span>
+        <span class="twin-section__index">03</span>
         <h2 class="twin-section__name">Colors</h2>
         <span class="twin-section__rule" aria-hidden="true"></span>
       </header>
       <p class="twin-section__description">
-        UtopiaThemeColors - the full token set of the active theme.
+        UtopiaThemeColors - the full token set of the active theme. Hover a swatch for its role and its WCAG contrast ratio against the surface.
       </p>
       <div class="twin-specimens">
-        <div class="twin-swatch"><span class="twin-swatch__chip" style="background: var(--utopia-color-primary);"></span><p class="twin-swatch__name">primary</p><p class="twin-swatch__hex">#3f51e5</p></div>
-        <div class="twin-swatch"><span class="twin-swatch__chip" style="background: var(--utopia-color-accent);"></span><p class="twin-swatch__name">accent</p><p class="twin-swatch__hex">#4a5ce9</p></div>
-        <div class="twin-swatch"><span class="twin-swatch__chip" style="background: var(--utopia-color-canvas);"></span><p class="twin-swatch__name">canvas</p><p class="twin-swatch__hex">#f4f5fa</p></div>
-        <div class="twin-swatch"><span class="twin-swatch__chip" style="background: var(--utopia-color-surface);"></span><p class="twin-swatch__name">surface</p><p class="twin-swatch__hex">#ffffff</p></div>
-        <div class="twin-swatch"><span class="twin-swatch__chip" style="background: var(--utopia-color-field);"></span><p class="twin-swatch__name">field</p><p class="twin-swatch__hex">#f8f9fd</p></div>
-        <div class="twin-swatch"><span class="twin-swatch__chip" style="background: var(--utopia-color-border);"></span><p class="twin-swatch__name">border</p><p class="twin-swatch__hex">#d8dceb</p></div>
-        <div class="twin-swatch"><span class="twin-swatch__chip" style="background: var(--utopia-color-divider);"></span><p class="twin-swatch__name">divider</p><p class="twin-swatch__hex">#e6e9f2</p></div>
-        <div class="twin-swatch"><span class="twin-swatch__chip" style="background: var(--utopia-color-row-alt);"></span><p class="twin-swatch__name">rowAlt</p><p class="twin-swatch__hex">#f6f7fc</p></div>
-        <div class="twin-swatch"><span class="twin-swatch__chip" style="background: var(--utopia-color-hover);"></span><p class="twin-swatch__name">hover</p><p class="twin-swatch__hex">#edf0fa</p></div>
-        <div class="twin-swatch"><span class="twin-swatch__chip" style="background: var(--utopia-color-chip-background);"></span><p class="twin-swatch__name">chipBackground</p><p class="twin-swatch__hex">#e9edfd</p></div>
-        <div class="twin-swatch"><span class="twin-swatch__chip" style="background: var(--utopia-color-chip-foreground);"></span><p class="twin-swatch__name">chipForeground</p><p class="twin-swatch__hex">#3a4bcc</p></div>
-        <div class="twin-swatch"><span class="twin-swatch__chip" style="background: var(--utopia-color-text);"></span><p class="twin-swatch__name">text</p><p class="twin-swatch__hex">#14161f</p></div>
-        <div class="twin-swatch"><span class="twin-swatch__chip" style="background: var(--utopia-color-hint);"></span><p class="twin-swatch__name">hint</p><p class="twin-swatch__hex">#6e748b</p></div>
-        <div class="twin-swatch"><span class="twin-swatch__chip" style="background: var(--utopia-color-error);"></span><p class="twin-swatch__name">error</p><p class="twin-swatch__hex">#d3302f</p></div>
-        <div class="twin-swatch"><span class="twin-swatch__chip" style="background: var(--utopia-color-disabled);"></span><p class="twin-swatch__name">disabled</p><p class="twin-swatch__hex">#b9becf</p></div>
+        <div class="twin-swatch" title="buttons, selection, active states"><span class="twin-swatch__chip" style="background: var(--utopia-color-primary);"></span><p class="twin-swatch__name">primary</p><p class="twin-swatch__hex">#4a6fff</p></div>
+        <div class="twin-swatch" title="second gradient stop"><span class="twin-swatch__chip" style="background: var(--utopia-color-accent);"></span><p class="twin-swatch__name">accent</p><p class="twin-swatch__hex">#4466ff</p></div>
+        <div class="twin-swatch" title="page background"><span class="twin-swatch__chip" style="background: var(--utopia-color-canvas);"></span><p class="twin-swatch__name">canvas</p><p class="twin-swatch__hex">#f4f6fd</p></div>
+        <div class="twin-swatch" title="cards, popovers"><span class="twin-swatch__chip" style="background: var(--utopia-color-surface);"></span><p class="twin-swatch__name">surface</p><p class="twin-swatch__hex">#ffffff</p></div>
+        <div class="twin-swatch" title="input chrome"><span class="twin-swatch__chip" style="background: var(--utopia-color-field);"></span><p class="twin-swatch__name">field</p><p class="twin-swatch__hex">#f8f9fd</p></div>
+        <div class="twin-swatch" title="card hairlines"><span class="twin-swatch__chip" style="background: var(--utopia-color-border);"></span><p class="twin-swatch__name">border</p><p class="twin-swatch__hex">#f1f4ff</p></div>
+        <div class="twin-swatch" title="row separators"><span class="twin-swatch__chip" style="background: var(--utopia-color-divider);"></span><p class="twin-swatch__name">divider</p><p class="twin-swatch__hex">#e6e9f2</p></div>
+        <div class="twin-swatch" title="alternating rows"><span class="twin-swatch__chip" style="background: var(--utopia-color-row-alt);"></span><p class="twin-swatch__name">rowAlt</p><p class="twin-swatch__hex">#f6f9ff</p></div>
+        <div class="twin-swatch" title="pointer feedback"><span class="twin-swatch__chip" style="background: var(--utopia-color-hover);"></span><p class="twin-swatch__name">hover</p><p class="twin-swatch__hex">#edf1ff</p></div>
+        <div class="twin-swatch" title="tag fills"><span class="twin-swatch__chip" style="background: var(--utopia-color-chip-background);"></span><p class="twin-swatch__name">chipBackground</p><p class="twin-swatch__hex">#e2e9ff</p></div>
+        <div class="twin-swatch" title="tag content"><span class="twin-swatch__chip" style="background: var(--utopia-color-chip-foreground);"></span><p class="twin-swatch__name">chipForeground</p><p class="twin-swatch__hex">#4a6fff</p></div>
+        <div class="twin-swatch" title="body copy"><span class="twin-swatch__chip" style="background: var(--utopia-color-text);"></span><p class="twin-swatch__name">text</p><p class="twin-swatch__hex">#141518</p></div>
+        <div class="twin-swatch" title="placeholders, secondary text"><span class="twin-swatch__chip" style="background: var(--utopia-color-hint);"></span><p class="twin-swatch__name">hint</p><p class="twin-swatch__hex">#9a9fb8</p></div>
+        <div class="twin-swatch" title="destructive, invalid"><span class="twin-swatch__chip" style="background: var(--utopia-color-error);"></span><p class="twin-swatch__name">error</p><p class="twin-swatch__hex">#d3302f</p></div>
+        <div class="twin-swatch" title="inert controls"><span class="twin-swatch__chip" style="background: var(--utopia-color-disabled);"></span><p class="twin-swatch__name">disabled</p><p class="twin-swatch__hex">#b9becf</p></div>
       </div>
       <div class="twin-on-colored-strip" style="margin-top: 16px;">
         <div class="twin-on-colored-item"><span class="twin-on-colored-item__dot" style="background: var(--utopia-color-on-colored-content);"></span><span class="twin-on-colored-item__label">onColoredContent</span></div>
@@ -379,7 +692,7 @@
     <!-- mirrors example/lib/sections/typography_section.dart -->
     <section class="twin-section" id="typography">
       <header class="twin-section__head">
-        <span class="twin-section__index">02</span>
+        <span class="twin-section__index">04</span>
         <h2 class="twin-section__name">Typography</h2>
         <span class="twin-section__rule" aria-hidden="true"></span>
       </header>
@@ -421,30 +734,17 @@
     <!-- mirrors example/lib/sections/surfaces_section.dart -->
     <section class="twin-section" id="surfaces">
       <header class="twin-section__head">
-        <span class="twin-section__index">03</span>
+        <span class="twin-section__index">05</span>
         <h2 class="twin-section__name">Surfaces &amp; shape</h2>
         <span class="twin-section__rule" aria-hidden="true"></span>
       </header>
       <p class="twin-section__description">
         Cards, field chrome, gradients and hairlines - the shells everything else sits in.
       </p>
-      <!--
-        Specimen annotations (twin-note). Every value written out in one is the
-        value the DEFAULT theme resolves to right now, read off tokens.css and
-        components.css - exactly like the hex captions in the Colors section
-        above. They are prose, not styling, so they do not go through
-        var(--utopia-*) and nothing recomputes them: a rebrand, or any change to
-        a default token value, has to refresh these lines by hand in the same
-        change. The annotation STYLING is tokenised as usual (see .twin-note).
-      -->
-      <p class="twin-note twin-note--section">
-        Radius scale in use: 6px chips &middot; 12px fields, buttons, sidebar tiles &middot; 16px cards, dialogs, sidebar rail
-      </p>
       <div class="twin-specimens">
         <div class="twin-specimen">
           <span class="twin-specimen__label">UtopiaCard</span>
           <!-- utopia-specimen: card -->
-          <p class="twin-note">surface #ffffff &middot; radius 16px &middot; border 1.5px #d8dceb &middot; shadow sm</p>
         </div>
         <div class="twin-specimen">
           <span class="twin-specimen__label">UtopiaFieldWrapper (field chrome, no visual twin as a standalone)</span>
@@ -458,7 +758,6 @@
               </div>
             </div>
           </div>
-          <p class="twin-note">fill #f8f9fd &middot; border 1px #d8dceb &middot; radius 12px &middot; content min-height 34px, padding 8/4 - 48px total</p>
         </div>
         <div class="twin-specimen">
           <span class="twin-specimen__label">UtopiaGradientBackground (no visual twin as a standalone)</span>
@@ -475,7 +774,6 @@
         <div class="twin-specimen">
           <span class="twin-specimen__label">UtopiaDivider</span>
           <!-- utopia-specimen: divider -->
-          <p class="twin-note">1px hairline #e6e9f2 &middot; one step lighter than the card border</p>
         </div>
       </div>
     </section>
@@ -483,13 +781,12 @@
     <!-- mirrors example/lib/sections/buttons_section.dart -->
     <section class="twin-section" id="buttons">
       <header class="twin-section__head">
-        <span class="twin-section__index">04</span>
+        <span class="twin-section__index">06</span>
         <h2 class="twin-section__name">Buttons</h2>
         <span class="twin-section__rule" aria-hidden="true"></span>
       </header>
       <p class="twin-section__description">
-        UtopiaButton - the gradient call-to-action, with dense, loading, disabled and icon variants -
-        plus UtopiaGhostButton, the quiet secondary action it pairs with in an action row.
+        UtopiaButton - the gradient call-to-action, with dense, loading, disabled and icon variants.
       </p>
       <div class="twin-specimens">
         <div class="twin-specimen">
@@ -497,7 +794,6 @@
           <button class="utopia-button" data-utopia-id="button" type="button" style="max-width: 200px;">
             <span class="utopia-button__label">Save changes</span>
           </button>
-          <p class="twin-note">fill primary #3f51e5 -&gt; mid-sweep to accent #4a5ce9 &middot; content #ffffff &middot; radius 12px &middot; height 48px (matches a resting field)</p>
         </div>
         <div class="twin-specimen">
           <span class="twin-specimen__label">Dense</span>
@@ -522,7 +818,6 @@
         <div class="twin-specimen">
           <span class="twin-specimen__label">UtopiaGhostButton</span>
           <!-- utopia-specimen: ghost-button -->
-          <p class="twin-note">no fill &middot; hover #edf0fa &middot; radius 12px &middot; min-height 40px</p>
         </div>
         <div class="twin-specimen">
           <span class="twin-specimen__label">UtopiaRemoveIconButton</span>
@@ -534,12 +829,12 @@
     <!-- mirrors example/lib/sections/selection_section.dart -->
     <section class="twin-section" id="selection">
       <header class="twin-section__head">
-        <span class="twin-section__index">05</span>
+        <span class="twin-section__index">07</span>
         <h2 class="twin-section__name">Selection</h2>
         <span class="twin-section__rule" aria-hidden="true"></span>
       </header>
       <p class="twin-section__description">
-        Switches, check boxes, radios, sliders and check rows - the selection controls.
+        Switches, check boxes, radio buttons, sliders and check rows - the selection controls.
       </p>
       <div class="twin-specimens">
         <div class="twin-specimen">
@@ -561,7 +856,6 @@
         <div class="twin-specimen">
           <span class="twin-specimen__label">UtopiaRadio - group</span>
           <!-- utopia-specimen: radio #1 -->
-          <p class="twin-note">20px controls &middot; radius 4px box, full circle &middot; resting edge #b9becf on #f8f9fd &middot; selected fill #3f51e5</p>
         </div>
         <div class="twin-specimen">
           <span class="twin-specimen__label">UtopiaSwitch</span>
@@ -589,17 +883,14 @@
         <div class="twin-specimen">
           <span class="twin-specimen__label">UtopiaSlider</span>
           <!-- utopia-specimen: slider #1 -->
-          <p class="twin-note">track 4px #d8dceb &middot; fill #3f51e5 &middot; thumb 20px #ffffff, edge 1.5px #b9becf &middot; no resting shadow</p>
         </div>
         <div class="twin-specimen">
           <span class="twin-specimen__label">UtopiaSlider - hover</span>
           <!-- utopia-specimen: slider #2 -->
-          <p class="twin-note">the edge takes the step: thumb border #6e748b</p>
         </div>
         <div class="twin-specimen">
           <span class="twin-specimen__label">UtopiaSlider - dragging</span>
           <!-- utopia-specimen: slider #3 -->
-          <p class="twin-note">thumb border #3f51e5 while the pointer holds the value &middot; the drag itself is unanimated, a tap animates over 150ms</p>
         </div>
         <div class="twin-specimen">
           <span class="twin-specimen__label">UtopiaSlider - read only</span>
@@ -615,7 +906,7 @@
     <!-- mirrors example/lib/sections/fields_section.dart -->
     <section class="twin-section" id="fields">
       <header class="twin-section__head">
-        <span class="twin-section__index">06</span>
+        <span class="twin-section__index">08</span>
         <h2 class="twin-section__name">Fields</h2>
         <span class="twin-section__rule" aria-hidden="true"></span>
       </header>
@@ -633,7 +924,6 @@
               </div>
             </div>
           </div>
-          <p class="twin-note">floated label 10px w500 #6e748b &middot; value 12px w500 &middot; error #d3302f</p>
         </div>
         <div class="twin-specimen">
           <span class="twin-specimen__label">Text - hint</span>
@@ -734,7 +1024,6 @@
         <div class="twin-specimen">
           <span class="twin-specimen__label">Date picker - open trigger (rings while its calendar is up)</span>
           <!-- utopia-specimen: date-picker #4 -->
-          <p class="twin-note">focus stop like the dropdown &middot; ring 2px #3f51e5 inset 1px &middot; suffix icons 18px, 4px apart &middot; value formatted dd MMM yyyy &middot; the open calendar grid is Material-owned and has no static twin</p>
         </div>
       </div>
     </section>
@@ -742,7 +1031,7 @@
     <!-- mirrors example/lib/sections/chips_text_section.dart -->
     <section class="twin-section" id="chips-text">
       <header class="twin-section__head">
-        <span class="twin-section__index">07</span>
+        <span class="twin-section__index">09</span>
         <h2 class="twin-section__name">Chips &amp; text</h2>
         <span class="twin-section__rule" aria-hidden="true"></span>
       </header>
@@ -753,7 +1042,6 @@
         <div class="twin-specimen">
           <span class="twin-specimen__label">UtopiaChip</span>
           <span class="utopia-chip" data-utopia-id="chip"><span class="utopia-chip__label">Published</span></span>
-          <p class="twin-note">fill #e9edfd &middot; content #3a4bcc &middot; radius 6px &middot; caption 10px</p>
         </div>
         <div class="twin-specimen">
           <span class="twin-specimen__label">UtopiaChip - leading</span>
@@ -770,17 +1058,14 @@
         <div class="twin-specimen">
           <span class="twin-specimen__label">UtopiaChipList - empty (dash fallback)</span>
           <!-- utopia-specimen: chip-list #2 -->
-          <p class="twin-note">an empty list renders a hint-toned dash, not an empty box</p>
         </div>
         <div class="twin-specimen">
           <span class="twin-specimen__label">UtopiaCopyableText (no visual twin)</span>
           <p class="utopia-text-field__value" data-utopia-id="copyable-text" style="margin: 0; width: 260px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">550e8400-e29b-41d4</p>
-          <p class="twin-note">text 12px &middot; tap copies to the clipboard &middot; ellipsizes when the value overflows its box</p>
         </div>
         <div class="twin-specimen">
           <span class="twin-specimen__label">UtopiaCopyableText - null (dash fallback)</span>
           <p class="utopia-text-field__hint" data-utopia-id="copyable-text" style="margin: 0; width: 200px;">-</p>
-          <p class="twin-note">null renders the same hint-toned dash as an empty chip list</p>
         </div>
         <div class="twin-specimen">
           <span class="twin-specimen__label">UtopiaTitle</span>
@@ -796,7 +1081,7 @@
     <!-- mirrors example/lib/sections/loading_section.dart -->
     <section class="twin-section" id="loading">
       <header class="twin-section__head">
-        <span class="twin-section__index">08</span>
+        <span class="twin-section__index">10</span>
         <h2 class="twin-section__name">Loading</h2>
         <span class="twin-section__rule" aria-hidden="true"></span>
       </header>
@@ -811,12 +1096,10 @@
             <!-- utopia-specimen: loader #2 -->
             <!-- utopia-specimen: loader #3 -->
           </div>
-          <p class="twin-note">colors.primary #3f51e5 &middot; stroke = size / 6 &middot; 400ms linear sweep</p>
         </div>
         <div class="twin-specimen">
           <span class="twin-specimen__label">UtopiaThreeBounce (colors.primary)</span>
           <!-- utopia-specimen: three-bounce #1 -->
-          <p class="twin-note">20px row &middot; 10px dots &middot; 1400ms cycle, staggered per dot &middot; on filled grounds see the button's loading specimen</p>
         </div>
         <div class="twin-specimen">
           <span class="twin-specimen__label">Skeleton (UtopiaLoadingBox)</span>
@@ -825,7 +1108,6 @@
             <!-- utopia-specimen: loading-box #2 -->
             <!-- utopia-specimen: loading-box #3 -->
           </div>
-          <p class="twin-note">base hover #edf0fa &middot; sweep up to surface #ffffff &middot; 1400ms, same cadence as the dots</p>
         </div>
       </div>
     </section>
@@ -833,18 +1115,17 @@
     <!-- mirrors example/lib/sections/table_section.dart -->
     <section class="twin-section" id="table">
       <header class="twin-section__head">
-        <span class="twin-section__index">09</span>
+        <span class="twin-section__index">11</span>
         <h2 class="twin-section__name">Table</h2>
         <span class="twin-section__rule" aria-hidden="true"></span>
       </header>
       <p class="twin-section__description">
-        The flagship component: a sliver table with client-side search, sort and themed cells.
+        The flagship component: a sliver table with client-side search, sort and themed cells via useUtopiaTableState.
       </p>
       <div class="twin-specimens">
         <div class="twin-specimen" style="width: 100%;">
           <span class="twin-specimen__label">Invoices</span>
           <!-- utopia-specimen: table #1 -->
-          <p class="twin-note">row height 58px &middot; alternating rows #f6f7fc &middot; 1px #e6e9f2 hairline between rows, #d8dceb under the header &middot; status cells reuse the chip recipe &middot; column inset 32px (16 row + 16 cell), search field on the same line &middot; numeric columns right-aligned with tabular figures &middot; sorted column carries an accent caret, sortable ones only on hover</p>
         </div>
         <div class="twin-specimen">
           <span class="twin-specimen__label">Row states - rest / alternating / hover</span>
@@ -856,24 +1137,21 @@
     <!-- mirrors example/lib/sections/dialogs_section.dart -->
     <section class="twin-section" id="dialogs">
       <header class="twin-section__head">
-        <span class="twin-section__index">10</span>
+        <span class="twin-section__index">12</span>
         <h2 class="twin-section__name">Dialogs</h2>
         <span class="twin-section__rule" aria-hidden="true"></span>
       </header>
       <p class="twin-section__description">
-        UtopiaDialog.form composes a scrollable field sliver with a pinned action bar;
-        UtopiaConfirmDialog is the confirm/cancel prefab. Bottom sheet on mobile, card on desktop.
+        UtopiaDialog.form composes a scrollable field sliver with a pinned action bar; UtopiaConfirmDialog is the confirm/cancel prefab. Bottom sheet on mobile, card on desktop.
       </p>
       <div class="twin-specimens">
         <div class="twin-specimen">
           <span class="twin-specimen__label">Form dialog (open, desktop card variant)</span>
           <!-- utopia-specimen: dialog -->
-          <p class="twin-note">surface #ffffff &middot; radius 16px &middot; max-width 600px &middot; shadow lg &middot; pinned action bar over a scrolling body</p>
         </div>
         <div class="twin-specimen">
           <span class="twin-specimen__label">Confirm dialog (open)</span>
           <!-- utopia-specimen: confirm-dialog #2 -->
-          <p class="twin-note">surface #ffffff &middot; radius 16px &middot; max-width 400px &middot; shadow lg &middot; actions bottom-right, ghost + dense confirm</p>
         </div>
       </div>
     </section>
@@ -881,15 +1159,13 @@
     <!-- mirrors example/lib/sections/sidebar_section.dart -->
     <section class="twin-section" id="sidebar">
       <header class="twin-section__head">
-        <span class="twin-section__index">11</span>
+        <span class="twin-section__index">13</span>
         <h2 class="twin-section__name">Sidebar</h2>
         <span class="twin-section__rule" aria-hidden="true"></span>
       </header>
       <p class="twin-section__description">
-        An adaptive rail: 80px collapsed, expands on hover, pins via the toggle. Plain surface or
-        opt-in gradient; drawer presentation for small screens.
+        An adaptive rail: 80px collapsed, expands on hover, pins via the toggle. Plain surface or opt-in gradient; drawer presentation for small screens.
       </p>
-      <p class="twin-note twin-note--section">rail 300px expanded / 80px collapsed &middot; radius 16px &middot; tile height 54px, radius 12px &middot; hover fill #edf0fa, selected fill #e9edfd</p>
       <div class="twin-specimens">
         <div class="twin-specimen">
           <span class="twin-specimen__label">Rail - surface (expanded, second tile hovered)</span>
@@ -928,6 +1204,26 @@
       </div>
     </section>
 
+    <!-- mirrors example/lib/sections/principles_section.dart -->
+    <section class="twin-section" id="principles">
+      <header class="twin-section__head">
+        <span class="twin-section__index">14</span>
+        <h2 class="twin-section__name">Principles</h2>
+        <span class="twin-section__rule" aria-hidden="true"></span>
+      </header>
+      <p class="twin-section__description">
+        The rules the components hold themselves to.
+      </p>
+      <div class="twin-principles">
+        <div class="twin-principle"><div class="twin-principle__head"><span class="twin-principle__index">1</span><p class="twin-principle__title">No hardcoded values</p></div><p class="twin-principle__body">Components never inline a color, gap, radius or duration. Everything reads the ambient theme, which is why one knob repaints this whole page.</p></div>
+        <div class="twin-principle"><div class="twin-principle__head"><span class="twin-principle__index">2</span><p class="twin-principle__title">One base unit</p></div><p class="twin-principle__body">Spacing and radii are multiples of x. Off-scale values (a 10px gap, a 14px inset) are bugs, not fine-tuning.</p></div>
+        <div class="twin-principle"><div class="twin-principle__head"><span class="twin-principle__index">3</span><p class="twin-principle__title">One accent family</p></div><p class="twin-principle__body">Primary and accent are a tight same-hue pair - the button gradient, chips and selection states all draw from it, so an app never fights itself for attention.</p></div>
+        <div class="twin-principle"><div class="twin-principle__head"><span class="twin-principle__index">4</span><p class="twin-principle__title">Semantic slots over raw tokens</p></div><p class="twin-principle__body">A component asks for cardRadius or fieldContentPadding, not "16". The decision of which token a role sits on lives in the theme, in one place.</p></div>
+        <div class="twin-principle"><div class="twin-principle__head"><span class="twin-principle__index">5</span><p class="twin-principle__title">Controlled components</p></div><p class="twin-principle__body">Tables, fields and dialogs render state and report interaction - they never own app state. Your models, your data layer, your navigation.</p></div>
+        <div class="twin-principle"><div class="twin-principle__head"><span class="twin-principle__index">6</span><p class="twin-principle__title">Slivers compose</p></div><p class="twin-principle__body">The table is a sliver, not a widget with its own scroll view - it shares the page scroll with everything around it.</p></div>
+      </div>
+    </section>
+
     <!--
       Deliberate omissions. The gallery mirrors the example app's Components
       page, so a manifest id the example app never renders has no section to
@@ -944,5 +1240,339 @@
     <!-- utopia-twin-omit: table-empty -- the example app's table section renders a populated table only; the empty state is catalogued in components.html -->
 
   </main>
+
+  <script>
+    'use strict';
+    (function () {
+      var root = document.documentElement;
+      var SPACING = { xxs: 0.5, xs: 1, sm: 2, md: 3, lg: 4, xl: 6, xxl: 8, xxxl: 12 };
+      var RADIUS = { xs: 1, sm: 1.5, md: 2, lg: 3, xl: 4 };
+      var PRESETS = {
+        light: {
+          label: 'Light',
+          buttonLabel: '#FFFFFF',
+          colors: {
+            primary: '#4A6FFF', accent: '#4466FF', field: '#F8F9FD', canvas: '#F4F6FD',
+            text: '#141518', surface: '#FFFFFF', border: '#F1F4FF', 'row-alt': '#F6F9FF',
+            hover: '#EDF1FF', 'chip-background': '#E2E9FF', 'chip-foreground': '#4A6FFF',
+            hint: '#9A9FB8', error: '#D3302F', disabled: '#B9BECF',
+          },
+        },
+        dracula: {
+          label: 'Dracula',
+          buttonLabel: '#F8F8F2',
+          colors: {
+            primary: '#BD93F9', accent: '#9F7AEA', field: '#21222C', canvas: '#1E1F29',
+            text: '#F8F8F2', surface: '#282A36', border: '#44475A', 'row-alt': '#2D2F3C',
+            hover: '#3A3D4D', 'chip-background': '#44475A', 'chip-foreground': '#8BE9FD',
+            hint: '#6272A4', error: '#FF5555', disabled: '#6272A4',
+          },
+        },
+        cyberpunk: {
+          label: 'Neon',
+          buttonLabel: '#0A0A14',
+          colors: {
+            primary: '#FCEE0A', accent: '#FFC400', field: '#0C0C18', canvas: '#07070F',
+            text: '#E8FBFF', surface: '#11111F', border: '#242442', 'row-alt': '#16162A',
+            hover: '#1E1E3A', 'chip-background': '#1A1A33', 'chip-foreground': '#00E5FF',
+            hint: '#7A7AB0', error: '#FF3B6B', disabled: '#3A3A55',
+          },
+        },
+        kawaii: {
+          label: 'Kawaii',
+          buttonLabel: '#FFFFFF',
+          colors: {
+            primary: '#DB3E86', accent: '#F77FBC', field: '#FFF3F9', canvas: '#FFF0F7',
+            text: '#5A2D47', surface: '#FFFFFF', border: '#FCDDEC', 'row-alt': '#FFF6FB',
+            hover: '#FCE7F2', 'chip-background': '#FCDCEB', 'chip-foreground': '#C13D7E',
+            hint: '#C79BB4', error: '#F43F5E', disabled: '#E6BCD2',
+          },
+        },
+        forest: {
+          label: 'Forest',
+          buttonLabel: '#06160C',
+          colors: {
+            primary: '#4ECB71', accent: '#2FA85C', field: '#1E150C', canvas: '#17110A',
+            text: '#EDE8DB', surface: '#241A11', border: '#43341F', 'row-alt': '#2A1F14',
+            hover: '#342718', 'chip-background': '#2A3A1C', 'chip-foreground': '#8FE3A0',
+            hint: '#A1916F', error: '#E5736B', disabled: '#53472F',
+          },
+        },
+      };
+      var CANDIDATES = ['#4A6FFF', '#7C4DFF', '#DB3E86', '#E5484D', '#E8890C', '#2FA85C', '#0FA3B1', '#1C1C28'];
+      var state = { x: 4, round: 1, primary: null, preset: 'light' };
+
+      function hexToHsl(hex) {
+        var n = parseInt(hex.slice(1), 16);
+        var r = ((n >> 16) & 255) / 255, g = ((n >> 8) & 255) / 255, b = (n & 255) / 255;
+        var max = Math.max(r, g, b), min = Math.min(r, g, b), l = (max + min) / 2, d = max - min;
+        var h = 0, sat = 0;
+        if (d !== 0) {
+          sat = l > 0.5 ? d / (2 - max - min) : d / (max + min);
+          if (max === r) h = ((g - b) / d + (g < b ? 6 : 0)) / 6;
+          else if (max === g) h = ((b - r) / d + 2) / 6;
+          else h = ((r - g) / d + 4) / 6;
+        }
+        return [h, sat, l];
+      }
+      function hslToHex(h, sat, l) {
+        function f(pp, qq, t) {
+          if (t < 0) t += 1;
+          if (t > 1) t -= 1;
+          if (t < 1 / 6) return pp + (qq - pp) * 6 * t;
+          if (t < 1 / 2) return qq;
+          if (t < 2 / 3) return pp + (qq - pp) * (2 / 3 - t) * 6;
+          return pp;
+        }
+        var r, g, b;
+        if (sat === 0) { r = g = b = l; } else {
+          var q = l < 0.5 ? l * (1 + sat) : l + sat - l * sat;
+          var p2 = 2 * l - q;
+          r = f(p2, q, h + 1 / 3); g = f(p2, q, h); b = f(p2, q, h - 1 / 3);
+        }
+        function c(v) { return Math.round(v * 255).toString(16).padStart(2, '0'); }
+        return '#' + c(r) + c(g) + c(b);
+      }
+      function deriveAccent(hex) {
+        var hsl = hexToHsl(hex);
+        return hslToHex(hsl[0], Math.min(1, hsl[1] * 1.05), Math.max(0, hsl[2] * 0.82));
+      }
+
+      function setVar(name, value) { root.style.setProperty(name, value); }
+
+      function mix(hexA, hexB, t) {
+        var a = parseInt(hexA.slice(1), 16), b = parseInt(hexB.slice(1), 16);
+        function ch(shift) {
+          var va = (a >> shift) & 255, vb = (b >> shift) & 255;
+          return Math.round(va * t + vb * (1 - t)).toString(16).padStart(2, '0');
+        }
+        return '#' + ch(16) + ch(8) + ch(0);
+      }
+
+      function applyPreset() {
+        var preset = PRESETS[state.preset];
+        Object.keys(preset.colors).forEach(function (name) {
+          setVar('--utopia-color-' + name, preset.colors[name]);
+        });
+        setVar('--utopia-color-divider', mix(preset.colors.text, preset.colors.surface, 0.12));
+        setVar('--utopia-text-style-button-color', preset.buttonLabel);
+        var ink = preset.colors.text;
+        ['header', 'title', 'label', 'text', 'caption'].forEach(function (role) {
+          setVar('--utopia-text-style-' + role + '-color', ink);
+        });
+        setVar('--utopia-color-on-colored-content', state.preset === 'cyberpunk' || state.preset === 'forest' ? preset.buttonLabel : 'rgba(255,255,255,0.85)');
+      }
+
+      function apply() {
+        applyPreset();
+        var x = state.x, round = state.round, key;
+        setVar('--utopia-x', x + 'px');
+        for (key in SPACING) setVar('--utopia-spacing-' + key, x * SPACING[key] + 'px');
+        for (key in RADIUS) setVar('--utopia-radius-' + key, x * RADIUS[key] + 'px');
+        setVar('--utopia-theme-border-radius', x * RADIUS.lg * round + 'px');
+        setVar('--utopia-theme-card-radius', x * RADIUS.xl * round + 'px');
+        setVar('--utopia-theme-field-content-padding-left', x * 4 + 'px');
+        setVar('--utopia-theme-field-content-padding-right', x * 4 + 'px');
+        setVar('--utopia-theme-field-content-padding-top', x * 2.5 + 'px');
+        setVar('--utopia-theme-field-content-padding-bottom', x * 1.5 + 'px');
+        setVar('--utopia-theme-field-min-height', x * 11 + 'px');
+        setVar('--utopia-theme-tile-height', x * 14.5 + 'px');
+        setVar('--utopia-theme-page-top-padding', x * 4 + 'px');
+        if (state.primary) {
+          setVar('--utopia-color-primary', state.primary);
+          setVar('--utopia-color-accent', deriveAccent(state.primary));
+          setVar('--utopia-color-chip-foreground', state.primary);
+        }
+        renderPresets();
+        document.getElementById('lab-x-value').textContent = x.toFixed(1) + ' px';
+        document.getElementById('lab-x-inline').textContent = x.toFixed(1);
+        document.getElementById('lab-round-value').textContent = round.toFixed(2) + 'x';
+        document.getElementById('lab-reset').classList.toggle(
+          'is-visible', x !== 4 || round !== 1 || state.primary !== null);
+        renderSwatchHexes();
+        renderDots();
+        renderCode();
+        renderPx();
+      }
+
+      function renderPx() {
+        var styles = getComputedStyle(root);
+        document.querySelectorAll('[data-px]').forEach(function (el) {
+          var raw = styles.getPropertyValue(el.dataset.px).trim();
+          var value = parseFloat(raw);
+          var unit = el.dataset.unit || 'px';
+          if (unit === 'ms' && raw.indexOf('ms') === -1) value = value * 1000;
+          el.textContent = (value % 1 ? value.toFixed(1) : value) + ' ' + unit;
+        });
+      }
+
+      function renderCode() {
+        var lines = ['final theme = UtopiaThemeData.fromTokens('];
+        lines.push(state.x === 4 ? '  tokens: const UtopiaTokens(),' : '  tokens: UtopiaTokens.fromBase(' + state.x + '),');
+        if (state.primary) {
+          lines.push('  colors: UtopiaThemeColors.defaultTheme.copyWith(');
+          lines.push('    primary: const Color(0xFF' + state.primary.slice(1).toUpperCase() + '),');
+          lines.push('    accent: const Color(0xFF' + deriveAccent(state.primary).slice(1).toUpperCase() + '),');
+          lines.push('  ),');
+        } else {
+          lines.push('  colors: UtopiaThemeColors.defaultTheme,');
+        }
+        lines.push('  textStyles: UtopiaThemeTextStyles.defaultTheme,');
+        lines.push(');');
+        document.getElementById('lab-code').textContent = lines.join('\n');
+      }
+
+      function renderPresets() {
+        var host = document.getElementById('lab-presets');
+        host.innerHTML = '';
+        Object.keys(PRESETS).forEach(function (id) {
+          var preset = PRESETS[id];
+          var b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'twin-preset' + (state.preset === id ? ' is-selected' : '');
+          [preset.colors.primary, preset.colors.accent, preset.colors.surface].forEach(function (color) {
+            var dot = document.createElement('span');
+            dot.className = 'twin-preset__swatch';
+            dot.style.background = color;
+            b.appendChild(dot);
+          });
+          b.appendChild(document.createTextNode(preset.label));
+          b.addEventListener('click', function () {
+            state.preset = id;
+            state.primary = null;
+            apply();
+          });
+          host.appendChild(b);
+        });
+      }
+
+      function renderSwatchHexes() {
+        var styles = getComputedStyle(root);
+        document.querySelectorAll('.twin-swatch').forEach(function (swatch) {
+          var nameEl = swatch.querySelector('.twin-swatch__name');
+          var hexEl = swatch.querySelector('.twin-swatch__hex');
+          if (!nameEl || !hexEl) return;
+          var kebab = nameEl.textContent.trim().replace(/([A-Z])/g, '-$1').toLowerCase();
+          var value = styles.getPropertyValue('--utopia-color-' + kebab).trim();
+          if (value) hexEl.textContent = value.toLowerCase();
+        });
+      }
+
+      function renderDots() {
+        var host = document.getElementById('lab-dots');
+        host.innerHTML = '';
+        function dot(color, selected, stock, title, onPick) {
+          var b = document.createElement('button');
+          b.type = 'button';
+          b.className = 'twin-lab__dot' + (selected ? ' is-selected' : '');
+          b.style.background = color;
+          b.title = title;
+          if (stock) {
+            b.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4" aria-hidden="true"><path d="M20 11a8 8 0 1 0-2.34 6M20 5v6h-6"/></svg>';
+          } else if (selected) {
+            b.innerHTML = '<svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.8" aria-hidden="true"><path d="M5 13l4 4 10-10"/></svg>';
+          }
+          b.addEventListener('click', onPick);
+          host.appendChild(b);
+        }
+        dot(PRESETS[state.preset].colors.primary, state.primary === null, true, 'Preset primary', function () { state.primary = null; apply(); });
+        CANDIDATES.forEach(function (color) {
+          dot(color, state.primary === color, false, color, function () { state.primary = color; apply(); });
+        });
+      }
+
+      function wireSlider(id, onValue) {
+        var el = document.getElementById(id);
+        var min = parseFloat(el.dataset.min), max = parseFloat(el.dataset.max);
+        var divisions = parseInt(el.dataset.divisions, 10);
+        function fromEvent(event) {
+          var rect = el.getBoundingClientRect();
+          var raw = Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width));
+          var t = Math.round(raw * divisions) / divisions;
+          el.style.setProperty('--twin-slider-fraction', t);
+          onValue(min + t * (max - min));
+          apply();
+        }
+        el.addEventListener('pointerdown', function (event) {
+          el.setPointerCapture(event.pointerId);
+          el.classList.add('utopia-slider--dragging');
+          fromEvent(event);
+        });
+        el.addEventListener('pointermove', function (event) {
+          if (el.classList.contains('utopia-slider--dragging')) fromEvent(event);
+        });
+        el.addEventListener('pointerup', function () { el.classList.remove('utopia-slider--dragging'); });
+        return function sync(value) {
+          el.style.setProperty('--twin-slider-fraction', (value - min) / (max - min));
+        };
+      }
+
+      var syncX = wireSlider('lab-x', function (v) { state.x = v; });
+      var syncRound = wireSlider('lab-round', function (v) { state.round = v; });
+
+      var paste = document.getElementById('lab-paste');
+      paste.addEventListener('click', function () {
+        navigator.clipboard.writeText(document.getElementById('lab-code').textContent).then(function () {
+          paste.classList.add('is-copied');
+          document.getElementById('lab-paste-head').textContent = 'Copied';
+          setTimeout(function () {
+            paste.classList.remove('is-copied');
+            document.getElementById('lab-paste-head').textContent = 'Tap to copy';
+          }, 2000);
+        });
+      });
+
+      document.getElementById('lab-reset').addEventListener('click', function () {
+        state.x = 4; state.round = 1; state.primary = null; state.preset = 'light';
+        syncX(4); syncRound(1);
+        apply();
+      });
+
+      document.querySelectorAll('.utopia-switch:not(.is-disabled):not(.is-readonly)').forEach(function (el) {
+        el.addEventListener('click', function () { el.classList.toggle('is-on'); });
+      });
+      document.querySelectorAll('.utopia-checkbox:not(.is-disabled):not(.is-readonly)').forEach(function (el) {
+        el.addEventListener('click', function () {
+          el.classList.remove('utopia-checkbox--indeterminate');
+          el.classList.toggle('is-selected');
+        });
+      });
+      document.querySelectorAll('.utopia-radio:not(.is-disabled):not(.is-readonly)').forEach(function (el) {
+        el.addEventListener('click', function () { el.classList.toggle('is-selected'); });
+      });
+      document.querySelectorAll('.utopia-check-row').forEach(function (el) {
+        el.addEventListener('click', function () { el.classList.toggle('is-selected'); });
+      });
+      document.querySelectorAll('.utopia-sidebar__items').forEach(function (list) {
+        var tiles = list.querySelectorAll('.utopia-sidebar-tile');
+        tiles.forEach(function (tile) {
+          tile.addEventListener('click', function () {
+            tiles.forEach(function (other) { other.classList.remove('is-selected'); });
+            tile.classList.add('is-selected');
+          });
+        });
+      });
+      document.querySelectorAll('.utopia-slider').forEach(function (el) {
+        if (el.id === 'lab-x' || el.id === 'lab-round') return;
+        if (el.classList.contains('is-disabled') || el.classList.contains('is-readonly')) return;
+        function fromEvent(event) {
+          var rect = el.getBoundingClientRect();
+          var t = Math.min(1, Math.max(0, (event.clientX - rect.left) / rect.width));
+          el.style.setProperty('--twin-slider-fraction', t);
+        }
+        el.addEventListener('pointerdown', function (event) {
+          el.setPointerCapture(event.pointerId);
+          el.classList.add('utopia-slider--dragging');
+          fromEvent(event);
+        });
+        el.addEventListener('pointermove', function (event) {
+          if (el.classList.contains('utopia-slider--dragging')) fromEvent(event);
+        });
+        el.addEventListener('pointerup', function () { el.classList.remove('utopia-slider--dragging'); });
+      });
+
+      apply();
+    })();
+  </script>
 </body>
 </html>

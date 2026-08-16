@@ -113,7 +113,7 @@
   outline-offset: var(--utopia-border-thick);
 }
 
-/* Dense: shorter fixed extent, x*10 = 40px instead of x*15 = 60px. */
+/* Dense: shorter fixed extent, x*10 = 40px instead of x*12 = 48px. */
 .utopia-button--dense {
   --utopia-button-extent: 40px; /* utopia-literal-ok: mirrors Dart constant UtopiaButton x*10 (dense extent) */
 }
