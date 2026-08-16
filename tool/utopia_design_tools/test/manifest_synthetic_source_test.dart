@@ -1,3 +1,14 @@
+@Timeout(Duration(minutes: 5))
+// These tests drive the real CLI entrypoints through `Process.run`, and each
+// `dart run` compiles the tool from source. On a loaded CI runner that is
+// ~10s per invocation, so a test making three of them sits right on the
+// package:test default of 30s. Timing out there is not a clean failure: the
+// timeout fires `addTearDown`, the scratch directory is deleted under the
+// still-running child process, and the assertion reports whatever exit code
+// the child gave for the vanished file - which reads as a logic bug in the
+// tool rather than as the timeout it is.
+library;
+
 // Generation + validation over a synthetic, utopia_ui-shaped source tree
 // (pubspec + barrel + one src file + one overlay + a two-section twin, written
 // to a temp dir): the cases the real repo's own sources do not currently
