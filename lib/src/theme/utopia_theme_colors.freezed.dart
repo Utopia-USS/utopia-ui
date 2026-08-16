@@ -39,8 +39,9 @@ mixin _$UtopiaThemeColors {
  Color get chipForeground;/// Muted colour for hints, placeholders and secondary text.
  Color get hint;/// Tint of every elevation shadow. `UtopiaShadowTokens` owns the geometry
 /// of each preset (offset, blur, spread and per-layer alpha); this supplies
-/// the hue, and its own alpha scales the whole stack (opaque = the preset's
-/// alphas verbatim, half = half as heavy).
+/// the hue only - its own alpha is ignored, since each layer keeps the
+/// alpha that gives the stack its shape. Tune `tokens.shadows` to make
+/// elevation heavier or lighter.
 ///
 /// Light themes use the system's blue-black rather than pure black so
 /// elevation stays in the neutrals' hue family. Dark themes should not try
@@ -314,8 +315,9 @@ class _UtopiaThemeColors extends UtopiaThemeColors {
 @override@JsonKey() final  Color hint;
 /// Tint of every elevation shadow. `UtopiaShadowTokens` owns the geometry
 /// of each preset (offset, blur, spread and per-layer alpha); this supplies
-/// the hue, and its own alpha scales the whole stack (opaque = the preset's
-/// alphas verbatim, half = half as heavy).
+/// the hue only - its own alpha is ignored, since each layer keeps the
+/// alpha that gives the stack its shape. Tune `tokens.shadows` to make
+/// elevation heavier or lighter.
 ///
 /// Light themes use the system's blue-black rather than pure black so
 /// elevation stays in the neutrals' hue family. Dark themes should not try
