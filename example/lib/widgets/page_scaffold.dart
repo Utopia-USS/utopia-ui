@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:utopia_ui/utopia_ui.dart';
 
-import 'theme_mode_picker.dart';
 
 /// Shared chrome for every page of the showcase shell: a header band with the
-/// page title, a muted subtitle and the app-wide [ThemeModePicker], a
+/// page title, a muted subtitle, a
 /// hairline divider constrained to the same content gutters as everything
 /// else (not full-bleed), then [child] filling the remaining height. Pages
 /// own their own scrolling (most through [PageBody]), so full-height layouts
@@ -12,6 +11,8 @@ import 'theme_mode_picker.dart';
 class PageScaffold extends StatelessWidget {
   final String title;
   final String subtitle;
+  final String? eyebrow;
+  final String? badge;
 
   /// Keep equal to the body's cap so the header's edges line up with the content.
   final double maxWidth;
@@ -22,6 +23,8 @@ class PageScaffold extends StatelessWidget {
     super.key,
     required this.title,
     required this.subtitle,
+    this.eyebrow,
+    this.badge,
     this.maxWidth = UtopiaPageWrapper.maxConstrainedWidth,
     required this.child,
   });
@@ -64,22 +67,56 @@ class PageScaffold extends StatelessWidget {
   }
 
   Widget _buildHeader(BuildContext context) {
-    return Wrap(
-      spacing: 24,
-      runSpacing: 16,
-      alignment: WrapAlignment.spaceBetween,
-      crossAxisAlignment: WrapCrossAlignment.end,
+    final textStyles = context.textStyles;
+    final colors = context.colors;
+    final eyebrow = this.eyebrow;
+    final badge = this.badge;
+    final caption = textStyles.caption;
+    final wordmark = Column(
+      crossAxisAlignment: CrossAxisAlignment.start,
+      mainAxisSize: MainAxisSize.min,
       children: [
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.start,
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            Text(title, style: context.textStyles.header),
-            const SizedBox(height: 4),
-            Text(subtitle, style: context.textStyles.text.copyWith(color: context.colors.hint)),
-          ],
+        if (eyebrow != null) ...[
+          Text(
+            eyebrow.toUpperCase(),
+            style: caption.copyWith(
+              color: colors.hint,
+              fontWeight: context.tokens.fontWeights.semiBold,
+              letterSpacing: (caption.fontSize ?? 13) * 0.14,
+            ),
+          ),
+          SizedBox(height: context.spacing.sm),
+        ],
+        Text(
+          title,
+          style: textStyles.header.copyWith(fontSize: (textStyles.header.fontSize ?? 24) * 1.5, height: 1.1),
         ),
-        const ThemeModePicker(),
+        SizedBox(height: context.spacing.sm),
+        ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 560),
+          child: Text(subtitle, style: textStyles.text.copyWith(color: colors.hint)),
+        ),
+      ],
+    );
+    if (badge == null) return wordmark;
+    return Wrap(
+      spacing: context.spacing.lg,
+      runSpacing: context.spacing.lg,
+      alignment: WrapAlignment.spaceBetween,
+      children: [
+        wordmark,
+        Container(
+          padding: EdgeInsets.symmetric(horizontal: context.spacing.md, vertical: context.spacing.xs),
+          decoration: BoxDecoration(
+            color: colors.surface,
+            borderRadius: BorderRadius.circular(context.radius.full),
+            border: Border.all(color: colors.border, width: context.tokens.borders.hairline),
+          ),
+          child: Text(
+            badge,
+            style: caption.copyWith(color: colors.hint, fontWeight: context.tokens.fontWeights.medium),
+          ),
+        ),
       ],
     );
   }

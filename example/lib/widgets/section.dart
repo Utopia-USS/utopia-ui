@@ -13,26 +13,79 @@ class SheetSection extends StatelessWidget {
   /// A short muted description shown below the heading.
   final String subtitle;
 
+  /// Optional longer rationale shown under [child] - the why behind the
+  /// section's design decisions.
+  final String? note;
+
   /// The section's content - typically a `Wrap` of [SpecimenTile]s.
   final Widget child;
 
   /// Creates a titled sheet section.
-  const SheetSection({super.key, required this.title, required this.subtitle, required this.child});
+  const SheetSection({super.key, required this.title, required this.subtitle, this.note, required this.child});
 
   @override
   Widget build(BuildContext context) {
+    final note = this.note;
+    final index = SectionScope.of(context);
+    final textStyles = context.textStyles;
+    final colors = context.colors;
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
         const SizedBox(height: 28),
-        UtopiaTitle(title: title),
+        Row(
+          children: [
+            if (index != null) ...[
+              Text(
+                index.toString().padLeft(2, '0'),
+                style: textStyles.title.copyWith(
+                  color: colors.hint,
+                  fontWeight: context.tokens.fontWeights.semiBold,
+                  fontFeatures: const [FontFeature.tabularFigures()],
+                ),
+              ),
+              SizedBox(width: context.spacing.md),
+            ],
+            Text(title, style: textStyles.header),
+            SizedBox(width: context.spacing.md),
+            Expanded(child: Container(height: context.tokens.borders.hairline, color: colors.border)),
+          ],
+        ),
         const SizedBox(height: 6),
-        Text(subtitle, style: context.textStyles.text.copyWith(color: context.colors.hint)),
+        ConstrainedBox(
+          constraints: const BoxConstraints(maxWidth: 640),
+          child: Text(subtitle, style: textStyles.text.copyWith(color: colors.hint)),
+        ),
         const SizedBox(height: 24),
         child,
+        if (note != null) ...[
+          const SizedBox(height: 16),
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 620),
+            child: Text(
+              note,
+              style: textStyles.caption.copyWith(
+                color: colors.hint,
+                fontWeight: context.tokens.fontWeights.regular,
+                height: 1.6,
+              ),
+            ),
+          ),
+        ],
       ],
     );
   }
+}
+
+class SectionScope extends InheritedWidget {
+  final int index;
+
+  const SectionScope({super.key, required this.index, required super.child});
+
+  static int? of(BuildContext context) => context.dependOnInheritedWidgetOfExactType<SectionScope>()?.index;
+
+  @override
+  bool updateShouldNotify(SectionScope oldWidget) => index != oldWidget.index;
 }
 
 /// A labeled specimen. By default the specimen sits on a raised surface panel
