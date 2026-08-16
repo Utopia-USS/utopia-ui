@@ -73,7 +73,7 @@ class SelectionSection extends HookWidget {
                           onChanged: (value) => planState.value = value,
                         ),
                         SizedBox(width: context.spacing.md),
-                        Text(plan, style: context.textStyles.text),
+                        Flexible(child: Text(plan, style: context.textStyles.text, overflow: TextOverflow.ellipsis)),
                       ],
                     ),
                   ),

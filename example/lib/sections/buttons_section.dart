@@ -49,7 +49,7 @@ class ButtonsSection extends StatelessWidget {
               child: const Row(
                 mainAxisSize: MainAxisSize.min,
                 mainAxisAlignment: MainAxisAlignment.center,
-                children: [Icon(Icons.add, size: 18), SizedBox(width: 6), Text('New entry')],
+                children: [Icon(Icons.add, size: 18), SizedBox(width: 6), Flexible(child: Text('New entry', overflow: TextOverflow.ellipsis))],
               ),
             ),
           ),
