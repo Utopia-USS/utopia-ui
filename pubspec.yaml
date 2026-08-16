@@ -10,7 +10,7 @@ dependencies:
   flutter:
     sdk: flutter
 
-  utopia_hooks: ^0.4.25
+  utopia_hooks: ^0.4.26
   utopia_collections: ^0.1.2
   fast_immutable_collections: ^11.2.0
   shimmer: ^3.0.0
