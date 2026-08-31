@@ -218,13 +218,55 @@ String _serializeLiteralByType(String? type, dynamic value) {
 /// never a `var()` reference, because CSS cannot compose a `var()` inside one
 /// component of a composite value this way. Shared with `tailwind_generator.dart`
 /// so `--shadow-<step>` prints the identical value as `--utopia-shadow-<step>`.
+///
+/// Each layer is painted in `color.shadow`'s hue at that layer's own alpha
+/// (see [_shadowTint]), so the stylesheet shows what the runtime actually
+/// paints rather than the preset as authored.
 String serializeShadowValue(TokenDocument document, TokenNode node) {
   final aliasPath = aliasPathOf(node.value);
   final layers = aliasPath != null ? resolveAlias(document, aliasPath).terminal!.value as List : node.value as List;
-  return layers.map((rawLayer) => _serializeShadowLayer(document, node.path, rawLayer)).join(', ');
+  final tint = _shadowTint(document);
+  return layers.map((rawLayer) => _serializeShadowLayer(document, node.path, rawLayer, tint)).join(', ');
 }
 
-String _serializeShadowLayer(TokenDocument document, String path, dynamic rawLayer) {
+/// The resolved `color.shadow` value - the hue every `shadow.*` layer is
+/// painted in (protocol SPEC 2.2: "`shadow.*` and `color.shadow` compose
+/// rather than duplicate") - or `null` when the document predates the token
+/// (pre-0.4.0), in which case each layer keeps its own colour.
+///
+/// `color.shadow` is optional, so its absence is a document age signal, not an
+/// error; a present-but-unresolvable one still is.
+Map<String, dynamic>? _shadowTint(TokenDocument document) {
+  if (!document.tokensByPath.containsKey('color.shadow')) {
+    return null;
+  }
+  final resolution = resolveAlias(document, 'color.shadow');
+  if (!resolution.isResolved) {
+    throw StateError('generate_twin: "color.shadow": ${resolution.error}');
+  }
+  return (resolution.terminal!.value as Map).cast<String, dynamic>();
+}
+
+/// Composes one shadow layer's paint colour: the RGB comes from [tint]
+/// (`color.shadow`), the alpha from the layer, mirroring
+/// `UtopiaThemeData._tinted` - including the way it ignores the tint's own
+/// alpha, so re-tinting stays idempotent and a document survives
+/// export -> generate -> export unchanged.
+///
+/// A `null` [tint] (pre-0.4.0 document) leaves the layer's colour untouched.
+Map<String, dynamic> _composeShadowColor(Map<String, dynamic> layerColor, Map<String, dynamic>? tint) {
+  if (tint == null) {
+    return layerColor;
+  }
+  return {...tint, 'alpha': (layerColor['alpha'] as num?)?.toDouble() ?? 1.0};
+}
+
+String _serializeShadowLayer(
+  TokenDocument document,
+  String path,
+  dynamic rawLayer,
+  Map<String, dynamic>? tint,
+) {
   Map<String, dynamic> layer;
   if (rawLayer is String) {
     final aliasPath = aliasPathOf(rawLayer);
@@ -281,7 +323,7 @@ String _serializeShadowLayer(TokenDocument document, String path, dynamic rawLay
   final offsetY = _serializeShadowDimension(dimensionOf(layer['offsetY']));
   final blur = _serializeShadowDimension(dimensionOf(layer['blur']));
   final spread = _serializeShadowDimension(dimensionOf(layer['spread']));
-  final color = serializeColor(colorOf(layer['color']));
+  final color = serializeColor(_composeShadowColor(colorOf(layer['color']), tint));
   return '$offsetX $offsetY $blur $spread $color';
 }
 

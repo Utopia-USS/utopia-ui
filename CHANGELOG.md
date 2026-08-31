@@ -17,6 +17,11 @@
 - **Protocol 0.4.0** (additive): `color.onPrimary`, `color.textBody` and `color.shadow` join the
   token profile as optional members. Documents written for 0.3 stay valid - a generator reading
   one omits the argument so the library default applies, and MUST NOT invent a value.
+- **Twin elevation parity:** `generate_twin` paints every `shadow.*` layer in `color.shadow`'s
+  hue at that layer's own alpha, matching what the runtime paints - the parity gap 0.4.0 left
+  behind. `tokens.css` and its Tailwind variant used to print the presets as authored, so a
+  rebranded shadow hue reached the Flutter app but never the twin the designers look at. A
+  document without `color.shadow` (pre-0.4.0) keeps each layer's own colour.
 
 - **Breaking (visual):** controls sit on `radius.lg` (12) - `UtopiaThemeData.fromTokens`
   assigns `borderRadius: radius.lgAll`, up from `radius.md` (8). Fields, buttons, sidebar
