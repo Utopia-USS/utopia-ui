@@ -1,5 +1,12 @@
 # Unreleased
 
+- `generate_manifest --project` now drops a `design/.gitignore` entry for
+  `merged.manifest.json` (created if absent, appended once otherwise): the merged manifest
+  is a derived view whose library half is a byte copy of the pub-cache manifest, so
+  consumer repos stop versioning it by default. SPEC 7 documents the consumer versioning
+  policy (sources committed, derived views ignored, generated theme committed under
+  `--check`).
+
 - **Dark mode out of the box:** `UtopiaThemeColors.darkTheme` and `UtopiaThemeData.darkTheme`.
   The dark palette inverts the default inside the same hue family: a stepped
   `canvas`/`surface`/`rowAlt`/`hover` ramp and a border light enough to read carry the

@@ -279,6 +279,27 @@ void main() {
       expect(mergedManifestFile.existsSync(), isTrue);
     });
 
+    test('a design/.gitignore covering merged.manifest.json is created, appended and kept idempotent', () async {
+      final gitignore = File(p.join(scratchProjectRoot.path, 'design', '.gitignore'));
+
+      // Fresh consumer: the file is created with the merged entry.
+      expect((await runGenerate([])).exitCode, 0);
+      expect(gitignore.existsSync(), isTrue);
+      expect(gitignore.readAsLinesSync(), contains('merged.manifest.json'));
+
+      // Idempotent: a second run adds nothing.
+      final afterFirst = gitignore.readAsStringSync();
+      expect((await runGenerate([])).exitCode, 0);
+      expect(gitignore.readAsStringSync(), afterFirst);
+
+      // A consumer's own entries survive; the merged entry is appended once.
+      gitignore.writeAsStringSync('# mine\nhandoff/\n');
+      expect((await runGenerate([])).exitCode, 0);
+      final lines = gitignore.readAsLinesSync();
+      expect(lines, containsAllInOrder(['# mine', 'handoff/', 'merged.manifest.json']));
+      expect(lines.where((l) => l.trim() == 'merged.manifest.json'), hasLength(1));
+    });
+
     test('validate_manifest on the written merged.manifest.json exits 0', () async {
       await runGenerate([]);
       final mergedManifestFile = File(p.join(scratchProjectRoot.path, 'design', 'merged.manifest.json'));
