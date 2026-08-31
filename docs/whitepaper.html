@@ -474,6 +474,59 @@ li::marker { color: var(--primary); }
     </table>
   </div>
 
+  <h3>Co siedzi w tych plikach (koncepcyjnie)</h3>
+  <p>Oba dokumenty czyta si&#281; programowo, ale ich kszta&#322;t jest celowo prosty. Dokument token&oacute;w to jedno zamkni&#281;te drzewo warto&#347;ci wizualnych:</p>
+
+  <pre><code>{
+  "$extensions": { "io.utopiasoft.design": { "profileVersion": "0.4.0" } },
+  "x": 4,                                  // baza skali - jedna liczba
+  "spacing":    { xxs..xxxl },             // px; ka&#380;dy krok niesie derivation "x*n"
+  "radius":     { xs..xl, full },
+  "border":     { hairline, thin, thick },
+  "shadow":     { sm, md, lg },            // warstwy: color + offset + blur + spread
+  "fontWeight": { regular..bold },
+  "duration":   { xs..xl },                // ms
+  "breakpoint": { tablet, web, sidebar },
+  "color":      { 19+ nazwanych slot&oacute;w },   // sRGB: components + hex, jawna alpha
+  "textStyle":  { 6 r&oacute;l },                 // family / size / weight / letterSpacing
+  "textStyle-colors": { 6 kolor&oacute;w-sistr }, // DTCG typography nie ma koloru - st&#261;d para
+  "theme":      { borderRadius, cardRadius, fieldContentPadding, fieldMinHeight, ... }
+}                                          // sloty semantyczne: decyzje, nie nowe jednostki</code></pre>
+
+  <p class="caption">Drzewo jest domkni&#281;te (nieznana nazwa = b&#322;&#261;d walidacji, nie ciche zignorowanie), a po imporcie z Figmy tokeny nios&#261; dodatkowo <code>sourceRef</code> / <code>lastSyncedValue</code> / <code>lastSyncedAt</code> - baz&#281; merge dla 3-way diffu przy re-imporcie.</p>
+
+  <p>Manifest to rejestr API komponent&oacute;w, generowany ze &#378;r&oacute;de&#322; Darta przy ka&#380;dym wydaniu - jeden wpis na komponent:</p>
+
+  <pre><code>{
+  "schemaVersion": "0.4.0",
+  "packageVersion": "0.1.0",           // bramka dryfu vs wersja rozwi&#261;zanego utopia_ui
+  "package": "utopia_ui",
+  "components": [                       // 37 wpis&oacute;w
+    {
+      "id": "button",                  // stabilny identyfikator (kebab-case z klasy)
+      "name": "UtopiaButton",
+      "description": "...",            // pierwszy akapit dartdoca, verbatim
+      "file": "lib/src/widget/button/utopia_button.dart",
+      "constructors": [ { "name": "", "props": [
+        { "name": "onTap", "type": "callback",   // portable type dla agent&oacute;w
+          "dartType": "void Function()", "required": true, "description": "..." }
+      ] } ],
+      "tokenBindings": [                // kt&oacute;re tokeny komponent faktycznie czyta
+        { "path": "colors.primary", "origin": "source" },   // source | overlay
+        { "path": "theme.borderRadius", "origin": "source" }
+      ],
+      "states": ["loading", "disabled", "hover", "focus"],  // zamkni&#281;ty s&#322;ownik
+      "composes": ["gradient-background", "three-bounce"],  // z czego si&#281; sk&#322;ada
+      "twin": { "file": "components.html",                  // gdzie le&#380;y lustro HTML
+                "selector": "[data-utopia-id=\"button\"]" },
+      "examples": ["example/lib/sections/buttons_section.dart"]
+    }
+  ],
+  "models": [ ... ], "helpers": [ ... ]  // typy danych i typedefy publicznego API
+}</code></pre>
+
+  <p class="caption">Fakty niederywowalne statycznie (stany interakcji, kurowane przyk&#322;ady) dok&#322;ada r&#281;czny overlay YAML per komponent; generacja failuje, gdy overlay wskazuje kod, kt&oacute;rego ju&#380; nie ma. Manifest projektowy (<code>generate_manifest --project</code>) nadaje komponentom aplikacji id w namespace <code>&lt;pakiet&gt;:&lt;id&gt;</code>, a widok merged skleja go bajtowo z bibliotecznym.</p>
+
   <div class="proto">
     <div class="row">
       <div class="node">edycje r&#281;czne / rebranding<small>bramkowane walidacj&#261;</small></div>
