@@ -8,8 +8,6 @@ A token-driven Flutter design system built for AI-assisted, HTML-based design wo
 ships with a machine-readable contract, so a screen designed in HTML by an AI designer lands in your app as
 the same reusable components - not as a pile of one-off widgets.
 
-<img src="https://raw.githubusercontent.com/Utopia-USS/utopia-ui/main/docs/protocol/hero-flutter-components.png" width="49%" alt="The utopia_ui example app's Components page, live in Flutter"/> <img src="https://raw.githubusercontent.com/Utopia-USS/utopia-ui/main/docs/protocol/hero-twin-default.png" width="49%" alt="The HTML twin's gallery, mirroring the same components"/>
-
 ## Motivation
 
 AI design tools think in HTML. Handing their output to a Flutter codebase usually ends one of two ways:
@@ -20,9 +18,9 @@ screen at a time, and every later rebrand or redesign costs more than the last.
 `utopia_ui` closes that gap with a contract both sides read, shipped inside the package and version-matched
 to it:
 
-- **An HTML twin for the designer.** `twin/` renders every component from the same tokens as Flutter (above:
-  Flutter left, twin right). An AI designer composes screens from real, id-tagged components instead of
-  inventing markup, and `twin/DESIGN.md` tells it the rules.
+- **An HTML twin for the designer.** `twin/` renders every component from the same tokens as Flutter. An AI
+  designer composes screens from real, id-tagged components instead of inventing markup, and
+  `twin/DESIGN.md` tells it the rules.
 - **A component manifest for the coding agent.** `manifest/utopia.manifest.json` lists every widget with a
   stable id, its props, states and token bindings. An agent looks up what already exists before it writes
   anything, and maps each element of a design to the widget that implements it.
@@ -209,10 +207,7 @@ stable component ids) lets a design surface and a Flutter app stay in sync in bo
 instead of a one-way "design-to-code" handoff.
 
 The Flutter app and the HTML twin render the same components from the same tokens. Rebrand the
-tokens and both surfaces follow - here the default theme becomes a pink gradient brand with one
-token edit:
-
-<img src="https://raw.githubusercontent.com/Utopia-USS/utopia-ui/main/docs/protocol/hero-twin-rebrand.png" width="100%" alt="The HTML twin gallery after a token-only rebrand to a pink gradient brand"/>
+tokens and both surfaces follow from a single edit.
 
 The package ships three protocol artifacts, version-matched to the `utopia_ui` release you resolve:
 
