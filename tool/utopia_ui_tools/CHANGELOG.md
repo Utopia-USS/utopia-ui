@@ -19,6 +19,11 @@ Initial release of the Utopia Design Protocol tooling for `utopia_ui` (protocol 
   at that layer's own alpha, exactly as the runtime does, in both `tokens.css` and the Tailwind
   variant. A rebranded shadow hue now reaches the twin, not just the Flutter app. A document
   without `color.shadow` (pre-0.4.0) keeps each layer's own colour.
+- `generate_manifest --project` drops a `design/.gitignore` entry for `merged.manifest.json`
+  (created if absent, appended once otherwise, never rewriting a consumer's own entries): the
+  merged manifest is a derived view whose library half is a byte copy of the pub-cache
+  manifest, so consumer repos stop versioning it by default. SPEC 7 documents the consumer
+  versioning policy.
 - `generate_theme --check` - freshness gate for a consumer's generated theme file: exits 1
   on drift and writes nothing.
 

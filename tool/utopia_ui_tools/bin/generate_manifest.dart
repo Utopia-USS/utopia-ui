@@ -290,6 +290,7 @@ Future<void> _runProjectMode(ArgResults args, {required bool asJson}) async {
   projectManifestFile.parent.createSync(recursive: true);
   projectManifestFile.writeAsStringSync(renderManifestJson(projectManifest));
   mergedManifestFile.writeAsStringSync(renderManifestJson(mergedManifest));
+  _ensureMergedGitignored(mergedManifestFile.parent);
 
   final componentCount = (projectManifest['components'] as List).length;
   final modelCount = (projectManifest['models'] as List? ?? const []).length;
@@ -312,4 +313,32 @@ Future<void> _runProjectMode(ArgResults args, {required bool asJson}) async {
     stdout.writeln('($componentCount project components, $modelCount project models, $helperCount project helpers)');
   }
   exitCode = 0;
+}
+
+/// The merged manifest is a derived view: its library half is a byte copy of
+/// the manifest already in the pub cache, so versioning it buys nothing and
+/// creates the stale-after-upgrade drift class the freshness gate exists to
+/// catch. A `.gitignore` dropped next to the output keeps it out of consumer
+/// repos by default (the `.dart_tool/.gitignore` pattern). The file is only
+/// ever created or appended - a consumer's own entries are never rewritten -
+/// and the sources living in the same directory (design/tokens.json,
+/// overlay/) stay tracked.
+void _ensureMergedGitignored(Directory designDir) {
+  const entry = 'merged.manifest.json';
+  final gitignore = File(p.join(designDir.path, '.gitignore'));
+  if (!gitignore.existsSync()) {
+    gitignore.writeAsStringSync(
+      '# Derived view of the pub-cache library manifest + project.manifest.json;\n'
+      '# rebuilt by `dart run utopia_ui_tools:generate_manifest --project`.\n'
+      '$entry\n',
+    );
+    return;
+  }
+  final lines = gitignore.readAsLinesSync();
+  if (lines.any((line) => line.trim() == entry || line.trim() == '/$entry')) {
+    return;
+  }
+  final existing = gitignore.readAsStringSync();
+  final separator = existing.isEmpty || existing.endsWith('\n') ? '' : '\n';
+  gitignore.writeAsStringSync('$separator$entry\n', mode: FileMode.append);
 }
