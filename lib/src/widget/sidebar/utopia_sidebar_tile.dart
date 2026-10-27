@@ -56,7 +56,12 @@ class UtopiaSidebarTile extends StatelessWidget {
     final hoverColor = onColored ? colors.onColoredHover : colors.hover;
 
     final spacing = context.spacing;
-    return Padding(
+    // Animated in step with the rail's width so a live token rescale never
+    // squeezes the row mid-transition.
+    final duration = context.tokens.durations.lg;
+    return AnimatedPadding(
+      duration: duration,
+      curve: Curves.easeOutExpo,
       padding: EdgeInsets.symmetric(horizontal: spacing.md, vertical: spacing.xs),
       child: Material(
         color: isSelected ? selectedColor : Colors.transparent,
@@ -65,7 +70,9 @@ class UtopiaSidebarTile extends StatelessWidget {
         child: InkWell(
           onTap: onPressed,
           hoverColor: hoverColor,
-          child: Padding(
+          child: AnimatedPadding(
+            duration: duration,
+            curve: Curves.easeOutExpo,
             padding: EdgeInsets.symmetric(horizontal: spacing.lg, vertical: spacing.md),
             child: IconTheme.merge(
               data: IconThemeData(color: contentColor, size: 22),

@@ -1,0 +1,9 @@
+# Publishing filter for the utopia_ui_tools tarball (replaces .gitignore here).
+build/
+.dart_tool/
+pubspec.lock
+pubspec_overrides.yaml
+
+# Maintainer-only end-to-end harness: needs the utopia-ui repo checkout.
+smoke/
+docs/

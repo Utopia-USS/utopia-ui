@@ -7,10 +7,17 @@ specification ([SPEC.md](SPEC.md)) and both JSON Schemas
 (`schemas/tokens.schema.json`, `schemas/manifest.schema.json`) always change together under
 one version number.
 
-Current version: **0.3.0**.
+Current version: **0.4.0**.
 
 History:
 
+- **0.4.0** (2026-08-16) - additive, token profile: three optional `color` members -
+  `onPrimary` (content on the primary/accent sweep), `textBody` (the body foreground tone)
+  and `shadow` (the hue every `shadow.*` preset paints in). Documents written for 0.3 stay
+  valid; a generator reading one MUST omit the corresponding argument rather than invent a
+  value, so the library default applies (SPEC 2.2). This completes the palette: the type
+  family and the elevation presets no longer carry colours of their own, so swapping the
+  `color` group alone re-themes a whole document. Manifest profile unchanged.
 - **0.3.0** (2026-08-14) - additive: `tokenBindings` entries carry provenance (SPEC 3.6) - an
   entry is now an object `{ "path": ..., "origin": "source" | "overlay" }`; the bare-string
   form written by 0.2 generators stays valid and is read as a path of unknown origin. The

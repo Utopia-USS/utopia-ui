@@ -1,7 +1,7 @@
 {
   "$extensions": {
     "io.utopiasoft.design": {
-      "profileVersion": "0.3.0"
+      "profileVersion": "0.4.0"
     }
   },
   "x": {
@@ -544,6 +544,19 @@
         "hex": "#4a5ce9"
       }
     },
+    "onPrimary": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          1,
+          1,
+          1
+        ],
+        "alpha": 1,
+        "hex": "#ffffff"
+      }
+    },
     "field": {
       "$type": "color",
       "$value": {
@@ -607,6 +620,19 @@
         ],
         "alpha": 1,
         "hex": "#14161f"
+      }
+    },
+    "textBody": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.356863,
+          0.376471,
+          0.462745
+        ],
+        "alpha": 1,
+        "hex": "#5b6076"
       }
     },
     "surface": {
@@ -711,6 +737,19 @@
         ],
         "alpha": 1,
         "hex": "#6e748b"
+      }
+    },
+    "shadow": {
+      "$type": "color",
+      "$value": {
+        "colorSpace": "srgb",
+        "components": [
+          0.062745,
+          0.094118,
+          0.156863
+        ],
+        "alpha": 1,
+        "hex": "#101828"
       }
     },
     "onColoredContent": {

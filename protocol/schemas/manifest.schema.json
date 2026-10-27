@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://raw.githubusercontent.com/Utopia-USS/utopia-ui/main/protocol/schemas/manifest.schema.json",
   "title": "Utopia Design Protocol - component manifest",
-  "description": "Machine-readable API registry of a utopia_ui release, a consumer project's custom components (project manifest), or the merged view of both. Components are concrete widgets (library: exported from the barrel; project: opt-in via overlay), plus models (data classes used in props) and helpers (functions, hooks, typedefs). Modeled on custom-elements-manifest, adapted to Flutter. Protocol version 0.3.0; see protocol/VERSIONING.md and SPEC.md 3.8.",
+  "description": "Machine-readable API registry of a utopia_ui release, a consumer project's custom components (project manifest), or the merged view of both. Components are concrete widgets (library: exported from the barrel; project: opt-in via overlay), plus models (data classes used in props) and helpers (functions, hooks, typedefs). Modeled on custom-elements-manifest, adapted to Flutter. Protocol version 0.4.0; see protocol/VERSIONING.md and SPEC.md 3.8.",
   "type": "object",
   "properties": {
     "$schema": { "type": "string" },

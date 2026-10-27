@@ -1,7 +1,14 @@
 name: utopia_ui
 version: 0.1.0
-description: "A themeable, general-purpose Flutter design system: tables, dialogs, sidebar navigation and form primitives."
+description: "A token-driven Flutter design system for AI and HTML design workflows: an HTML twin, a component manifest and design tokens keep every screen on reusable components."
 repository: https://github.com/Utopia-USS/utopia-ui
+issue_tracker: https://github.com/Utopia-USS/utopia-ui/issues
+topics:
+  - design-system
+  - design-tokens
+  - ui
+  - widget
+  - ai
 
 environment:
   sdk: ^3.11.0
@@ -10,7 +17,7 @@ dependencies:
   flutter:
     sdk: flutter
 
-  utopia_hooks: ^0.4.25
+  utopia_hooks: ^0.4.26
   utopia_collections: ^0.1.2
   fast_immutable_collections: ^11.2.0
   shimmer: ^3.0.0

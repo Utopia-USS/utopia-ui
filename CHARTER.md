@@ -57,6 +57,19 @@ lib/
 - Components NEVER hardcode colors/text styles/radii - every visual constant comes from the
   token classes. New tokens are added to `UtopiaThemeData` rather than inlined. (Anti-pattern
   references: static-const color access sprinkled per widget kills rebrandability.)
+- **Palette completeness**: every colour a theme paints resolves from `UtopiaThemeColors` -
+  including the type family's tones (`text` heading / `textBody` body / `hint` muted), the
+  on-gradient button label (`onPrimary`) and the elevation tint (`shadow`). No sibling family
+  may own a colour of its own: `UtopiaThemeTextStyles` carries type *structure* (family,
+  size, weight, tracking) and takes its colours from the palette via
+  `UtopiaThemeTextStyles.fromColors`; `UtopiaShadowTokens` carries elevation *geometry*
+  (offset, blur, spread, per-layer alpha) and is re-tinted through `colors.shadow` by
+  `UtopiaThemeData`'s shadow getters.
+  The invariant this buys: **swapping `colors` alone yields a complete, coherent theme.** A
+  theme that needs the type block or the shadow tokens rebuilt to change its palette is a bug
+  in this package, not in the consumer's theme. Dark mode is the standing test of it, and
+  ships as `UtopiaThemeColors.darkTheme` / `UtopiaThemeData.darkTheme` so consumers get it
+  without authoring a palette at all.
 - Overlay/dialog helpers that push new routes must re-attach the ambient `UtopiaThemeData`
   captured from the opening context, so subtree-scoped themes survive route boundaries.
 - No `provider` dependency; no Material `ThemeExtension` coupling (components must work under
@@ -118,7 +131,9 @@ Adding any dependency requires a charter update with rationale.
 
 ## Component list v1
 
-- Theme: `UtopiaTheme`, `UtopiaThemeData`, `UtopiaThemeColors`, `UtopiaThemeTextStyles`.
+- Theme: `UtopiaTheme`, `UtopiaThemeData`, `UtopiaThemeColors`, `UtopiaThemeTextStyles`,
+  shipped light/dark palettes (`UtopiaThemeColors.defaultTheme` / `.darkTheme` and the
+  `UtopiaThemeData` statics over them).
 - Primitives: `UtopiaButton`, `UtopiaRemoveIconButton`, `UtopiaChip`, `UtopiaChipList`,
   `UtopiaCheckbox`, `UtopiaRadio<T>`, `UtopiaCheckRow`, `UtopiaSwitch`, `UtopiaSwitchField`,
   `UtopiaSlider`, `UtopiaTextField`, `UtopiaSearchField`,

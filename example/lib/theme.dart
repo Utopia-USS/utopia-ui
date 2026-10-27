@@ -7,7 +7,8 @@ import 'package:utopia_ui/utopia_ui.dart';
 ///
 /// Everything visual flows through theme tokens - the widgets themselves carry
 /// no hard-coded colours.
-UtopiaThemeData buildExampleTheme() => _buildShowcaseTheme(
+UtopiaThemeData buildExampleTheme({UtopiaTokens? tokens}) => _buildShowcaseTheme(
+  tokens: tokens ?? const UtopiaTokens(borders: UtopiaBorderTokens(hairline: 1.5)),
   colors: UtopiaThemeData.defaultTheme.colors.copyWith(
     primary: const Color(0xFF4A6FFF),
     accent: const Color(0xFF4466FF),
@@ -21,8 +22,9 @@ UtopiaThemeData buildExampleTheme() => _buildShowcaseTheme(
     chipBackground: const Color(0xFFE2E9FF),
     chipForeground: const Color(0xFF4A6FFF),
     hint: const Color(0xFF9A9FB8),
+    textBody: const Color(0xFF5B6076),
+    onPrimary: Colors.white,
   ),
-  buttonLabel: Colors.white,
 );
 
 /// The theme modes selectable from the menu's theme picker. [light] and
@@ -71,7 +73,8 @@ enum ExampleThemeMode {
 /// rows and the hover state stay visually distinct on a dark ground. All
 /// foreground type is lifted to Dracula's foreground 0xFFF8F8F2 so light text
 /// reads cleanly on every dark surface.
-UtopiaThemeData buildDraculaTheme() => _buildShowcaseTheme(
+UtopiaThemeData buildDraculaTheme({UtopiaTokens? tokens}) => _buildShowcaseTheme(
+  tokens: tokens ?? const UtopiaTokens(borders: UtopiaBorderTokens(hairline: 1.5)),
   colors: UtopiaThemeData.defaultTheme.colors.copyWith(
     primary: const Color(0xFFBD93F9),
     accent: const Color(0xFF9F7AEA),
@@ -87,10 +90,11 @@ UtopiaThemeData buildDraculaTheme() => _buildShowcaseTheme(
     hint: const Color(0xFF6272A4),
     error: const Color(0xFFFF5555),
     disabled: const Color(0xFF6272A4),
+    // Dracula's foreground stepped down toward its comment tone for body copy,
+    // and the same near-white foreground as the on-gradient button label.
+    textBody: const Color(0xFFC8C9C3),
+    onPrimary: const Color(0xFFF8F8F2),
   ),
-  // primary -> accent button gradient is a tight purple -> deeper-purple sweep
-  // (not a purple/pink clash); near-white label on top.
-  buttonLabel: const Color(0xFFF8F8F2),
 );
 
 /// A cyberpunk neon variant on the same base structure as [buildExampleTheme] -
@@ -103,7 +107,8 @@ UtopiaThemeData buildDraculaTheme() => _buildShowcaseTheme(
 /// yellow primary and cyan chips read as a duotone. The surface/rowAlt/hover ramp
 /// (11111F -> 16162A -> 1E1E3A) keeps rows separable without breaking the dark
 /// mood, and foreground type is an icy 0xFFE8FBFF for crisp contrast.
-UtopiaThemeData buildCyberpunkTheme() => _buildShowcaseTheme(
+UtopiaThemeData buildCyberpunkTheme({UtopiaTokens? tokens}) => _buildShowcaseTheme(
+  tokens: tokens ?? const UtopiaTokens(borders: UtopiaBorderTokens(hairline: 1.5)),
   colors: UtopiaThemeData.defaultTheme.colors.copyWith(
     primary: const Color(0xFFFCEE0A),
     accent: const Color(0xFFFFC400),
@@ -119,10 +124,12 @@ UtopiaThemeData buildCyberpunkTheme() => _buildShowcaseTheme(
     hint: const Color(0xFF7A7AB0),
     error: const Color(0xFFFF3B6B),
     disabled: const Color(0xFF3A3A55),
+    // Icy foreground dimmed toward the cyan chip tone for body copy; the
+    // near-black label on the yellow -> amber sweep is the signature
+    // high-contrast cyberpunk pairing.
+    textBody: const Color(0xFFA8BCC8),
+    onPrimary: const Color(0xFF0A0A14),
   ),
-  // neon yellow -> amber button gradient; near-black label is the signature
-  // high-contrast cyberpunk pairing.
-  buttonLabel: const Color(0xFF0A0A14),
 );
 
 /// A soft "kawaii" variant on the same base structure as [buildExampleTheme] -
@@ -135,7 +142,8 @@ UtopiaThemeData buildCyberpunkTheme() => _buildShowcaseTheme(
 /// 0xFF5A2D47 (not black) so it reads softly yet high-contrast on the pink ground;
 /// button labels stay white on the pink gradient, like the stock white-on-blue
 /// buttons.
-UtopiaThemeData buildKawaiiTheme() => _buildShowcaseTheme(
+UtopiaThemeData buildKawaiiTheme({UtopiaTokens? tokens}) => _buildShowcaseTheme(
+  tokens: tokens ?? const UtopiaTokens(borders: UtopiaBorderTokens(hairline: 1.5)),
   colors: UtopiaThemeData.defaultTheme.colors.copyWith(
     primary: const Color(0xFFDB3E86),
     accent: const Color(0xFFF77FBC),
@@ -151,20 +159,21 @@ UtopiaThemeData buildKawaiiTheme() => _buildShowcaseTheme(
     hint: const Color(0xFFC79BB4),
     error: const Color(0xFFF43F5E),
     disabled: const Color(0xFFE6BCD2),
+    // Plum body copy a step lighter than the heading tone; white label keeps
+    // the cute look on the rose -> light-pink sweep, like the stock theme.
+    textBody: const Color(0xFF8A5E76),
+    onPrimary: Colors.white,
   ),
-  // tight rose -> light-pink button sweep; white label keeps the cute look and
-  // matches the stock light theme.
-  buttonLabel: Colors.white,
 );
 
 /// Resolves an [ExampleThemeMode] to its concrete [UtopiaThemeData]. Wired into the
 /// menu's theme picker so switching modes swaps the whole palette at runtime.
-UtopiaThemeData themeFor(ExampleThemeMode mode) => switch (mode) {
-  ExampleThemeMode.light => buildExampleTheme(),
-  ExampleThemeMode.dracula => buildDraculaTheme(),
-  ExampleThemeMode.cyberpunk => buildCyberpunkTheme(),
-  ExampleThemeMode.kawaii => buildKawaiiTheme(),
-  ExampleThemeMode.forest => buildForestTheme(),
+UtopiaThemeData themeFor(ExampleThemeMode mode, {UtopiaTokens? tokens}) => switch (mode) {
+  ExampleThemeMode.light => buildExampleTheme(tokens: tokens),
+  ExampleThemeMode.dracula => buildDraculaTheme(tokens: tokens),
+  ExampleThemeMode.cyberpunk => buildCyberpunkTheme(tokens: tokens),
+  ExampleThemeMode.kawaii => buildKawaiiTheme(tokens: tokens),
+  ExampleThemeMode.forest => buildForestTheme(tokens: tokens),
 };
 
 /// A deep-woods "forest" variant on the same base structure as
@@ -179,7 +188,8 @@ UtopiaThemeData themeFor(ExampleThemeMode mode) => switch (mode) {
 /// parchment 0xFFEDE8DB; the button label is a deep-forest near-black 0xFF06160C,
 /// high-contrast on the bright green sweep (the same bright-fill / dark-label
 /// pairing the Neon theme uses).
-UtopiaThemeData buildForestTheme() => _buildShowcaseTheme(
+UtopiaThemeData buildForestTheme({UtopiaTokens? tokens}) => _buildShowcaseTheme(
+  tokens: tokens ?? const UtopiaTokens(borders: UtopiaBorderTokens(hairline: 1.5)),
   colors: UtopiaThemeData.defaultTheme.colors.copyWith(
     primary: const Color(0xFF4ECB71),
     accent: const Color(0xFF2FA85C),
@@ -195,40 +205,52 @@ UtopiaThemeData buildForestTheme() => _buildShowcaseTheme(
     hint: const Color(0xFFA1916F),
     error: const Color(0xFFE5736B),
     disabled: const Color(0xFF53472F),
+    // Parchment foreground dimmed toward the bark tones for body copy; deep
+    // near-black label for high-contrast text across the green sweep.
+    textBody: const Color(0xFFC4BCA8),
+    onPrimary: const Color(0xFF06160C),
   ),
-  // bright leaf -> forest-green button gradient; deep near-black label for
-  // high-contrast text across the sweep.
-  buttonLabel: const Color(0xFF06160C),
+);
+
+/// The showcase type ramp: the same Sora weight hierarchy for every mode -
+/// bold headers/titles/buttons, semibold body, bold chips.
+///
+/// Structure only. No style here carries a colour, because colour is the
+/// palette's job: [_buildShowcaseTheme] runs this ramp through
+/// `UtopiaThemeTextStyles.fromColors`, which paints headings in `text`, body
+/// copy in `textBody` and the button label in `onPrimary`. That is why a mode
+/// below is a list of colours and nothing else - adding one costs a palette,
+/// not a typography block.
+///
+/// Sora ships inside the utopia_ui package, so styles built by the host
+/// reference it through the package-prefixed family.
+const _showcaseType = UtopiaThemeTextStyles(
+  header: TextStyle(fontFamily: 'Sora', package: 'utopia_ui', fontWeight: FontWeight.w700, fontSize: 24, letterSpacing: -0.5),
+  title: TextStyle(fontFamily: 'Sora', package: 'utopia_ui', fontWeight: FontWeight.w600, fontSize: 18, letterSpacing: -0.3),
+  label: TextStyle(fontFamily: 'Sora', package: 'utopia_ui', fontWeight: FontWeight.w600, fontSize: 14, letterSpacing: -0.2),
+  text: TextStyle(fontFamily: 'Sora', package: 'utopia_ui', fontWeight: FontWeight.w500, fontSize: 15, letterSpacing: 0),
+  caption: TextStyle(fontFamily: 'Sora', package: 'utopia_ui', fontWeight: FontWeight.w700, fontSize: 13, letterSpacing: 0),
+  button: TextStyle(fontFamily: 'Sora', package: 'utopia_ui', fontWeight: FontWeight.w600, fontSize: 15, letterSpacing: 0),
 );
 
 /// Shared chrome for the showcase themes: every mode uses the same base
 /// structure (radii, tile height, dividers, chip radius, top padding) and the
-/// same Sora weight hierarchy - bold headers/titles/buttons, semibold body,
-/// bold chips. Only [colors] and the on-gradient [buttonLabel] vary; all other
-/// foreground type follows `colors.text`.
-UtopiaThemeData _buildShowcaseTheme({required UtopiaThemeColors colors, required Color buttonLabel}) {
-  final foreground = colors.text;
-  // Sora ships inside the utopia_ui package, so styles built by the host
-  // reference it through the package-prefixed family.
-  const family = 'Sora';
-  const fontPackage = 'utopia_ui';
-  return UtopiaThemeData.defaultTheme.copyWith(
+/// same [_showcaseType] ramp, wearing the palette's own tones. Only [colors]
+/// and the token scale vary.
+UtopiaThemeData _buildShowcaseTheme({
+  required UtopiaThemeColors colors,
+  UtopiaTokens tokens = const UtopiaTokens(borders: UtopiaBorderTokens(hairline: 1.5)),
+}) {
+  final x = tokens.x;
+  return UtopiaThemeData.fromTokens(
     colors: colors,
-    // Card border width, shadows, chip radius and divider thickness derive
-    // from the token families now - the beefier 1.5 divider is a border-token
-    // deviation, not a per-slot one.
-    tokens: const UtopiaTokens(borders: UtopiaBorderTokens(hairline: 1.5)),
-    borderRadius: BorderRadius.circular(12),
-    cardRadius: BorderRadius.circular(16),
-    tileHeight: 58,
-    pageTopPadding: 16,
-    textStyles: UtopiaThemeTextStyles(
-      header: TextStyle(fontFamily: family, package: fontPackage, fontWeight: FontWeight.w700, fontSize: 24, letterSpacing: -0.5, color: foreground),
-      title: TextStyle(fontFamily: family, package: fontPackage, fontWeight: FontWeight.w600, fontSize: 18, letterSpacing: -0.3, color: foreground),
-      label: TextStyle(fontFamily: family, package: fontPackage, fontWeight: FontWeight.w600, fontSize: 14, letterSpacing: -0.2, color: foreground),
-      text: TextStyle(fontFamily: family, package: fontPackage, fontWeight: FontWeight.w500, fontSize: 15, letterSpacing: 0, color: foreground),
-      caption: TextStyle(fontFamily: family, package: fontPackage, fontWeight: FontWeight.w700, fontSize: 13, letterSpacing: 0, color: foreground),
-      button: TextStyle(fontFamily: family, package: fontPackage, fontWeight: FontWeight.w600, fontSize: 15, letterSpacing: 0, color: buttonLabel),
-    ),
+    textStyles: UtopiaThemeTextStyles.fromColors(colors, base: _showcaseType),
+    tokens: tokens,
+  ).copyWith(
+    colors: colors,
+    borderRadius: BorderRadius.all(Radius.circular(tokens.radius.lg)),
+    cardRadius: BorderRadius.all(Radius.circular(tokens.radius.xl)),
+    tileHeight: x * 14.5,
+    pageTopPadding: tokens.spacing.lg,
   );
 }

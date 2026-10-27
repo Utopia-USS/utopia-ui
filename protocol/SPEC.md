@@ -1,7 +1,7 @@
 # Utopia Design Protocol - Specification
 
-Version: 0.3.0 (see [VERSIONING.md](VERSIONING.md))
-Status: v0 draft, implemented by `tool/utopia_design_tools`
+Version: 0.4.0 (see [VERSIONING.md](VERSIONING.md))
+Status: v0 draft, implemented by `tool/utopia_ui_tools`
 
 The Utopia Design Protocol is an open, bidirectional design-system contract for Flutter apps
 built on `utopia_ui`. It connects HTML-based design surfaces (AI design tools, the HTML twin of
@@ -76,7 +76,7 @@ and semantic-slot families of `UtopiaThemeData`.
 | `fontWeight.{regular,medium,semiBold,bold}` | `fontWeight` | numeric, 100..900 step 100 | `UtopiaFontWeightTokens` |
 | `duration.{xs,sm,md,lg,xl}` | `duration` | unit `ms` | `UtopiaDurationTokens` |
 | `breakpoint.{tablet,web,sidebar}` | `dimension` | unit `px` | `UtopiaBreakpointTokens` |
-| `color.<name>` | `color` | sRGB with hex fallback; 18 names, `divider` optional | `UtopiaThemeColors` |
+| `color.<name>` | `color` | sRGB with hex fallback; 21 names, 4 optional | `UtopiaThemeColors` |
 | `textStyle.{header,label,text,title,caption,button}` | `typography` | see 2.4 | `UtopiaThemeTextStyles` |
 | `textStyle-colors.{header,label,text,title,caption,button}` | `color` | see 2.4 | `TextStyle.color` |
 | `theme.borderRadius` | `dimension` | value or alias | `UtopiaThemeData.borderRadius` |
@@ -88,10 +88,35 @@ and semantic-slot families of `UtopiaThemeData`.
 
 The `color` group members: `primary`, `accent`, `field`, `canvas`, `error`, `disabled`,
 `text`, `surface`, `border`, `rowAlt`, `hover`, `chipBackground`, `chipForeground`, `hint`,
-`onColoredContent`, `onColoredSelected`, `onColoredHover` are REQUIRED; `divider` is OPTIONAL.
+`onColoredContent`, `onColoredSelected`, `onColoredHover` are REQUIRED; `divider`,
+`onPrimary`, `textBody` and `shadow` are OPTIONAL.
+
 An absent `color.divider` means "derive a contrast-safe divider colour from `color.text` over
 `color.surface` at paint time" - exactly the semantics of a `null`
 `UtopiaThemeColors.divider`. Tools MUST NOT invent a concrete value for it.
+
+`onPrimary`, `textBody` and `shadow` were added in 0.4.0 and are optional only for
+backwards compatibility: an absent one means "this document predates the token", and a
+generator MUST omit the corresponding constructor argument so the Dart `@Default` applies,
+rather than substituting a value of its own. Generators writing a 0.4.0 document SHOULD emit
+all three. They complete the palette so that a theme is fully determined by its colours
+(CHARTER "Theming", palette completeness):
+
+- `color.onPrimary` - content painted on the `primary` -> `accent` sweep, the filled button
+  label above all. It backs `textStyle-colors.button`.
+- `color.textBody` - the body foreground tone, one step quieter than `text`. It backs
+  `textStyle-colors.{text,label,caption}`, while `text` backs
+  `textStyle-colors.{header,title}`.
+- `color.shadow` - the hue every `shadow.*` preset is painted in.
+
+`shadow.*` and `color.shadow` compose rather than duplicate: the `shadow` group carries
+elevation *geometry* (offset, blur, spread) plus the per-layer alpha that gives a stack its
+shape, and `color.shadow` carries the hue. The runtime paints each layer as
+`color.shadow`'s RGB at that layer's own alpha; the tint's own alpha is ignored. That makes
+re-tinting idempotent, which is what lets a document round-trip through
+export -> generate -> export unchanged. A document's `shadow.*` layer colours are therefore
+the presets as authored, not necessarily what paints - consumers reading elevation for
+display purposes should compose the two.
 
 Derived Dart getters (`cardShadow`, `menuShadow`, `chipRadius`, `cardBorderWidth`,
 `dividerThickness`, decoration getters) are **not** tokens. They are aliases in Dart and stay
@@ -101,7 +126,7 @@ The token tree is deliberately **closed**: a token that has no landing spot in
 `UtopiaThemeData` would be silently dead on the Flutter surface, so unknown names are
 rejected rather than accepted-and-ignored. The top-level name `custom` is reserved for a
 possible future consumer-extension group (an additive, minor-version change per
-VERSIONING.md); protocol 0.1 documents remain closed to unknown names.
+VERSIONING.md); until then documents remain closed to unknown names.
 
 ### 2.3 Type mapping rules (Flutter <-> DTCG)
 
@@ -155,8 +180,8 @@ with **sibling color tokens**:
   `$extensions["io.utopiasoft.design"].derivation` as the string `"x*<multiple>"`
   (e.g. `"x*3"`, `"x*0.5"`, `"x*1"`).
 - Base-derived tokens in the canonical tree: all of `spacing.*`, `radius.*` except
-  `radius.full`, and (in the default theme) `theme.fieldContentPadding.top` (`x*2.5`),
-  `theme.fieldContentPadding.bottom` (`x*1.5`) and `theme.fieldMinHeight` (`x*11`).
+  `radius.full`, and (in the default theme) `theme.fieldContentPadding.top` (`x*2`),
+  `theme.fieldContentPadding.bottom` (`x*1`) and `theme.fieldMinHeight` (`x*8.5`).
 - A token that carries `derivation` MUST satisfy `value == x.value * multiple` (float
   tolerance 0.001). This is the validator's **scale coherence** gate.
 - A rebrand that changes `x` MUST re-derive every `derivation`-carrying token (this is what
@@ -165,7 +190,7 @@ with **sibling color tokens**:
 - `radius.full` (9999) is deliberately not derived and MUST NOT carry `derivation`.
 
 Aliases are the second derivation mechanism: the default theme expresses
-`theme.borderRadius = {radius.sm}`, `theme.cardRadius = {radius.xl}`,
+`theme.borderRadius = {radius.lg}`, `theme.cardRadius = {radius.xl}`,
 `theme.pageTopPadding = {spacing.xxxl}`, `theme.fieldContentPadding.left/right =
 {spacing.lg}`. Consumers MAY replace an alias with a literal value (that is a design decision,
 not drift).
@@ -262,7 +287,7 @@ would drop data.
     }
   },
   "theme": {
-    "borderRadius": { "$type": "dimension", "$value": "{radius.sm}" }
+    "borderRadius": { "$type": "dimension", "$value": "{radius.lg}" }
   }
 }
 ```
@@ -428,7 +453,7 @@ directory, exactly as before.
 ### 3.7 Generation model and drift gates
 
 `generate_manifest` runs the Dart `analyzer` over `lib/`, merges a hand-maintained
-per-component **overlay** (`tool/utopia_design_tools/overlay/<id>.yaml`) carrying facts that
+per-component **overlay** (`tool/utopia_ui_tools/overlay/<id>.yaml`) carrying facts that
 cannot be derived statically (interaction `states`, semantic notes, curated `examples`), and
 writes the manifest.
 
@@ -563,7 +588,7 @@ Value serialization:
   channels
 - fontWeight -> bare number
 - `x` -> unitless number (`--utopia-x: 4`)
-- aliases -> `var()` references (`--utopia-theme-border-radius: var(--utopia-radius-sm);`)
+- aliases -> `var()` references (`--utopia-theme-border-radius: var(--utopia-radius-lg);`)
 
 ### 4.3 Tailwind `@theme` variant
 
@@ -620,10 +645,10 @@ only rewrites the front matter block.
 
 ## 5. Tooling surface
 
-All tools ship as executables of the Dart package `utopia_design_tools` (developed nested in
+All tools ship as executables of the Dart package `utopia_ui_tools` (developed nested in
 this repo under `tool/`, published to pub.dev as its own package) and are invoked as
-`dart run utopia_design_tools:<command>`. Consumers install it as a dev dependency
-(`flutter pub add --dev utopia_design_tools`); `export_tokens` is the one maintainer-only
+`dart run utopia_ui_tools:<command>`. Consumers install it as a dev dependency
+(`flutter pub add --dev utopia_ui_tools`); `export_tokens` is the one maintainer-only
 tool that additionally requires a checkout of this repo. The exact CLI contract (arguments,
 exit codes, output formats) is published separately (handoff H1); the command set is fixed
 here:
@@ -701,7 +726,7 @@ A consumer project resolves `utopia_ui` through pub; the version-matched artifac
 pub cache (`.dart_tool/package_config.json` resolves the path). The intended consumer loop:
 
 1. `design/tokens.json` starts as a copy of the packaged `tokens/utopia.tokens.json`.
-2. Rebrand by editing the token document (usually via the `utopia-design-tokens` skill), gated
+2. Rebrand by editing the token document (usually via the `utopia-design:tokens` skill), gated
    by `validate_tokens`.
 3. `generate_theme` regenerates the app's theme; `generate_twin` regenerates the design
    surface used by design tools and agents.
@@ -711,3 +736,14 @@ pub cache (`.dart_tool/package_config.json` resolves the path). The intended con
 
 Every consumer-facing tool and skill MUST verify the project actually resolves `utopia_ui`
 (pubspec + lockfile) before acting, and stop with installation guidance otherwise.
+
+Versioning policy in a consumer repo: sources are committed, derived views are not.
+`design/tokens.json`, `design/overlay/*.yaml` and any additional token documents are
+consumer-owned sources and belong in version control; the generated theme code is committed
+too (the compiler consumes it; `generate_theme --check` guards its freshness).
+`design/merged.manifest.json` SHOULD be gitignored: its library half is a byte copy of the
+manifest already in the pub cache, and an always-regenerated file cannot go stale against a
+package upgrade. `generate_manifest --project` writes a `design/.gitignore` entry for it
+(created if absent, appended once otherwise - a consumer's own entries are never rewritten).
+`design/project.manifest.json` MAY be committed while its diff stays reviewable; it is
+regenerated by the same command either way.

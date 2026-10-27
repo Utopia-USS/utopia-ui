@@ -82,13 +82,14 @@ class UtopiaSidebar extends HookWidget {
   static const double shellGutter = 16;
 
   static const double _expandedWidth = 300;
-
-  /// Must fit a collapsed tile's full horizontal stack: outer 12px padding
-  /// (`spacing.md`), inner 16px padding (`spacing.lg`), the 22px icon, then
-  /// 16 + 12 back out = 78, plus 2px slack. Kept in sync with
-  /// `UtopiaSidebarTile`'s metrics the same way [tileHeight] is.
-  static const double _collapsedWidth = 80;
   static const _heightExtremum = 500;
+
+  /// A collapsed tile's horizontal stack (paddings + 22px icon + 2px slack),
+  /// token-derived so the rail survives a rescaled base unit.
+  static double _collapsedWidthOf(BuildContext context) {
+    final spacing = context.spacing;
+    return spacing.md + spacing.lg + 22 + spacing.lg + spacing.md + 2;
+  }
 
   /// The intrinsic height of a single `UtopiaSidebarTile`, so hosts building
   /// custom items that must line up with the sidebar's own rows (e.g. a
@@ -159,7 +160,7 @@ class UtopiaSidebar extends HookWidget {
           child: AnimatedContainer(
             duration: theme.tokens.durations.lg,
             curve: Curves.easeOutExpo,
-            width: isExpanded ? _expandedWidth : _collapsedWidth,
+            width: isExpanded ? _expandedWidth : _collapsedWidthOf(context),
             clipBehavior: Clip.antiAlias,
             decoration: useCard
                 ? BoxDecoration(color: theme.colors.surface, borderRadius: radius, boxShadow: theme.cardShadow)
@@ -277,7 +278,7 @@ class UtopiaSidebar extends HookWidget {
   /// glyph reflects the pinned *intent* (not a transient hover-peek): a panel
   /// icon while flexible, a collapse icon while pinned open.
   ///
-  /// The toggle is centred inside a left-anchored [_collapsedWidth] box in
+  /// The toggle is centred inside a left-anchored collapsed-width box in
   /// *both* states, so its position never depends on the rail's animating
   /// width - it stays put through expand/collapse, optically in the tile
   /// icon column, exactly like the tile icons themselves.
@@ -298,7 +299,7 @@ class UtopiaSidebar extends HookWidget {
       padding: EdgeInsets.only(top: spacing.lg, bottom: spacing.xxs),
       child: Align(
         alignment: Alignment.centerLeft,
-        child: SizedBox(width: _collapsedWidth, child: Center(child: toggle)),
+        child: SizedBox(width: _collapsedWidthOf(context), child: Center(child: toggle)),
       ),
     );
   }
@@ -308,7 +309,7 @@ class UtopiaSidebar extends HookWidget {
   /// builder): keep the height equal across collapsed / expanded so the
   /// items below do not shift when the rail toggles.
   ///
-  /// The header is laid out at a *fixed* width - [_collapsedWidth] while
+  /// The header is laid out at a *fixed* width - the collapsed width while
   /// collapsed, [_expandedWidth] while expanded - inside a left-anchored,
   /// clipping box. `isCollapsed` flips at the *start* of the width animation,
   /// so anything laid out against the rail's animating width would slide
@@ -316,7 +317,7 @@ class UtopiaSidebar extends HookWidget {
   /// fixed-width left-anchored layout keeps the mark stationary and lets the
   /// clip do the reveal, matching how the tile labels animate.
   Widget _buildHeader(BuildContext context, {required bool isCollapsed}) {
-    final width = isCollapsed ? _collapsedWidth : _expandedWidth;
+    final width = isCollapsed ? _collapsedWidthOf(context) : _expandedWidth;
     return Padding(
       padding: EdgeInsets.only(top: context.spacing.lg, bottom: context.spacing.xs),
       child: Align(
