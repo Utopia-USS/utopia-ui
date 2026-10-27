@@ -329,7 +329,7 @@ void _ensureMergedGitignored(Directory designDir) {
   if (!gitignore.existsSync()) {
     gitignore.writeAsStringSync(
       '# Derived view of the pub-cache library manifest + project.manifest.json;\n'
-      '# rebuilt by `dart run utopia_design_tools:generate_manifest --project`.\n'
+      '# rebuilt by `dart run utopia_ui_tools:generate_manifest --project`.\n'
       '$entry\n',
     );
     return;
