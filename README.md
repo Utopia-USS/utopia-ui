@@ -248,7 +248,9 @@ Stated up front, not discovered later:
   yet. A future version will add a second linked context. This is a *protocol* limit, not a
   library one: `utopia_ui` ships `UtopiaThemeData.darkTheme` and any palette re-themes the whole
   system (see [Dark mode](#dark-mode)); what a single token document cannot yet do is carry the
-  light and dark palettes together, so a project exports one per context.
+  light and dark palettes together. Until it can, the token document drives the light theme
+  (`buildUtopiaTheme()`) and the dark palette stays in Dart (`UtopiaThemeData.darkTheme` or
+  `UtopiaThemeData.fromTokens(colors: myDarkColors)`).
 - **Closed token tree.** The token document covers `utopia_ui`'s own scale and slots. Project-specific
   values (a one-off brand color used nowhere else, a bespoke metric) live as plain constants in your
   project code; custom components earn a manifest id through the project manifest (`generate_manifest

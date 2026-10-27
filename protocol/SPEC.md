@@ -126,7 +126,7 @@ The token tree is deliberately **closed**: a token that has no landing spot in
 `UtopiaThemeData` would be silently dead on the Flutter surface, so unknown names are
 rejected rather than accepted-and-ignored. The top-level name `custom` is reserved for a
 possible future consumer-extension group (an additive, minor-version change per
-VERSIONING.md); protocol 0.1 documents remain closed to unknown names.
+VERSIONING.md); until then documents remain closed to unknown names.
 
 ### 2.3 Type mapping rules (Flutter <-> DTCG)
 
@@ -180,8 +180,8 @@ with **sibling color tokens**:
   `$extensions["io.utopiasoft.design"].derivation` as the string `"x*<multiple>"`
   (e.g. `"x*3"`, `"x*0.5"`, `"x*1"`).
 - Base-derived tokens in the canonical tree: all of `spacing.*`, `radius.*` except
-  `radius.full`, and (in the default theme) `theme.fieldContentPadding.top` (`x*2.5`),
-  `theme.fieldContentPadding.bottom` (`x*1.5`) and `theme.fieldMinHeight` (`x*11`).
+  `radius.full`, and (in the default theme) `theme.fieldContentPadding.top` (`x*2`),
+  `theme.fieldContentPadding.bottom` (`x*1`) and `theme.fieldMinHeight` (`x*8.5`).
 - A token that carries `derivation` MUST satisfy `value == x.value * multiple` (float
   tolerance 0.001). This is the validator's **scale coherence** gate.
 - A rebrand that changes `x` MUST re-derive every `derivation`-carrying token (this is what
@@ -190,7 +190,7 @@ with **sibling color tokens**:
 - `radius.full` (9999) is deliberately not derived and MUST NOT carry `derivation`.
 
 Aliases are the second derivation mechanism: the default theme expresses
-`theme.borderRadius = {radius.sm}`, `theme.cardRadius = {radius.xl}`,
+`theme.borderRadius = {radius.lg}`, `theme.cardRadius = {radius.xl}`,
 `theme.pageTopPadding = {spacing.xxxl}`, `theme.fieldContentPadding.left/right =
 {spacing.lg}`. Consumers MAY replace an alias with a literal value (that is a design decision,
 not drift).
@@ -287,7 +287,7 @@ would drop data.
     }
   },
   "theme": {
-    "borderRadius": { "$type": "dimension", "$value": "{radius.sm}" }
+    "borderRadius": { "$type": "dimension", "$value": "{radius.lg}" }
   }
 }
 ```
@@ -588,7 +588,7 @@ Value serialization:
   channels
 - fontWeight -> bare number
 - `x` -> unitless number (`--utopia-x: 4`)
-- aliases -> `var()` references (`--utopia-theme-border-radius: var(--utopia-radius-sm);`)
+- aliases -> `var()` references (`--utopia-theme-border-radius: var(--utopia-radius-lg);`)
 
 ### 4.3 Tailwind `@theme` variant
 
@@ -726,7 +726,7 @@ A consumer project resolves `utopia_ui` through pub; the version-matched artifac
 pub cache (`.dart_tool/package_config.json` resolves the path). The intended consumer loop:
 
 1. `design/tokens.json` starts as a copy of the packaged `tokens/utopia.tokens.json`.
-2. Rebrand by editing the token document (usually via the `utopia-design-tokens` skill), gated
+2. Rebrand by editing the token document (usually via the `utopia-design:tokens` skill), gated
    by `validate_tokens`.
 3. `generate_theme` regenerates the app's theme; `generate_twin` regenerates the design
    surface used by design tools and agents.
