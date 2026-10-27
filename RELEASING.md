@@ -1,7 +1,7 @@
 # Releasing utopia_ui
 
 Release runbook for `utopia_ui` and its nested tooling package
-`utopia_design_tools`. Follow the steps in order; do not skip regeneration.
+`utopia_ui_tools`. Follow the steps in order; do not skip regeneration.
 
 ## a. Bump the version
 
@@ -19,16 +19,16 @@ immediately.
 Run, from the repo root:
 
 ```
-dart run tool/utopia_design_tools/bin/export_tokens.dart -o tokens/utopia.tokens.json
-dart run tool/utopia_design_tools/bin/generate_manifest.dart -o manifest/utopia.manifest.json
-dart run tool/utopia_design_tools/bin/generate_twin.dart
+dart run tool/utopia_ui_tools/bin/export_tokens.dart -o tokens/utopia.tokens.json
+dart run tool/utopia_ui_tools/bin/generate_manifest.dart -o manifest/utopia.manifest.json
+dart run tool/utopia_ui_tools/bin/generate_twin.dart
 ```
 
 Then regenerate the theme golden via the documented test command (run from
-`tool/utopia_design_tools`):
+`tool/utopia_ui_tools`):
 
 ```
-dart run utopia_design_tools:generate_theme ../../tokens/utopia.tokens.json -o test/goldens/default_theme.g.dart
+dart run utopia_ui_tools:generate_theme ../../tokens/utopia.tokens.json -o test/goldens/default_theme.g.dart
 ```
 
 Commit all regenerated files (`tokens/`, `manifest/`, `twin/`, the theme
@@ -37,11 +37,11 @@ golden) alongside the version bump.
 ## c. Validate and test
 
 ```
-dart run tool/utopia_design_tools/bin/validate_tokens.dart
-dart run tool/utopia_design_tools/bin/validate_manifest.dart
-dart run tool/utopia_design_tools/bin/validate_twin.dart
+dart run tool/utopia_ui_tools/bin/validate_tokens.dart
+dart run tool/utopia_ui_tools/bin/validate_manifest.dart
+dart run tool/utopia_ui_tools/bin/validate_twin.dart
 flutter test
-tool/utopia_design_tools/smoke/run.sh
+tool/utopia_ui_tools/smoke/run.sh
 ```
 
 All must exit 0. Fix any failure before proceeding - do not publish on a
@@ -51,7 +51,14 @@ red gate.
 
 ```
 dart pub publish --dry-run
+tool/publish_utopia_ui_tools.sh --dry-run
 ```
+
+`utopia_ui_tools` is always published through that script, never with a plain
+`pub publish` from its folder: pub applies every ignore file from the git root
+down, so the root `.pubignore` entry that keeps `tool/` out of the `utopia_ui`
+tarball would hide the whole nested package. The script publishes from a
+staging copy outside the repo and drops the dev-time `dependency_overrides`.
 
 Diff the reported file listing against the D1 criterion:
 
@@ -64,9 +71,10 @@ Zero warnings expected. Do not proceed on a listing mismatch or a warning.
 ## e. Publish order
 
 1. `utopia_ui` first.
-2. `utopia_design_tools` second (it depends on the hosted `utopia_ui ^`
-   constraint, not a path/git override - update its pubspec dependency
-   before publishing if it still points at a pre-release constraint).
+2. `utopia_ui_tools` second, with `tool/publish_utopia_ui_tools.sh` (it
+   depends on the hosted `utopia_ui ^` constraint, so it only resolves once
+   step 1 is live - update its pubspec dependency before publishing if it
+   still points at a pre-release constraint).
 3. Push the `utopia-flutter-skills` marketplace update last, so the
    marketplace never points ahead of what is live on pub.dev.
 
@@ -76,7 +84,7 @@ Run against a fresh Flutter app, with both dependencies resolved from
 pub.dev (no path/git overrides):
 
 1. Bootstrap a new Flutter app.
-2. Add `utopia_ui` and `utopia_design_tools` as normal hosted dependencies.
+2. Add `utopia_ui` and `utopia_ui_tools` as normal hosted dependencies.
 3. `bootstrap` (create `design/tokens.json` via the printed command).
 4. `rebrand` (edit a token value).
 5. `validate --fix`.
