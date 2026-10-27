@@ -6,11 +6,12 @@ description: >
   HTML twin, all shipped version-matched inside the utopia_ui package.
   Applies when: working with design/tokens.json, rebranding, importing a
   design (Figma DTCG export, tokens.css, handoff bundle), regenerating the
-  Flutter theme or HTML twin, or building screens from a design. This is a
+  Flutter theme or HTML twin, building screens from a design, or registering
+  a custom component in the project manifest. This is a
   THIN POINTER skill - the full skills live in the utopia-design plugin of
   the utopia-flutter-skills marketplace; install that plugin for the real
   workflows. Does NOT itself cover state management or app architecture.
-license: BSD-2-Clause
+license: BSD-3-Clause
 metadata:
   author: UtopiaSoftware
   tags: flutter, dart, utopia_ui, design-tokens, dtcg, design-protocol
@@ -33,7 +34,8 @@ memory - they match the resolved package version.
 ## Get the full skills
 
 The complete skill set (edit/rebrand tokens, import external designs, sync
-generated surfaces, build screens from the manifest) ships as the
+generated surfaces, build screens from the manifest, register custom
+components) ships as the
 `utopia-design` plugin in the `utopia-flutter-skills` marketplace:
 
     /plugin marketplace add Utopia-USS/utopia-flutter-skills
@@ -41,11 +43,7 @@ generated surfaces, build screens from the manifest) ships as the
 
 Companion CLI tooling (validators, generators):
 
-    flutter pub add --dev utopia_design_tools
-
-(until it reaches pub.dev: a git dependency on the utopia-ui repo with
-path `tool/utopia_design_tools` - the plugin's validation reference has
-the exact snippet).
+    flutter pub add --dev utopia_ui_tools
 
 ## Attribution
 
