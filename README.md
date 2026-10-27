@@ -1,14 +1,64 @@
+<img src="https://raw.githubusercontent.com/Utopia-USS/utopia-ui/main/docs/header.png" width="190" alt="Utopia UI"/>
+
 [![pub][pub_badge]][pub_link] [![publisher][publisher_badge]][publisher_link] [![license][license_badge]][license_link] [![style: utopia\_lints][style_badge]][style_link]
 
 # utopia_ui
 
-A themeable, general-purpose Flutter design system: one foundational token scale and the basic building
-blocks built on it - buttons, fields, tables, dialogs, chips, a navigation sidebar and layout primitives.
+A token-driven Flutter design system built for AI-assisted, HTML-based design workflows: every component
+ships with a machine-readable contract, so a screen designed in HTML by an AI designer lands in your app as
+the same reusable components - not as a pile of one-off widgets.
 
-`utopia_ui` is data-shape agnostic and carries no domain logic. It doesn't know what a `JsonMap` is, doesn't
-assume a delegate or a backend, and doesn't ship any CRUD logic - every component is generic over your own
-model types and driven by plain values and callbacks. If your project needs a themed table / button / dialog
-but has its own models, its own data layer and its own brand, you can adopt this package without forking it.
+<img src="https://raw.githubusercontent.com/Utopia-USS/utopia-ui/main/docs/protocol/hero-flutter-components.png" width="49%" alt="The utopia_ui example app's Components page, live in Flutter"/> <img src="https://raw.githubusercontent.com/Utopia-USS/utopia-ui/main/docs/protocol/hero-twin-default.png" width="49%" alt="The HTML twin's gallery, mirroring the same components"/>
+
+## Motivation
+
+AI design tools think in HTML. Handing their output to a Flutter codebase usually ends one of two ways:
+someone re-implements the design by hand as screen-local widgets, or an agent translates it literally and the
+project fills up with near-duplicate buttons and hard-coded colors. Either way the design system erodes one
+screen at a time, and every later rebrand or redesign costs more than the last.
+
+`utopia_ui` closes that gap with a contract both sides read, shipped inside the package and version-matched
+to it:
+
+- **An HTML twin for the designer.** `twin/` renders every component from the same tokens as Flutter (above:
+  Flutter left, twin right). An AI designer composes screens from real, id-tagged components instead of
+  inventing markup, and `twin/DESIGN.md` tells it the rules.
+- **A component manifest for the coding agent.** `manifest/utopia.manifest.json` lists every widget with a
+  stable id, its props, states and token bindings. An agent looks up what already exists before it writes
+  anything, and maps each element of a design to the widget that implements it.
+- **Tokens instead of literals.** No component hard-codes a color, gap or radius. A rebrand is a token edit
+  that the app and the twin both follow, and `validate_twin` flags literal values in hand-written CSS.
+- **Drift is a build failure.** Tokens, manifest and twin are generated from the Flutter source, and CI
+  regenerates and byte-compares them on every push - the contract cannot silently fall behind the code.
+
+The payoff is maintainability: new screens are assembled from the same audited components, visual changes
+happen in one place, and a reviewer can tell from the manifest whether a design reuses the system or forks
+it.
+
+## Flexible by design
+
+A design system that keeps a project consistent must not also lock it in. `utopia_ui` is the visual layer and
+nothing else - it imposes no architecture, data layer or navigation scheme, and every layer of it can be
+extended rather than forked:
+
+- **No domain logic.** It doesn't know what a `JsonMap` is, doesn't assume a delegate or a backend, and ships
+  no CRUD logic. Components are generic over your own model types (`UtopiaTable<T>`, `UtopiaRadio<T>`) and
+  driven by plain values and callbacks.
+- **Fully controlled.** Components render state and report interaction; they never own app state. Keep it in
+  whatever state management you already use - helpers like `useUtopiaTableState` are opt-in.
+- **No navigation opinions.** The sidebar never pushes routes or closes its own drawer, and the dialog helpers
+  are thin wrappers over plain `showDialog`.
+- **Any brand, any scale.** Swap the palette, re-derive the whole spatial scale from one base unit with
+  `UtopiaTokens.fromBase`, `copyWith` any slot, or re-theme a single subtree with a nested `UtopiaTheme`. Every
+  component also works zero-config, without a `UtopiaTheme` ancestor, and the selection controls are
+  Material-free, so a host `MaterialApp` theme never leaks in.
+- **Build your own on the same foundation.** The tokens and field chrome are public API - `context.spacing`,
+  `context.radius`, `context.fieldDecoration`, `UtopiaFieldWrapper` - so a project-specific widget looks native
+  to the system. Register it with `generate_manifest --project` and it gets a stable id next to the library's
+  own components, visible to the same agents and design tools.
+
+If your project needs a themed table, button or dialog but has its own models, its own data layer and its own
+brand, you can adopt this package without forking it.
 
 ## Install
 
@@ -158,13 +208,11 @@ bidirectional design-system protocol for Flutter. A shared, generic contract (de
 stable component ids) lets a design surface and a Flutter app stay in sync in both directions,
 instead of a one-way "design-to-code" handoff.
 
-<img src="https://raw.githubusercontent.com/Utopia-USS/utopia-ui/feat/design-protocol/docs/protocol/hero-flutter-components.png" width="49%" alt="The utopia_ui example app's Components page, live in Flutter"/> <img src="https://raw.githubusercontent.com/Utopia-USS/utopia-ui/feat/design-protocol/docs/protocol/hero-twin-default.png" width="49%" alt="The HTML twin's gallery, mirroring the same components"/>
+The Flutter app and the HTML twin render the same components from the same tokens. Rebrand the
+tokens and both surfaces follow - here the default theme becomes a pink gradient brand with one
+token edit:
 
-The Flutter app (left) and the HTML twin (right) render the same components from the same
-tokens. Rebrand the tokens and both surfaces follow - here the default theme becomes a pink
-gradient brand with one token edit:
-
-<img src="https://raw.githubusercontent.com/Utopia-USS/utopia-ui/feat/design-protocol/docs/protocol/hero-twin-rebrand.png" width="100%" alt="The HTML twin gallery after a token-only rebrand to a pink gradient brand"/>
+<img src="https://raw.githubusercontent.com/Utopia-USS/utopia-ui/main/docs/protocol/hero-twin-rebrand.png" width="100%" alt="The HTML twin gallery after a token-only rebrand to a pink gradient brand"/>
 
 The package ships three protocol artifacts, version-matched to the `utopia_ui` release you resolve:
 
@@ -182,14 +230,14 @@ The package ships three protocol artifacts, version-matched to the `utopia_ui` r
 2. Edit or rebrand it - change token values to match your brand. Color tokens carry both a
    `hex` and matching `components` values - edit both (`validate_tokens` names the expected
    value when they disagree).
-3. Validate it: `dart run utopia_design_tools:validate_tokens` (add `--fix` to re-derive
+3. Validate it: `dart run utopia_ui_tools:validate_tokens` (add `--fix` to re-derive
    rescaled values after changing the base unit).
-4. Generate the theme and wire it: `dart run utopia_design_tools:generate_theme`, then pass the
+4. Generate the theme and wire it: `dart run utopia_ui_tools:generate_theme`, then pass the
    result to your root widget - `UtopiaTheme(data: buildUtopiaTheme(), child: ...)`.
-5. Optionally, `dart run utopia_design_tools:generate_twin` to re-derive the twin's generated
+5. Optionally, `dart run utopia_ui_tools:generate_twin` to re-derive the twin's generated
    stylesheets (`tokens.css`, a Tailwind variant, `DESIGN.md` front matter) from your tokens - pair
    them with the packaged twin's gallery/components HTML to view your brand (the sync skill
-   documents the copy step), and `dart run utopia_design_tools:generate_manifest --project` to
+   documents the copy step), and `dart run utopia_ui_tools:generate_manifest --project` to
    register your own custom components with stable ids alongside the library's.
 
 ### v0 limits (roadmap)
@@ -200,7 +248,9 @@ Stated up front, not discovered later:
   yet. A future version will add a second linked context. This is a *protocol* limit, not a
   library one: `utopia_ui` ships `UtopiaThemeData.darkTheme` and any palette re-themes the whole
   system (see [Dark mode](#dark-mode)); what a single token document cannot yet do is carry the
-  light and dark palettes together, so a project exports one per context.
+  light and dark palettes together. Until it can, the token document drives the light theme
+  (`buildUtopiaTheme()`) and the dark palette stays in Dart (`UtopiaThemeData.darkTheme` or
+  `UtopiaThemeData.fromTokens(colors: myDarkColors)`).
 - **Closed token tree.** The token document covers `utopia_ui`'s own scale and slots. Project-specific
   values (a one-off brand color used nowhere else, a bespoke metric) live as plain constants in your
   project code; custom components earn a manifest id through the project manifest (`generate_manifest
@@ -226,19 +276,17 @@ of them on every push and fails on any byte difference - a stale artifact cannot
 ### Install the tools
 
 ```
-flutter pub add --dev utopia_design_tools
+flutter pub add --dev utopia_ui_tools
 ```
 
-<sub>Before `utopia_design_tools` reaches pub.dev, add it as a git dependency on this repo
-(path `tool/utopia_design_tools`) with a matching `dependency_overrides` entry - drop this
-sentence once the tools package is published.</sub>
+See [`utopia_ui_tools`](https://pub.dev/packages/utopia_ui_tools) for the full command list.
 
 ### Learn more
 
-- [Protocol spec](https://github.com/Utopia-USS/utopia-ui/blob/feat/design-protocol/protocol/SPEC.md)
-- [Versioning policy](https://github.com/Utopia-USS/utopia-ui/blob/feat/design-protocol/protocol/VERSIONING.md)
-- [Token schema](https://github.com/Utopia-USS/utopia-ui/blob/feat/design-protocol/protocol/schemas/tokens.schema.json)
-- [Manifest schema](https://github.com/Utopia-USS/utopia-ui/blob/feat/design-protocol/protocol/schemas/manifest.schema.json)
+- [Protocol spec](https://github.com/Utopia-USS/utopia-ui/blob/main/protocol/SPEC.md)
+- [Versioning policy](https://github.com/Utopia-USS/utopia-ui/blob/main/protocol/VERSIONING.md)
+- [Token schema](https://github.com/Utopia-USS/utopia-ui/blob/main/protocol/schemas/tokens.schema.json)
+- [Manifest schema](https://github.com/Utopia-USS/utopia-ui/blob/main/protocol/schemas/manifest.schema.json)
 
 ## The table
 
@@ -443,15 +491,19 @@ per-family barrels and no deep imports into `src/`.
 
 **Buttons**
 `UtopiaButton` - the primary call-to-action button, with an inline loading state.
+`UtopiaGhostButton` - the low-emphasis companion, e.g. the cancel action next to a confirm.
 `UtopiaRemoveIconButton` - a small "x" affordance to remove/clear a value.
 
 **Chips**
 `UtopiaChip`, `UtopiaChipList` - themed tags, with overflow collapsing on `UtopiaChipList`.
 
 **Fields**
-`UtopiaTextField`, `UtopiaSearchField`, `UtopiaDropdownField`, `UtopiaSwitch`, `UtopiaSwitchField`, `UtopiaCheckRow`,
-`UtopiaDatePicker`, `UtopiaFieldWrapper` (shared field chrome), `UtopiaLabeledField` (read-only, "picked value" field
-chrome used by dropdowns).
+`UtopiaTextField`, `UtopiaSearchField`, `UtopiaDropdownField`, `UtopiaDatePicker`, `UtopiaFieldWrapper` (shared field
+chrome), `UtopiaLabeledField` (read-only, "picked value" field chrome used by dropdowns and the date picker).
+
+**Selection controls**
+`UtopiaCheckbox` (with an indeterminate state), `UtopiaRadio<T>`, `UtopiaCheckRow`, `UtopiaSwitch`, `UtopiaSwitchField`,
+`UtopiaSlider` - fully controlled and Material-free.
 
 **Dialogs**
 `UtopiaDialog` (raw and `.form`), `UtopiaConfirmDialog`.
@@ -478,19 +530,30 @@ chrome used by dropdowns).
 `UtopiaOverlayAnchor` - an anchored popup/dropdown follower built on native Flutter, no extra dependency.
 
 **Text**
-`UtopiaTitle`, `UtopiaCopyableText` (tap-to-copy text with a confirmation).
+`UtopiaTitle`, `UtopiaHeader`, `UtopiaCopyableText` (tap-to-copy text with a confirmation).
 
 **Utilities**
 `UtopiaDateTimeExtension` - `DateTime` display-formatting and calendar arithmetic used by `UtopiaDatePicker`. Plus
 `IList` / `FicIterableExtension` (from `fast_immutable_collections`), re-exported since they appear in this
 package's own public API (`UtopiaTable.rows`, entry lists, `useUtopiaTableState`).
 
+## AI assistants
+
+This package ships the `utopia-design` skill entry point alongside the artifacts an agent works from -
+manifest, tokens, twin and `DESIGN.md` - usable from any agentic coding tool (Claude, Codex, Cursor, ...).
+The full workflows (rebrand tokens, import an external design, sync generated surfaces, build screens from
+the manifest) are the `utopia-design` plugin of the
+[Utopia skills marketplace](https://github.com/Utopia-USS/utopia-flutter-skills); enable it with
+`utopia init skills` or install the marketplace directly.
+
 ## Related packages
 
 | Package | What it adds |
 |---|---|
-| [utopia_cms](https://pub.dev/packages/utopia_cms) | A CMS framework built on this kind of component: delegates, entries, CRUD flows |
+| [utopia_ui_tools](https://pub.dev/packages/utopia_ui_tools) | Token validation, theme and twin codegen, manifest drift gates |
 | [utopia_hooks](https://pub.dev/packages/utopia_hooks) | State management with hooks |
+| [utopia_arch](https://pub.dev/packages/utopia_arch) | The full architecture bundle |
+| [utopia_cms](https://pub.dev/packages/utopia_cms) | A CMS framework for admin panels: delegates, entries, CRUD flows |
 
 Built by [Utopiasoft](https://utopiasoft.io).
 
