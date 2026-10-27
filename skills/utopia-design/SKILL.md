@@ -10,7 +10,7 @@ description: >
   THIN POINTER skill - the full skills live in the utopia-design plugin of
   the utopia-flutter-skills marketplace; install that plugin for the real
   workflows. Does NOT itself cover state management or app architecture.
-license: BSD-2-Clause
+license: BSD-3-Clause
 metadata:
   author: UtopiaSoftware
   tags: flutter, dart, utopia_ui, design-tokens, dtcg, design-protocol
@@ -41,11 +41,7 @@ generated surfaces, build screens from the manifest) ships as the
 
 Companion CLI tooling (validators, generators):
 
-    flutter pub add --dev utopia_design_tools
-
-(until it reaches pub.dev: a git dependency on the utopia-ui repo with
-path `tool/utopia_design_tools` - the plugin's validation reference has
-the exact snippet).
+    flutter pub add --dev utopia_ui_tools
 
 ## Attribution
 

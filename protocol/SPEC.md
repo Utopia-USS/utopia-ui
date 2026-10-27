@@ -1,7 +1,7 @@
 # Utopia Design Protocol - Specification
 
 Version: 0.4.0 (see [VERSIONING.md](VERSIONING.md))
-Status: v0 draft, implemented by `tool/utopia_design_tools`
+Status: v0 draft, implemented by `tool/utopia_ui_tools`
 
 The Utopia Design Protocol is an open, bidirectional design-system contract for Flutter apps
 built on `utopia_ui`. It connects HTML-based design surfaces (AI design tools, the HTML twin of
@@ -453,7 +453,7 @@ directory, exactly as before.
 ### 3.7 Generation model and drift gates
 
 `generate_manifest` runs the Dart `analyzer` over `lib/`, merges a hand-maintained
-per-component **overlay** (`tool/utopia_design_tools/overlay/<id>.yaml`) carrying facts that
+per-component **overlay** (`tool/utopia_ui_tools/overlay/<id>.yaml`) carrying facts that
 cannot be derived statically (interaction `states`, semantic notes, curated `examples`), and
 writes the manifest.
 
@@ -645,10 +645,10 @@ only rewrites the front matter block.
 
 ## 5. Tooling surface
 
-All tools ship as executables of the Dart package `utopia_design_tools` (developed nested in
+All tools ship as executables of the Dart package `utopia_ui_tools` (developed nested in
 this repo under `tool/`, published to pub.dev as its own package) and are invoked as
-`dart run utopia_design_tools:<command>`. Consumers install it as a dev dependency
-(`flutter pub add --dev utopia_design_tools`); `export_tokens` is the one maintainer-only
+`dart run utopia_ui_tools:<command>`. Consumers install it as a dev dependency
+(`flutter pub add --dev utopia_ui_tools`); `export_tokens` is the one maintainer-only
 tool that additionally requires a checkout of this repo. The exact CLI contract (arguments,
 exit codes, output formats) is published separately (handoff H1); the command set is fixed
 here:
