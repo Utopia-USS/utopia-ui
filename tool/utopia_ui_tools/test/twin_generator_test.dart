@@ -1,3 +1,14 @@
+@Timeout(Duration(minutes: 5))
+// These tests drive the real CLI entrypoints through `Process.run`, and each
+// `dart run` compiles the tool from source. On a loaded CI runner that is
+// ~10s per invocation, so a test making three of them sits right on the
+// package:test default of 30s. Timing out there is not a clean failure: the
+// timeout fires `addTearDown`, the scratch directory is deleted under the
+// still-running child process, and the assertion reports whatever exit code
+// the child gave for the vanished file - which reads as a logic bug in the
+// tool rather than as the timeout it is.
+library;
+
 // Golden-line and behavior tests for the generate_twin generators (protocol
 // SPEC section 4; see ledger/checkpoints/A4-spec.md): spot-assert exact CSS
 // lines for representative tokens rather than full-file byte compares (the
@@ -363,6 +374,128 @@ void main() {
           inputPath: 'tokens/utopia.tokens.json',
           profileVersion: '0.2.0',
         ),
+        matcher,
+      );
+    });
+  });
+
+  group('shadow tint composition (protocol SPEC 2.2)', () {
+    /// A hue no `shadow.*` preset layer uses, so a layer-verbatim
+    /// serialization and a tinted one cannot print the same string. Its own
+    /// alpha is deliberately not 1: the runtime's `_tinted` ignores the
+    /// tint's alpha and keeps each layer's, and so must the twin.
+    final tintValue = <String, dynamic>{
+      'colorSpace': 'srgb',
+      'components': <double>[0.478431, 0.12549, 0.282353],
+      'alpha': 0.5,
+      'hex': '#7a2048',
+    };
+
+    /// The canonical document with `color.shadow` set to [tintValue], or -
+    /// for [withTint] false - removed entirely, which is what a pre-0.4.0
+    /// document looks like (the token is OPTIONAL per SPEC 2.2).
+    TokenDocument documentWithTint({required bool withTint}) {
+      final raw = loadCanonical();
+      final colorGroup = raw['color'] as Map<String, dynamic>;
+      if (withTint) {
+        colorGroup['shadow'] = <String, dynamic>{r'$type': 'color', r'$value': tintValue};
+      } else {
+        colorGroup.remove('shadow');
+      }
+      return TokenDocument.parse(raw);
+    }
+
+    test('every layer takes color.shadow RGB at its own alpha, in both stylesheets', () {
+      // The presets are authored in #101828; a consumer who rebrands
+      // color.shadow and regenerates must get the new hue in CSS, or the twin
+      // paints elevation the Flutter app no longer paints.
+      const smValue = '0 1px 2px 0 rgb(122 32 72 / 0.0588), 0 4px 10px -2px rgb(122 32 72 / 0.051)';
+      final document = documentWithTint(withTint: true);
+
+      final css = generateCss(document, inputPath: 'tokens/utopia.tokens.json', profileVersion: '0.4.0');
+      expect(css, contains('  --utopia-shadow-sm: $smValue;'));
+      expect(
+        css,
+        contains(
+          '  --utopia-shadow-lg: 0 0 0 1px rgb(122 32 72 / 0.0588), '
+          '0 4px 8px -2px rgb(122 32 72 / 0.0588), 0 16px 32px -8px rgb(122 32 72 / 0.1412);',
+        ),
+      );
+      expect(css, isNot(contains('rgb(16 24 40')), reason: 'no layer keeps the preset hue once a tint is present');
+
+      final tailwind = generateTailwind(document, inputPath: 'tokens/utopia.tokens.json', profileVersion: '0.4.0');
+      expect(tailwind, contains('  --shadow-sm: $smValue;'));
+    });
+
+    test('the tint token itself keeps its own alpha - composition does not leak into color.shadow', () {
+      final css = generateCss(
+        documentWithTint(withTint: true),
+        inputPath: 'tokens/utopia.tokens.json',
+        profileVersion: '0.4.0',
+      );
+      expect(css, contains('  --utopia-color-shadow: rgb(122 32 72 / 0.5);'));
+    });
+
+    test('a document without color.shadow falls back to each layer own colour', () {
+      // Pre-0.4.0 documents carry no tint; the layer colours are all there is.
+      final document = documentWithTint(withTint: false);
+
+      final css = generateCss(document, inputPath: 'tokens/utopia.tokens.json', profileVersion: '0.3.0');
+      expect(
+        css,
+        contains('  --utopia-shadow-sm: 0 1px 2px 0 rgb(16 24 40 / 0.0588), 0 4px 10px -2px rgb(16 24 40 / 0.051);'),
+      );
+
+      final tailwind = generateTailwind(document, inputPath: 'tokens/utopia.tokens.json', profileVersion: '0.3.0');
+      expect(
+        tailwind,
+        contains('  --shadow-sm: 0 1px 2px 0 rgb(16 24 40 / 0.0588), 0 4px 10px -2px rgb(16 24 40 / 0.051);'),
+      );
+    });
+
+    test('an opaque layer prints the tint hex, not the layer own', () {
+      // The default presets are all translucent, so only the rgb() branch of
+      // serializeColor is exercised by the canonical document. A layer at
+      // alpha 1 takes the hex branch, where the composed value must still be
+      // the tint's `hex` - a layer keeping its own would leak the preset hue
+      // back into exactly the case that prints it most visibly.
+      final raw = loadCanonical();
+      (raw['color'] as Map<String, dynamic>)['shadow'] = <String, dynamic>{r'$type': 'color', r'$value': tintValue};
+      final firstLayer = ((raw['shadow'] as Map<String, dynamic>)['sm'] as Map<String, dynamic>)[r'$value'] as List;
+      ((firstLayer.first as Map<String, dynamic>)['color'] as Map<String, dynamic>)['alpha'] = 1;
+
+      final css = generateCss(
+        TokenDocument.parse(raw),
+        inputPath: 'tokens/utopia.tokens.json',
+        profileVersion: '0.4.0',
+      );
+      expect(css, contains('  --utopia-shadow-sm: 0 1px 2px 0 #7a2048, 0 4px 10px -2px rgb(122 32 72 / 0.051);'));
+    });
+
+    test('a present-but-unresolvable color.shadow is a hard error in both stylesheets', () {
+      // Absence means "pre-0.4.0 document" and is legal; a dangling one is a
+      // broken document. Silently falling back to the preset hue there would
+      // hide the break behind a stylesheet that still looks plausible.
+      final raw = loadCanonical();
+      (raw['color'] as Map<String, dynamic>)['shadow'] = <String, dynamic>{
+        r'$type': 'color',
+        r'$value': '{color.notAToken}',
+      };
+      final document = TokenDocument.parse(raw);
+      final matcher = throwsA(
+        isA<StateError>().having(
+          (e) => e.message,
+          'message',
+          allOf(contains('"color.shadow"'), contains('dangling alias'), contains('color.notAToken')),
+        ),
+      );
+
+      expect(
+        () => generateCss(document, inputPath: 'tokens/utopia.tokens.json', profileVersion: '0.4.0'),
+        matcher,
+      );
+      expect(
+        () => generateTailwind(document, inputPath: 'tokens/utopia.tokens.json', profileVersion: '0.4.0'),
         matcher,
       );
     });

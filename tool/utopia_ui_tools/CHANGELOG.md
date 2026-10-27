@@ -15,6 +15,10 @@ Initial release of the Utopia Design Protocol tooling for `utopia_ui` (protocol 
   `@theme` variant, `DESIGN.md` front matter, gallery composition via `--compose-gallery`,
   section skeletons via `--scaffold <id>`) and the twin linter: token literals, front-matter
   freshness, manifest coverage and state-class parity.
+- Twin elevation parity: `generate_twin` paints every `shadow.*` layer in `color.shadow`'s hue
+  at that layer's own alpha, exactly as the runtime does, in both `tokens.css` and the Tailwind
+  variant. A rebranded shadow hue now reaches the twin, not just the Flutter app. A document
+  without `color.shadow` (pre-0.4.0) keeps each layer's own colour.
 - `generate_manifest --project` drops a `design/.gitignore` entry for `merged.manifest.json`
   (created if absent, appended once otherwise, never rewriting a consumer's own entries): the
   merged manifest is a derived view whose library half is a byte copy of the pub-cache
